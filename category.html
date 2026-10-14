@@ -13,125 +13,52 @@
     <!-- مكتبة Supabase وسكريبت الاتصال السحابي -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabaseClient.js"></script>
-    <style>
-        /* تحسينات لضمان تطابق الهيدر وشريط الفئات مع الواجهة الرئيسية */
-        .cat-nav-bar {
-            background-color: #1e293b;
-            padding: 12px 0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
-        }
-        .cat-nav-list {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            flex-wrap: wrap;
-        }
-        .cat-nav-list li a {
-            color: #cbd5e1;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 0.95rem;
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            display: inline-block;
-        }
-        .cat-nav-list li a:hover,
-        .cat-nav-list li a.active {
-            color: #ffffff;
-            background-color: #2563eb;
-        }
-        .search-bar-fixed {
-            display: flex;
-            align-items: center;
-            flex: 1;
-            max-width: 480px;
-            margin: 0 20px;
-            background: #f8fafc;
-            border: 1.5px solid #cbd5e1;
-            border-radius: 10px;
-            overflow: hidden;
-            padding: 2px;
-        }
-        .search-bar-fixed input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 10px 14px;
-            font-family: inherit;
-            font-size: 0.95rem;
-            outline: none;
-        }
-        .search-bar-fixed button {
-            background: #2563eb;
-            color: #fff;
-            border: none;
-            padding: 9px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        .category-header-box {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            padding: 25px 30px;
-            border-radius: 14px;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            border: 1px solid #cbd5e1;
-        }
-        @media (max-width: 768px) {
-            .search-bar-fixed {
-                order: 3;
-                max-width: 100%;
-                width: 100%;
-                margin: 10px 0 0 0;
-            }
-        }
-    </style>
 </head>
 <body>
 
-    <!-- الهيدر الرئيسي -->
+    <!-- الهيدر وشريط التصفح (مطابق تماماً للرئيسية) -->
     <header class="main-header">
-        <div class="container header-container" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 15px 0;">
+        <div class="container header-container">
+            <!-- الشعار -->
             <a href="index.html" class="logo">Shop<span>Dz</span></a>
 
-            <!-- شريط البحث المنسق -->
-            <div class="search-bar-fixed">
+            <!-- شريط البحث -->
+            <div class="search-box">
                 <input type="text" id="searchInput" data-i18n="searchPlaceholder" placeholder="ابحث عن منتج داخل هذه الفئة...">
-                <button id="searchBtn" aria-label="بحث">🔍</button>
+                <button type="submit" id="searchBtn" data-i18n="searchBtn">بحث</button>
             </div>
 
-            <!-- إجراءات الهيدر (اللغة + السلة) -->
-            <div class="header-actions" style="display: flex; align-items: center; gap: 12px;">
+            <!-- أزرار التفاعل (اللغة + الحساب + السلة) -->
+            <div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
+                <!-- قائمة اختيار اللغة -->
                 <div class="language-switcher">
-                    <select id="languageSelector" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; font-family: inherit; font-size: 0.9rem; cursor: pointer; font-weight: 600;">
+                    <select id="languageSelector" style="padding: 6px 10px; border-radius: 6px; border: 1px solid var(--gray-border); background: #fff; font-family: inherit; font-size: 0.9rem; cursor: pointer;">
                         <option value="ar">العربية 🇩🇿</option>
                         <option value="en">English 🇬🇧</option>
                         <option value="fr">Français 🇫🇷</option>
                     </select>
                 </div>
 
-                <a href="cart.html" class="action-item cart-btn" style="text-decoration: none;">
-                    <span class="icon">🛒</span>
-                    <span class="action-text" data-i18n="cart">السلة</span>
-                    <span class="cart-badge" id="cartBadge">0</span>
+                <a href="login.html" class="action-btn" title="حسابي">
+                    <span class="icon">👤</span>
+                    <span class="text" data-i18n="login">دخول</span>
                 </a>
+                <a href="cart.html" class="action-btn cart-btn" title="سلة التسوق">
+                    <span class="icon">🛒</span>
+                    <span class="badge" id="cartBadge">0</span>
+                    <span class="text" data-i18n="cart">السلة</span>
+                </a>
+                <!-- زر القائمة للهواتف -->
+                <button class="mobile-toggle-btn" id="mobileMenuBtn" aria-label="فتح القائمة">
+                    ☰
+                </button>
             </div>
         </div>
 
-        <!-- شريط أقسام الفئات العلوي (يتحدث ديناميكياً من Supabase) -->
-        <nav class="cat-nav-bar" id="navBar">
+        <!-- شريط التنقل الرئيسي (يتحدث ديناميكياً من Supabase عبر main.js) -->
+        <nav class="nav-bar" id="navBar">
             <div class="container">
-                <ul class="cat-nav-list nav-list">
+                <ul class="nav-links">
                     <!-- الفئات تضاف هنا تلقائياً بواسطة main.js -->
                 </ul>
             </div>
@@ -143,12 +70,12 @@
         <div class="container">
             
             <!-- ترويسة الفئة وزر العودة -->
-            <div class="category-header-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; background: #f8fafc; padding: 20px 25px; border-radius: 12px; border: 1px solid var(--gray-border);">
                 <div>
-                    <span style="font-size: 0.85rem; color: #2563eb; font-weight: 700;">📂 قسم المنتجات</span>
-                    <h1 class="section-title" id="categoryPageTitle" style="margin: 5px 0 0 0; font-size: 1.8rem; color: #0f172a;">منتجات الفئة</h1>
+                    <span style="font-size: 0.85rem; color: #2563eb; font-weight: 700;">📂 قسم الفئات</span>
+                    <h1 class="section-title" id="categoryPageTitle" style="margin: 5px 0 0 0; font-size: 1.8rem; color: #1e293b;">منتجات الفئة</h1>
                 </div>
-                <a href="index.html" class="btn btn-outline-dark" style="padding: 10px 18px; border-radius: 8px; font-weight: 700; text-decoration: none; background: #fff;">← العودة إلى الصفحة الرئيسية</a>
+                <a href="index.html" class="btn btn-outline" style="padding: 10px 18px; border-radius: 8px; font-weight: 700; text-decoration: none;">← العودة إلى الصفحة الرئيسية</a>
             </div>
 
             <!-- شبكة عرض جميع منتجات هذه الفئة -->
@@ -158,14 +85,14 @@
         </div>
     </main>
 
-    <!-- الفوتر -->
-    <footer style="background: #0f172a; color: #94a3b8; text-align: center; padding: 25px 0; margin-top: 50px;">
+    <!-- الفوتر البسيط -->
+    <footer style="background: #1e293b; color: #94a3b8; text-align: center; padding: 25px 0; margin-top: 50px;">
         <div class="container">
-            <p style="margin: 0; font-size: 0.95rem;">جميع الحقوق محفوظة &copy; 2026 <strong>ShopDz</strong> - متجرك الإلكتروني الأول في الجزائر 🇩🇿</p>
+            <p style="margin: 0; font-size: 0.95rem;">جميع الحقوق محفوظة &copy; 2026 <strong>ShopDz</strong> - متجرك الإلكتروني في الجزائر 🇩🇿</p>
         </div>
     </footer>
 
-    <!-- استدعاء ملفات الجافاسكريبت -->
+    <!-- ملفات الجافاسكريبت للترجمة والمنطق -->
     <script src="translations.js"></script>
     <script src="language.js"></script>
     <script src="main.js"></script>

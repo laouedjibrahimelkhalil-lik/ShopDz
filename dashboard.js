@@ -2,7 +2,7 @@
 const dashLangTexts = {
     ar: {
         mustLogin: 'يجب تسجيل الدخول كمسؤول أولاً للوصول إلى لوحة التحكم!',
-        prodAdded: 'تمت إضافة المنتج بنجاح مع الصور والوصف إلى المتجر!',
+        prodAdded: 'تمت إضافة المنتج بنجاح مع الصور والوصف إلى المتجر السحابي!',
         noPermAddAdmin: 'عذراً، لا تمتلك الصلاحية لإضافة مسؤولين جدد!',
         emailExists: 'هذا البريد مستخدم مسبقاً!',
         adminAdded: 'تمت إضافة المسؤول الجديد بنجاح!',
@@ -25,7 +25,7 @@ const dashLangTexts = {
         newOrderWord: 'طلب جديد',
         alreadyConfirmed: 'هذا الطلب تم تأكيده مسبقاً!',
         confirmOrderPrompt: 'هل أنت متأكد من تأكيد الطلب؟ سيتم خصم الكميات المطلوبة من المخزون العام للمنتجات.',
-        orderConfirmedAlert: 'تم تأكيد الطلب بنجاح وخصم الكميات من المخزون! ✅',
+        orderConfirmedAlert: 'تم تأكيد الطلب بنجاح وخصم الكميات من المخزون السحابي! ✅',
         mainAdminRole: 'المدير الرئيسي',
         canAddRole: 'مسؤول (يستطيع الإضافة)',
         viewOnlyRole: 'مسؤول (عرض فقط)',
@@ -48,7 +48,7 @@ const dashLangTexts = {
     },
     en: {
         mustLogin: 'You must login as an admin first to access the Dashboard!',
-        prodAdded: 'Product added successfully with images and description!',
+        prodAdded: 'Product added successfully with images and description to Cloud!',
         noPermAddAdmin: 'Sorry, you do not have permission to add new admins!',
         emailExists: 'This email is already in use!',
         adminAdded: 'New admin added successfully!',
@@ -94,7 +94,7 @@ const dashLangTexts = {
     },
     fr: {
         mustLogin: 'Vous devez vous connecter en tant qu\'administrateur pour accéder au tableau de bord !',
-        prodAdded: 'Produit ajouté avec succès avec images et description !',
+        prodAdded: 'Produit ajouté avec succès dans le cloud !',
         noPermAddAdmin: 'Désolé, vous n\'avez pas la permission d\'ajouter des administrateurs !',
         emailExists: 'Cet e-mail est déjà utilisé !',
         adminAdded: 'Nouvel administrateur ajouté avec succès !',
@@ -145,7 +145,7 @@ function getDashLang() {
     return dashLangTexts[lang] || dashLangTexts['ar'];
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     const t = getDashLang();
     const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin'));
     if (!currentAdmin) {
@@ -154,15 +154,15 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    renderDashboardProducts();
-    renderDashboardOrders();
-    renderDashboardAdmins();
+    await renderDashboardProducts();
+    await renderDashboardOrders();
+    await renderDashboardAdmins();
     renderDashboardShipping();
 
-    // 2. معالجة إضافة منتج جديد
+    // 2. معالجة إضافة منتج جديد إلى Supabase
     const addProductForm = document.getElementById('addProductForm');
     if (addProductForm) {
-        addProductForm.addEventListener('submit', function (e) {
+        addProductForm.addEventListener('submit', async function (e) {
             e.preventDefault();
             const t = getDashLang();
 
@@ -177,43 +177,47 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const imagesList = imagesRaw.split('\n').map(function (url) { return url.trim(); }).filter(function (url) { return url.length > 0; });
 
-            let badgeClass = '';
-            if (badgeValue === 'خصم') badgeClass = 'badge-sale';
-            if (badgeValue === 'جديد') badgeClass = 'badge-new';
-
             const newProduct = {
                 id: 'prod_' + Date.now(),
                 title: title,
                 category: category,
                 badge: badgeValue || null,
-                badgeClass: badgeClass,
                 price: Number(price).toLocaleString(),
-                oldPrice: oldPrice ? Number(oldPrice).toLocaleString() : null,
+                old_price: oldPrice ? Number(oldPrice).toLocaleString() : null,
                 quantity: Number(quantity),
                 image: imagesList[0] || 'https://via.placeholder.com/300',
-                images: imagesList.length > 0 ? imagesList : ['https://via.placeholder.com/300'],
-                description: description,
-                rating: '5.0'
+                description: description
             };
 
-            saveProductToStorage(newProduct);
+            const { error } = await supabaseClient
+                .from('products')
+                .insert([newProduct]);
+
+            if (error) {
+                console.error('Error inserting product:', error);
+                alert('حدث خطأ أثناء حفظ المنتج في السحابة.');
+                return;
+            }
+
             addProductForm.reset();
-            renderDashboardProducts();
+            await renderDashboardProducts();
             alert(t.prodAdded);
         });
     }
 
-    // 3. معالجة إضافة مسؤول جديد
+    // 3. معالجة إضافة مسؤول جديد إلى Supabase
     const addAdminForm = document.getElementById('addAdminForm');
     if (addAdminForm) {
-        addAdminForm.addEventListener('submit', function (e) {
+        addAdminForm.addEventListener('submit', async function (e) {
             e.preventDefault();
             const t = getDashLang();
 
-            let admins = JSON.parse(localStorage.getItem('shopAdmins')) || [];
+            const { data: admins, error: fetchErr } = await supabaseClient.from('admins').select('*');
+            if (fetchErr) return;
+
             let freshCurrentAdmin = admins.find(function (a) { return a.email === currentAdmin.email; }) || currentAdmin;
 
-            if (!freshCurrentAdmin.isMain && !freshCurrentAdmin.canAddAdmins) {
+            if (!freshCurrentAdmin.is_main && !freshCurrentAdmin.can_add_admins) {
                 alert(t.noPermAddAdmin);
                 return;
             }
@@ -227,18 +231,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            admins.push({
+            const newAdminRecord = {
                 id: 'adm_' + Date.now(),
                 name: name,
                 email: email,
                 password: password,
-                isMain: false,
-                canAddAdmins: false
-            });
+                is_main: false,
+                can_add_admins: false
+            };
 
-            localStorage.setItem('shopAdmins', JSON.stringify(admins));
+            const { error: insertErr } = await supabaseClient.from('admins').insert([newAdminRecord]);
+            if (insertErr) {
+                alert('حدث خطأ أثناء إضافة المسؤول.');
+                return;
+            }
+
             addAdminForm.reset();
-            renderDashboardAdmins();
+            await renderDashboardAdmins();
             alert(t.adminAdded);
         });
     }
@@ -324,6 +333,7 @@ function switchDashTab(tabName) {
     if (tabName === 'products') {
         if (productsSection) productsSection.style.display = 'block';
         if (btnProd) btnProd.classList.add('active');
+        renderDashboardProducts();
     } else if (tabName === 'orders') {
         if (ordersSection) ordersSection.style.display = 'block';
         if (btnOrd) btnOrd.classList.add('active');
@@ -339,19 +349,20 @@ function switchDashTab(tabName) {
     }
 }
 
-function saveProductToStorage(product) {
-    let products = JSON.parse(localStorage.getItem('products')) || [];
-    products.unshift(product);
-    localStorage.setItem('products', JSON.stringify(products));
-}
-
-function renderDashboardProducts() {
+// عرض المنتجات في لوحة التحكم من Supabase
+async function renderDashboardProducts() {
     const tableBody = document.getElementById('dashProductsTable');
     const productsCount = document.getElementById('productsCount');
     if (!tableBody) return;
 
     const t = getDashLang();
-    let products = JSON.parse(localStorage.getItem('products')) || [];
+    const { data: products, error } = await supabaseClient.from('products').select('*');
+
+    if (error) {
+        console.error('Error fetching products:', error);
+        return;
+    }
+
     if (productsCount) productsCount.textContent = t.countPrefix + products.length;
 
     if (products.length === 0) {
@@ -361,7 +372,7 @@ function renderDashboardProducts() {
 
     tableBody.innerHTML = '';
     products.forEach(function (product) {
-        const mainImg = (product.images && product.images.length > 0) ? product.images[0] : product.image;
+        const mainImg = product.image || 'https://via.placeholder.com/45';
         tableBody.innerHTML += 
             '<tr>' +
                 '<td><img src="' + mainImg + '" alt="' + product.title + '" class="dash-table-img" onerror="this.src=\'https://via.placeholder.com/45\'"></td>' +
@@ -374,14 +385,18 @@ function renderDashboardProducts() {
     });
 }
 
-function renderDashboardOrders() {
+// عرض الطلبات في لوحة التحكم من Supabase
+async function renderDashboardOrders() {
     const tableBody = document.getElementById('dashOrdersTable');
     const ordersBadge = document.getElementById('ordersBadge');
     if (!tableBody) return;
 
     const t = getDashLang();
-    let orders = JSON.parse(localStorage.getItem('orders')) || [];
-    let products = JSON.parse(localStorage.getItem('products')) || [];
+    const { data: orders, error: ordErr } = await supabaseClient.from('orders').select('*');
+    const { data: products, error: prodErr } = await supabaseClient.from('products').select('*');
+
+    if (ordErr) return;
+
     if (ordersBadge) ordersBadge.textContent = orders.length;
 
     if (orders.length === 0) {
@@ -392,14 +407,16 @@ function renderDashboardOrders() {
     tableBody.innerHTML = '';
     orders.forEach(function (order) {
         let itemsDetailsHTML = '';
-        if (order.items && Array.isArray(order.items)) {
-            order.items.forEach(function (orderItem) {
-                let product = products.find(function (p) { return p.id === orderItem.id; });
+        const itemsList = order.items || [];
+        
+        if (itemsList.length > 0) {
+            itemsList.forEach(function (orderItem) {
+                let product = products ? products.find(function (p) { return p.id === orderItem.id; }) : null;
                 let productTitle = product ? product.title : t.deletedProd;
                 itemsDetailsHTML += '<div style="margin-bottom: 4px; font-size: 0.85rem;">• ' + productTitle + ' (' + t.qtyWord + '<strong style="color: #2563eb;">' + orderItem.qty + '</strong>)</div>';
             });
         } else {
-            itemsDetailsHTML = '<span style="color: #64748b;">' + t.itemsCountWord + (order.itemsCount || 1) + '</span>';
+            itemsDetailsHTML = '<span style="color: #64748b;">' + t.itemsCountWord + '1</span>';
         }
 
         const isConfirmed = order.status === 'مؤكد' || order.status === 'Confirmed' || order.status === 'Confirmée';
@@ -408,39 +425,41 @@ function renderDashboardOrders() {
         let actionButtons = '';
         
         if (!isConfirmed) {
-            actionButtons += '<button class="btn btn-sm" onclick="confirmOrder(\'' + order.orderId + '\')" style="background: #16a34a; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; margin: 0 4px; font-size: 0.8rem;">' + t.confirmBtn + '</button>';
+            actionButtons += '<button class="btn btn-sm" onclick="confirmOrder(\'' + order.order_id + '\')" style="background: #16a34a; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; margin: 0 4px; font-size: 0.8rem;">' + t.confirmBtn + '</button>';
         } else {
             actionButtons += '<span style="color: #16a34a; font-weight: bold; font-size: 0.85rem; margin: 0 4px;">' + t.confirmedText + '</span>';
         }
-        actionButtons += '<button class="btn-delete" onclick="deleteOrder(\'' + order.orderId + '\')">' + t.deleteBtn + '</button>';
+        actionButtons += '<button class="btn-delete" onclick="deleteOrder(\'' + order.order_id + '\')">' + t.deleteBtn + '</button>';
 
-        let orderDateTimeStr = order.fullDateTime || ((order.date || '') + (order.time ? ' - ' + order.time : ''));
-        let orderTitleDisplay = order.orderTitle || t.newOrderWord;
+        let orderDateTimeStr = order.full_date_time || '';
+        let orderTitleDisplay = order.order_title || t.newOrderWord;
+        let client = order.client_data || {};
 
         tableBody.innerHTML += 
             '<tr>' +
                 '<td>' +
-                    '<strong style="color: #1e293b;">' + order.orderId + '</strong><br>' +
+                    '<strong style="color: #1e293b;">' + order.order_id + '</strong><br>' +
                     '<span style="font-size: 0.85rem; color: #2563eb; font-weight: 600;">🏷️ ' + orderTitleDisplay + '</span><br>' +
                     '<small style="color: #64748b; font-size: 0.78rem;">🕒 ' + orderDateTimeStr + '</small>' +
                 '</td>' +
-                '<td>' + order.client.name + '</td>' +
-                '<td><a href="tel:' + order.client.phone + '">' + order.client.phone + '</a></td>' +
-                '<td>' + order.client.state + ' - ' + (order.client.baladiya || '') + ' (' + order.client.address + ')</td>' +
+                '<td>' + (client.name || '-') + '</td>' +
+                '<td><a href="tel:' + (client.phone || '') + '">' + (client.phone || '-') + '</a></td>' +
+                '<td>' + (client.state || '') + ' - ' + (client.baladiya || '') + ' (' + (client.address || '') + ')</td>' +
                 '<td>' + itemsDetailsHTML + '</td>' +
-                '<td><strong>' + order.totalAmount + t.currency + '</strong></td>' +
+                '<td><strong>' + order.total_amount + t.currency + '</strong></td>' +
                 '<td><span class="status-badge ' + statusBadgeClass + '">' + displayStatus + '</span></td>' +
                 '<td><div style="display: flex; align-items: center; gap: 4px;">' + actionButtons + '</div></td>' +
             '</tr>';
     });
 }
 
-function confirmOrder(orderId) {
+// تأكيد الطلب وخصم الكمية سحابياً من Supabase
+async function confirmOrder(orderId) {
     const t = getDashLang();
-    let orders = JSON.parse(localStorage.getItem('orders')) || [];
-    let products = JSON.parse(localStorage.getItem('products')) || [];
+    const { data: orders } = await supabaseClient.from('orders').select('*');
+    const { data: products } = await supabaseClient.from('products').select('*');
 
-    let order = orders.find(function (o) { return o.orderId === orderId; });
+    let order = orders.find(function (o) { return o.order_id === orderId; });
     if (!order) return;
 
     if (order.status === 'مؤكد') {
@@ -450,56 +469,64 @@ function confirmOrder(orderId) {
 
     if (confirm(t.confirmOrderPrompt)) {
         if (order.items && Array.isArray(order.items)) {
-            order.items.forEach(function (orderItem) {
+            for (let orderItem of order.items) {
                 let product = products.find(function (p) { return p.id === orderItem.id; });
                 if (product) {
                     let currentQuantity = parseInt(product.quantity) || 0;
-                    product.quantity = Math.max(0, currentQuantity - orderItem.qty);
+                    let newQty = Math.max(0, currentQuantity - orderItem.qty);
+                    
+                    // تحديث الكمية في جدول products سحابياً
+                    await supabaseClient
+                        .from('products')
+                        .update({ quantity: newQty })
+                        .eq('id', product.id);
                 }
-            });
-
-            localStorage.setItem('products', JSON.stringify(products));
+            }
         }
 
-        order.status = 'مؤكد';
-        localStorage.setItem('orders', JSON.stringify(orders));
+        // تحديث حالة الطلب إلى مؤكد في Supabase
+        await supabaseClient
+            .from('orders')
+            .update({ status: 'مؤكد' })
+            .eq('order_id', orderId);
 
         alert(t.orderConfirmedAlert);
-        renderDashboardOrders();
-        renderDashboardProducts();
+        await renderDashboardOrders();
+        await renderDashboardProducts();
     }
 }
 
-function clearAllOrders() {
+async function clearAllOrders() {
     const t = getDashLang();
     if (confirm(t.confirmClearAllOrders)) {
-        localStorage.removeItem('orders');
-        renderDashboardOrders();
+        await supabaseClient.from('orders').delete().neq('order_id', '');
+        await renderDashboardOrders();
     }
 }
 
-function renderDashboardAdmins() {
+// عرض المسؤولين من Supabase
+async function renderDashboardAdmins() {
     const tableBody = document.getElementById('dashAdminsTable');
     const addCardContainer = document.getElementById('addAdminCardContainer');
     if (!tableBody) return;
 
     const t = getDashLang();
-    let admins = JSON.parse(localStorage.getItem('shopAdmins')) || [];
+    const { data: admins } = await supabaseClient.from('admins').select('*');
     const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin')) || {};
     const freshCurrentAdmin = admins.find(function (a) { return a.email === currentAdmin.email; }) || currentAdmin;
-    const canAdd = freshCurrentAdmin.isMain || freshCurrentAdmin.canAddAdmins;
+    const canAdd = freshCurrentAdmin.is_main || freshCurrentAdmin.can_add_admins;
 
     if (addCardContainer) addCardContainer.style.display = canAdd ? 'block' : 'none';
 
     tableBody.innerHTML = '';
     admins.forEach(function (admin) {
-        let permissionsText = admin.isMain ? t.mainAdminRole : (admin.canAddAdmins ? t.canAddRole : t.viewOnlyRole);
+        let permissionsText = admin.is_main ? t.mainAdminRole : (admin.can_add_admins ? t.canAddRole : t.viewOnlyRole);
         let actionButtons = '';
         
-        if (freshCurrentAdmin.isMain) {
-            if (!admin.isMain) {
-                let toggleBtnText = admin.canAddAdmins ? t.revokePermBtn : t.grantPermBtn;
-                let toggleBtnClass = admin.canAddAdmins ? 'btn-cancel' : 'btn-primary';
+        if (freshCurrentAdmin.is_main) {
+            if (!admin.is_main) {
+                let toggleBtnText = admin.can_add_admins ? t.revokePermBtn : t.grantPermBtn;
+                let toggleBtnClass = admin.can_add_admins ? 'btn-cancel' : 'btn-primary';
                 actionButtons += '<button class="btn ' + toggleBtnClass + ' btn-sm" onclick="toggleAdminPermission(\'' + admin.id + '\')" style="margin: 0 5px; font-size: 0.75rem; padding: 4px 8px;">' + toggleBtnText + '</button>';
                 actionButtons += '<button class="btn-delete" onclick="deleteAdmin(\'' + admin.id + '\')">' + t.deleteBtn + '</button>';
             } else {
@@ -513,7 +540,7 @@ function renderDashboardAdmins() {
             '<tr>' +
                 '<td><strong>' + admin.name + '</strong></td>' +
                 '<td>' + admin.email + '</td>' +
-                '<td><span class="status-badge ' + (admin.isMain ? 'status-completed' : 'status-pending') + '">' + permissionsText + '</span></td>' +
+                '<td><span class="status-badge ' + (admin.is_main ? 'status-completed' : 'status-pending') + '">' + permissionsText + '</span></td>' +
                 '<td>' + actionButtons + '</td>' +
             '</tr>';
     });
@@ -630,48 +657,46 @@ function deleteWilayaShipping(code) {
     }
 }
 
-function toggleAdminPermission(adminId) {
-    let admins = JSON.parse(localStorage.getItem('shopAdmins')) || [];
+async function toggleAdminPermission(adminId) {
+    const { data: admins } = await supabaseClient.from('admins').select('*');
     let targetAdmin = admins.find(function (a) { return a.id === adminId; });
     if (targetAdmin) {
-        targetAdmin.canAddAdmins = !targetAdmin.canAddAdmins;
-        localStorage.setItem('shopAdmins', JSON.stringify(admins));
-        renderDashboardAdmins();
+        let newStatus = !targetAdmin.can_add_admins;
+        await supabaseClient
+            .from('admins')
+            .update({ can_add_admins: newStatus })
+            .eq('id', adminId);
+        await renderDashboardAdmins();
     }
 }
 
-function deleteProduct(productId) {
+async function deleteProduct(productId) {
     const t = getDashLang();
     if (confirm(t.confirmDeleteProd)) {
-        let products = JSON.parse(localStorage.getItem('products')) || [];
-        products = products.filter(function (item) { return item.id !== productId; });
-        localStorage.setItem('products', JSON.stringify(products));
-        renderDashboardProducts();
+        await supabaseClient.from('products').delete().eq('id', productId);
+        await renderDashboardProducts();
     }
 }
 
-function deleteOrder(orderId) {
+async function deleteOrder(orderId) {
     const t = getDashLang();
     if (confirm(t.confirmDeleteOrder)) {
-        let orders = JSON.parse(localStorage.getItem('orders')) || [];
-        orders = orders.filter(function (o) { return o.orderId !== orderId; });
-        localStorage.setItem('orders', JSON.stringify(orders));
-        renderDashboardOrders();
+        await supabaseClient.from('orders').delete().eq('order_id', orderId);
+        await renderDashboardOrders();
     }
 }
 
-function deleteAdmin(adminId) {
+async function deleteAdmin(adminId) {
     const t = getDashLang();
-    let admins = JSON.parse(localStorage.getItem('shopAdmins')) || [];
+    const { data: admins } = await supabaseClient.from('admins').select('*');
     let targetAdmin = admins.find(function (a) { return a.id === adminId; });
-    if (targetAdmin && targetAdmin.isMain) {
+    if (targetAdmin && targetAdmin.is_main) {
         alert(t.cannotDeleteMainAdmin);
         return;
     }
     if (confirm(t.confirmDeleteAdmin)) {
-        admins = admins.filter(function (a) { return a.id !== adminId; });
-        localStorage.setItem('shopAdmins', JSON.stringify(admins));
-        renderDashboardAdmins();
+        await supabaseClient.from('admins').delete().eq('id', adminId);
+        await renderDashboardAdmins();
     }
 }
 

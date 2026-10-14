@@ -119,13 +119,25 @@ function updateCartBadge() {
     cartBadge.textContent = totalCount;
 }
 
-// عرض المنتجات في الصفحة الرئيسية مع دعم اللغات الثلاث وإصلاح الأزرار
-function renderHomeProducts(filterText) {
+// عرض المنتجات في الصفحة الرئيسية سحابياً من Supabase
+async function renderHomeProducts(filterText) {
     const productsGrid = document.getElementById('productsGrid');
     if (!productsGrid) return;
 
     const t = getMainLang();
-    let products = JSON.parse(localStorage.getItem('products')) || [];
+
+    // جلب المنتجات من جدول products في Supabase
+    const { data: productsFromDb, error } = await supabaseClient
+        .from('products')
+        .select('*');
+
+    if (error) {
+        console.error('Error loading products from Supabase:', error);
+        productsGrid.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px;"><p>خطأ في الاتصال بقاعدة البيانات السحابية.</p></div>';
+        return;
+    }
+
+    let products = productsFromDb || [];
 
     if (filterText && filterText.trim() !== '') {
         const q = filterText.trim().toLowerCase();
@@ -144,18 +156,17 @@ function renderHomeProducts(filterText) {
     productsGrid.innerHTML = '';
 
     products.forEach(function (product) {
-        const mainImg = (product.images && product.images.length > 0) ? product.images[0] : (product.image || 'https://via.placeholder.com/300');
+        const mainImg = product.image || 'https://via.placeholder.com/300';
         const rawCat = product.category || 'عام';
         const translatedCat = t.categories[rawCat] || rawCat;
 
         let badgeHTML = '';
         if (product.badge) {
             const translatedBadge = t.badges[product.badge] || product.badge;
-            const badgeClass = product.badgeClass || 'badge-new';
-            badgeHTML = '<span class="badge ' + badgeClass + '">' + translatedBadge + '</span>';
+            badgeHTML = '<span class="badge badge-new">' + translatedBadge + '</span>';
         }
 
-        const oldPriceHTML = product.oldPrice ? '<span class="old-price" style="margin: 0 6px;">' + product.oldPrice + t.currency + '</span>' : '';
+        const oldPriceHTML = product.old_price ? '<span class="old-price" style="margin: 0 6px;">' + product.old_price + t.currency + '</span>' : '';
         const stockQty = product.quantity !== undefined ? parseInt(product.quantity) : 1;
 
         let addBtnHTML = '';
@@ -191,15 +202,24 @@ function renderHomeProducts(filterText) {
     });
 }
 
-// دالة إضافة منتج للسلة مع التحقق من المخزون المتبقي
-function addToCart(productId) {
+// دالة إضافة منتج للسلة مع التحقق من المخزون السحابي
+async function addToCart(productId) {
     const t = getMainLang();
-    const products = JSON.parse(localStorage.getItem('products')) || [];
-    const product = products.find(function (p) { return p.id === productId; });
 
-    if (!product) return;
+    // جلب المنتج المحدد من Supabase للتحقق من الكمية المتوفرة
+    const { data: products, error } = await supabaseClient
+        .from('products')
+        .select('*')
+        .eq('id', productId);
 
+    if (error || !products || products.length === 0) {
+        alert('عذراً، حدث خطأ أثناء جلب تفاصيل المنتج.');
+        return;
+    }
+
+    const product = products[0];
     const maxStock = product.quantity !== undefined ? parseInt(product.quantity) : 1;
+    
     if (maxStock <= 0) {
         alert(t.alertOutOfStock);
         return;

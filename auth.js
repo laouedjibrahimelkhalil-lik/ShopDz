@@ -4,30 +4,39 @@ document.addEventListener('DOMContentLoaded', function () {
     if (loginForm) {
         loginForm.addEventListener('submit', async function (e) {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
+            const emailInput = document.getElementById('loginEmail');
+            const passwordInput = document.getElementById('loginPassword');
 
-            // البحث عن المدير مباشرة في جدول admins في Supabase سحابياً
+            if (!emailInput || !passwordInput) return;
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            // جلب المسؤول من Supabase بناءً على البريد الإلكتروني فقط أولاً
             const { data: admins, error } = await supabaseClient
                 .from('admins')
                 .select('*')
-                .eq('email', email)
-                .eq('password', password);
+                .eq('email', email);
 
             if (error) {
-                console.error('Login error:', error);
+                console.error('Login database error:', error);
                 alert('حدث خطأ أثناء الاتصال بقاعدة البيانات.');
                 return;
             }
 
             if (admins && admins.length > 0) {
-                const validAdmin = admins[0];
-                // تخزين بيانات المدير الحالي في الجلسة المحلية للمتصفح
-                localStorage.setItem('currentAdmin', JSON.stringify(validAdmin));
-                alert('مرحباً بك مجدداً يا ' + (validAdmin.name || 'مسؤول'));
-                window.location.href = 'dashboard.html';
+                const matchedAdmin = admins[0];
+
+                // التحقق من مطابقة كلمة المرور (مع دعم مقارنة النصوص والأرقام)
+                if (String(matchedAdmin.password).trim() === String(password)) {
+                    localStorage.setItem('currentAdmin', JSON.stringify(matchedAdmin));
+                    alert('مرحباً بك مجدداً يا ' + (matchedAdmin.name || 'مسؤول'));
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert('كلمة المرور غير صحيحة!');
+                }
             } else {
-                alert('البريد الإلكتروني أو كلمة المرور غير صحيحة!');
+                alert('البريد الإلكتروني غير مسجل في النظام!');
             }
         });
     }

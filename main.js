@@ -104,10 +104,23 @@ function getMainLang() {
     return mainLangTexts[lang] || mainLangTexts['ar'];
 }
 
+// دالة مساعدة لتوحيد النص العربي (تتجاهل الفرق بين "إلكترونيات العامة" و "إلكترونيات عامة" والهمزات)
+function normalizeArabicCat(str) {
+    if (!str) return '';
+    return str.trim()
+        .replace(/[أإآ]/g, 'ا')
+        .replace(/ال/g, '')
+        .replace(/ة/g, 'ه')
+        .replace(/\s+/g, '');
+}
+
 function getTranslatedCategoryName(rawCatAr) {
     const lang = localStorage.getItem('shopLang') || 'ar';
     const t = getMainLang();
-    const found = dynamicCategoriesList.find(function (c) { return c.name_ar === rawCatAr; });
+    const normRaw = normalizeArabicCat(rawCatAr);
+    const found = dynamicCategoriesList.find(function (c) {
+        return c.name_ar === rawCatAr || normalizeArabicCat(c.name_ar) === normRaw;
+    });
     if (found) {
         if (lang === 'en' && found.name_en) return found.name_en;
         if (lang === 'fr' && found.name_fr) return found.name_fr;
@@ -134,7 +147,7 @@ async function loadAndRenderCategories() {
     }
 
     // 1. تحديث شريط التنقل العلوي (navBar) بروابط الفئات الديناميكية
-    const navList = document.querySelector('#navBar .nav-list') || document.querySelector('.nav-links');
+    const navList = document.querySelector('#navBar .nav-list') || document.querySelector('.nav-links') || document.querySelector('.cat-nav-list');
     const urlParams = new URLSearchParams(window.location.search);
     const activeCatParam = urlParams.get('cat');
 
@@ -144,7 +157,7 @@ async function loadAndRenderCategories() {
             let displayName = cat.name_ar;
             if (lang === 'en' && cat.name_en) displayName = cat.name_en;
             if (lang === 'fr' && cat.name_fr) displayName = cat.name_fr;
-            const isActive = (activeCatParam === cat.name_ar) ? 'active' : '';
+            const isActive = (activeCatParam && normalizeArabicCat(activeCatParam) === normalizeArabicCat(cat.name_ar)) ? 'active' : '';
             navHTML += '<li><a href="category.html?cat=' + encodeURIComponent(cat.name_ar) + '" class="' + isActive + '">' + displayName + '</a></li>';
         });
         navList.innerHTML = navHTML;
@@ -240,10 +253,11 @@ async function renderHomeProducts(filterText) {
 
     let products = productsFromDb || [];
 
-    // إذا كنا في صفحة فئة معينة (category.html?cat=...) نعرض جميع منتجات هذه الفئة
+    // إذا كنا في صفحة فئة معينة (category.html?cat=...) نعرض جميع منتجات هذه الفئة بمرونة
     if (activeCatParam) {
+        const targetNorm = normalizeArabicCat(activeCatParam);
         products = products.filter(function (p) {
-            return p.category === activeCatParam;
+            return p.category === activeCatParam || normalizeArabicCat(p.category) === targetNorm;
         });
     } else if (!filterText || filterText.trim() === '') {
         // إذا كنا في الصفحة الرئيسية ولا يوجد بحث، نعرض فقط المنتجات التي حددها الأدمن للظهور في الرئيسية

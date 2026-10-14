@@ -11,6 +11,7 @@ const dashLangTexts = {
         wilayaAdded: 'تمت إضافة الولاية الجديدة بنجاح!',
         countPrefix: 'العدد: ',
         noProds: 'لا توجد منتجات مضافة بعد.',
+        noCats: 'لا توجد فئات مضافة بعد.',
         noOrders: 'لا توجد طلبات أرسلت بعد.',
         currency: ' د.ج',
         deleteBtn: 'حذف 🗑️',
@@ -41,10 +42,16 @@ const dashLangTexts = {
         addWilayaTitle: 'إضافة ولاية جديدة',
         confirmDeleteWilaya: 'هل أنت متأكد من حذف هذه الولاية من نظام التوصيل؟',
         confirmDeleteProd: 'هل أنت متأكد من حذف هذا المنتج؟',
+        confirmDeleteCat: 'هل أنت متأكد من حذف هذه الفئة؟',
         confirmDeleteOrder: 'هل أنت متأكد من حذف هذا الطلب؟',
         confirmClearAllOrders: 'هل أنت متأكد من تفريغ وحذف جميع الطلبات بالكامل؟',
         cannotDeleteMainAdmin: 'لا يمكن حذف المدير الرئيسي!',
-        confirmDeleteAdmin: 'هل أنت متأكد من حذف هذا المسؤول؟'
+        confirmDeleteAdmin: 'هل أنت متأكد من حذف هذا المسؤول؟',
+        catAdded: 'تمت إضافة الفئة الجديدة بنجاح!',
+        catUpdated: 'تم تحديث الفئة وربط المنتجات بها بنجاح!',
+        selectCatOption: 'اختر القسم...',
+        shownOnHome: 'معروض بالرئيسية ✅',
+        hiddenFromHome: 'في الفئة فقط 🚫'
     },
     en: {
         mustLogin: 'You must login as an admin first to access the Dashboard!',
@@ -57,6 +64,7 @@ const dashLangTexts = {
         wilayaAdded: 'New Wilaya added successfully!',
         countPrefix: 'Count: ',
         noProds: 'No products added yet.',
+        noCats: 'No categories added yet.',
         noOrders: 'No orders received yet.',
         currency: ' DZD',
         deleteBtn: 'Delete 🗑️',
@@ -87,10 +95,16 @@ const dashLangTexts = {
         addWilayaTitle: 'Add New Wilaya',
         confirmDeleteWilaya: 'Are you sure you want to delete this Wilaya from shipping?',
         confirmDeleteProd: 'Are you sure you want to delete this product?',
+        confirmDeleteCat: 'Are you sure you want to delete this category?',
         confirmDeleteOrder: 'Are you sure you want to delete this order?',
         confirmClearAllOrders: 'Are you sure you want to clear all orders?',
         cannotDeleteMainAdmin: 'Cannot delete the Main Admin!',
-        confirmDeleteAdmin: 'Are you sure you want to delete this admin?'
+        confirmDeleteAdmin: 'Are you sure you want to delete this admin?',
+        catAdded: 'New category added successfully!',
+        catUpdated: 'Category updated successfully!',
+        selectCatOption: 'Select Category...',
+        shownOnHome: 'Shown on Home ✅',
+        hiddenFromHome: 'Category Only 🚫'
     },
     fr: {
         mustLogin: 'Vous devez vous connecter en tant qu\'administrateur pour accéder au tableau de bord !',
@@ -103,6 +117,7 @@ const dashLangTexts = {
         wilayaAdded: 'Nouvelle wilaya ajoutée avec succès !',
         countPrefix: 'Total : ',
         noProds: 'Aucun produit ajouté pour le moment.',
+        noCats: 'Aucune catégorie ajoutée pour le moment.',
         noOrders: 'Aucune commande reçue pour le moment.',
         currency: ' DA',
         deleteBtn: 'Supprimer 🗑️',
@@ -133,10 +148,16 @@ const dashLangTexts = {
         addWilayaTitle: 'Ajouter une nouvelle Wilaya',
         confirmDeleteWilaya: 'Êtes-vous sûr de vouloir supprimer cette wilaya ?',
         confirmDeleteProd: 'Supprimer ce produit ?',
+        confirmDeleteCat: 'Supprimer cette catégorie ?',
         confirmDeleteOrder: 'Supprimer cette commande ?',
         confirmClearAllOrders: 'Êtes-vous sûr de vouloir vider toutes les commandes ?',
         cannotDeleteMainAdmin: 'Impossible de supprimer l\'administrateur principal !',
-        confirmDeleteAdmin: 'Supprimer cet administrateur ?'
+        confirmDeleteAdmin: 'Supprimer cet administrateur ?',
+        catAdded: 'Nouvelle catégorie ajoutée avec succès !',
+        catUpdated: 'Catégorie mise à jour avec succès !',
+        selectCatOption: 'Choisir une catégorie...',
+        shownOnHome: 'Sur l\'accueil ✅',
+        hiddenFromHome: 'Catégorie seule 🚫'
     }
 };
 
@@ -154,12 +175,14 @@ document.addEventListener('DOMContentLoaded', async function () {
         return;
     }
 
+    await ensureDefaultCategories();
+    await renderDashboardCategories();
     await renderDashboardProducts();
     await renderDashboardOrders();
     await renderDashboardAdmins();
     renderDashboardShipping();
 
-    // 2. معالجة إضافة منتج جديد إلى Supabase
+    // 1. معالجة إضافة منتج جديد إلى Supabase
     const addProductForm = document.getElementById('addProductForm');
     if (addProductForm) {
         addProductForm.addEventListener('submit', async function (e) {
@@ -172,6 +195,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             const price = document.getElementById('productPrice').value;
             const oldPrice = document.getElementById('productOldPrice').value;
             const quantity = document.getElementById('productQuantity').value;
+            const showOnHomeCheckbox = document.getElementById('productShowOnHome');
+            const showOnHome = showOnHomeCheckbox ? showOnHomeCheckbox.checked : true;
             const imagesRaw = document.getElementById('productImage').value.trim();
             const description = document.getElementById('productDescription').value.trim();
 
@@ -186,7 +211,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 old_price: oldPrice ? Number(oldPrice).toLocaleString() : null,
                 quantity: Number(quantity),
                 image: imagesList[0] || 'https://via.placeholder.com/300',
-                description: description
+                description: description,
+                show_on_home: showOnHome
             };
 
             const { error } = await supabaseClient
@@ -195,13 +221,53 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             if (error) {
                 console.error('Error inserting product:', error);
-                alert('حدث خطأ أثناء حفظ المنتج في السحابة.');
+                alert('حدث خطأ أثناء حفظ المنتج في السحابة. تأكد من إضافة عمود show_on_home في جدول products.');
                 return;
             }
 
             addProductForm.reset();
+            if (showOnHomeCheckbox) showOnHomeCheckbox.checked = true;
             await renderDashboardProducts();
             alert(t.prodAdded);
+        });
+    }
+
+    // 2. معالجة إضافة فئة جديدة (Category) إلى Supabase
+    const addCategoryForm = document.getElementById('addCategoryForm');
+    if (addCategoryForm) {
+        addCategoryForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const t = getDashLang();
+
+            const nameAr = document.getElementById('catNameAr').value.trim();
+            const nameEnInput = document.getElementById('catNameEn');
+            const nameFrInput = document.getElementById('catNameFr');
+            const slug = document.getElementById('catSlug').value.trim().toLowerCase();
+
+            const nameEn = (nameEnInput && nameEnInput.value.trim()) ? nameEnInput.value.trim() : nameAr;
+            const nameFr = (nameFrInput && nameFrInput.value.trim()) ? nameFrInput.value.trim() : nameAr;
+
+            const newCat = {
+                id: 'cat_' + Date.now(),
+                name_ar: nameAr,
+                name_en: nameEn,
+                name_fr: nameFr,
+                slug: slug
+            };
+
+            const { error } = await supabaseClient
+                .from('categories')
+                .insert([newCat]);
+
+            if (error) {
+                console.error('Error inserting category:', error);
+                alert('حدث خطأ أثناء إضافة الفئة إلى قاعدة البيانات.');
+                return;
+            }
+
+            addCategoryForm.reset();
+            await renderDashboardCategories();
+            alert(t.catAdded);
         });
     }
 
@@ -309,23 +375,42 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 });
 
+// إنشاء الفئات الافتراضية تلقائياً إذا كان الجدول فارغاً
+async function ensureDefaultCategories() {
+    const { data: categories, error } = await supabaseClient.from('categories').select('*');
+    if (!error && categories && categories.length === 0) {
+        const defaults = [
+            { id: 'cat_1', name_ar: 'الهواتف الذكية', name_en: 'Smartphones', name_fr: 'Smartphones', slug: 'smartphones' },
+            { id: 'cat_2', name_ar: 'الحواسيب والملحقات', name_en: 'Laptops & Accessories', name_fr: 'Ordinateurs & Accessoires', slug: 'laptops' },
+            { id: 'cat_3', name_ar: 'إلكترونيات عامة', name_en: 'General Electronics', name_fr: 'Électronique générale', slug: 'electronics' },
+            { id: 'cat_4', name_ar: 'العروض الخاصة', name_en: 'Special Offers', name_fr: 'Offres spéciales', slug: 'offers' }
+        ];
+        await supabaseClient.from('categories').insert(defaults);
+    }
+}
+
+// التبديل بين تبويبات لوحة التحكم الخمسة
 function switchDashTab(tabName) {
     const productsSection = document.getElementById('productsTabSection');
+    const categoriesSection = document.getElementById('categoriesTabSection');
     const ordersSection = document.getElementById('ordersTabSection');
     const adminsSection = document.getElementById('adminsTabSection');
     const shippingSection = document.getElementById('shippingTabSection');
     
     const btnProd = document.getElementById('tabProductsBtn');
+    const btnCat = document.getElementById('tabCategoriesBtn');
     const btnOrd = document.getElementById('tabOrdersBtn');
     const btnAdm = document.getElementById('tabAdminsBtn');
     const btnShip = document.getElementById('tabShippingBtn');
 
     if (productsSection) productsSection.style.display = 'none';
+    if (categoriesSection) categoriesSection.style.display = 'none';
     if (ordersSection) ordersSection.style.display = 'none';
     if (adminsSection) adminsSection.style.display = 'none';
     if (shippingSection) shippingSection.style.display = 'none';
 
     if (btnProd) btnProd.classList.remove('active');
+    if (btnCat) btnCat.classList.remove('active');
     if (btnOrd) btnOrd.classList.remove('active');
     if (btnAdm) btnAdm.classList.remove('active');
     if (btnShip) btnShip.classList.remove('active');
@@ -334,6 +419,10 @@ function switchDashTab(tabName) {
         if (productsSection) productsSection.style.display = 'block';
         if (btnProd) btnProd.classList.add('active');
         renderDashboardProducts();
+    } else if (tabName === 'categories') {
+        if (categoriesSection) categoriesSection.style.display = 'block';
+        if (btnCat) btnCat.classList.add('active');
+        renderDashboardCategories();
     } else if (tabName === 'orders') {
         if (ordersSection) ordersSection.style.display = 'block';
         if (btnOrd) btnOrd.classList.add('active');
@@ -349,7 +438,111 @@ function switchDashTab(tabName) {
     }
 }
 
-// عرض المنتجات في لوحة التحكم من Supabase
+// عرض الفئات وتحديث القائمة المنسدلة في نموذج إضافة منتج
+async function renderDashboardCategories() {
+    const tableBody = document.getElementById('dashCategoriesTable');
+    const categoriesCount = document.getElementById('categoriesCount');
+    const productCatSelect = document.getElementById('productCategory');
+    const t = getDashLang();
+
+    const { data: categories, error } = await supabaseClient.from('categories').select('*');
+
+    if (error) {
+        console.error('Error fetching categories:', error);
+        return;
+    }
+
+    const catList = categories || [];
+
+    // تحديث القائمة المنسدلة في نموذج إضافة منتج لتقرأ الفئات من Supabase
+    if (productCatSelect && catList.length > 0) {
+        const currentLang = localStorage.getItem('shopLang') || 'ar';
+        productCatSelect.innerHTML = '<option value="">' + t.selectCatOption + '</option>';
+        catList.forEach(function (cat) {
+            let displayName = cat.name_ar;
+            if (currentLang === 'en' && cat.name_en) displayName = cat.name_en;
+            if (currentLang === 'fr' && cat.name_fr) displayName = cat.name_fr;
+            productCatSelect.innerHTML += '<option value="' + cat.name_ar + '">' + displayName + '</option>';
+        });
+    }
+
+    if (!tableBody) return;
+    if (categoriesCount) categoriesCount.textContent = t.countPrefix + catList.length;
+
+    if (catList.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 30px;">' + t.noCats + '</td></tr>';
+        return;
+    }
+
+    tableBody.innerHTML = '';
+    catList.forEach(function (cat) {
+        tableBody.innerHTML += 
+            '<tr>' +
+                '<td><strong>' + cat.name_ar + '</strong></td>' +
+                '<td><small style="color: #64748b;">' + (cat.name_en || '-') + ' / ' + (cat.name_fr || '-') + '</small></td>' +
+                '<td><code>' + (cat.slug || '-') + '</code></td>' +
+                '<td>' +
+                    '<button class="btn btn-primary btn-sm" onclick="editCategory(\'' + cat.id + '\')" style="padding:4px 8px; font-size:0.75rem; margin: 0 4px;">' + t.editBtn + '</button>' +
+                    '<button class="btn-delete" onclick="deleteCategory(\'' + cat.id + '\')">' + t.deleteBtn + '</button>' +
+                '</td>' +
+            '</tr>';
+    });
+}
+
+// تعديل اسم الفئة وتحديث المنتجات المرتبطة بها تلقائياً
+async function editCategory(catId) {
+    const t = getDashLang();
+    const { data: categories } = await supabaseClient.from('categories').select('*').eq('id', catId);
+    if (!categories || categories.length === 0) return;
+
+    const cat = categories[0];
+    const oldNameAr = cat.name_ar;
+
+    const newNameAr = prompt('تعديل اسم الفئة (بالعربية):', cat.name_ar);
+    if (!newNameAr || newNameAr.trim() === '') return;
+
+    const newNameEn = prompt('تعديل اسم الفئة (بالإنجليزية):', cat.name_en || newNameAr);
+    const newNameFr = prompt('تعديل اسم الفئة (بالفرنسية):', cat.name_fr || newNameAr);
+    const newSlug = prompt('تعديل معرف الرابط (Slug):', cat.slug || '');
+
+    const trimmedNewNameAr = newNameAr.trim();
+
+    const { error } = await supabaseClient
+        .from('categories')
+        .update({
+            name_ar: trimmedNewNameAr,
+            name_en: newNameEn ? newNameEn.trim() : trimmedNewNameAr,
+            name_fr: newNameFr ? newNameFr.trim() : trimmedNewNameAr,
+            slug: newSlug ? newSlug.trim().toLowerCase() : cat.slug
+        })
+        .eq('id', catId);
+
+    if (error) {
+        alert('حدث خطأ أثناء تحديث الفئة.');
+        return;
+    }
+
+    if (trimmedNewNameAr !== oldNameAr) {
+        await supabaseClient
+            .from('products')
+            .update({ category: trimmedNewNameAr })
+            .eq('category', oldNameAr);
+    }
+
+    await renderDashboardCategories();
+    await renderDashboardProducts();
+    alert(t.catUpdated);
+}
+
+async function deleteCategory(catId) {
+    const t = getDashLang();
+    if (confirm(t.confirmDeleteCat)) {
+        await supabaseClient.from('categories').delete().eq('id', catId);
+        await renderDashboardCategories();
+    }
+}
+
+// عرض المنتجات في لوحة التحكم مع زر التحكم في الظهور بالرئيسية
 async function renderDashboardProducts() {
     const tableBody = document.getElementById('dashProductsTable');
     const productsCount = document.getElementById('productsCount');
@@ -366,13 +559,19 @@ async function renderDashboardProducts() {
     if (productsCount) productsCount.textContent = t.countPrefix + products.length;
 
     if (products.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">' + t.noProds + '</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">' + t.noProds + '</td></tr>';
         return;
     }
 
     tableBody.innerHTML = '';
     products.forEach(function (product) {
         const mainImg = product.image || 'https://via.placeholder.com/45';
+        const isShownOnHome = product.show_on_home !== false; // افتراضياً true
+        const homeBtnText = isShownOnHome ? t.shownOnHome : t.hiddenFromHome;
+        const homeBtnStyle = isShownOnHome 
+            ? 'background: #dcfce7; color: #166534; border: 1px solid #86efac;' 
+            : 'background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;';
+
         tableBody.innerHTML += 
             '<tr>' +
                 '<td><img src="' + mainImg + '" alt="' + product.title + '" class="dash-table-img" onerror="this.src=\'https://via.placeholder.com/45\'"></td>' +
@@ -380,9 +579,29 @@ async function renderDashboardProducts() {
                 '<td>' + product.category + '</td>' +
                 '<td>' + product.price + t.currency + '</td>' +
                 '<td><span class="badge badge-new">' + (product.quantity !== undefined ? product.quantity : 1) + '</span></td>' +
+                '<td>' +
+                    '<button onclick="toggleProductHome(\'' + product.id + '\', ' + isShownOnHome + ')" style="padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: bold; cursor: pointer; ' + homeBtnStyle + '">' +
+                        homeBtnText +
+                    '</button>' +
+                '</td>' +
                 '<td><button class="btn-delete" onclick="deleteProduct(\'' + product.id + '\')">' + t.deleteBtn + '</button></td>' +
             '</tr>';
     });
+}
+
+// تبديل حالة ظهور المنتج في الواجهة الرئيسية بضغطة زر
+async function toggleProductHome(productId, currentState) {
+    const newState = !currentState;
+    const { error } = await supabaseClient
+        .from('products')
+        .update({ show_on_home: newState })
+        .eq('id', productId);
+
+    if (error) {
+        alert('حدث خطأ أثناء تحديث حالة ظهور المنتج. تأكد من إضافة عمود show_on_home في جدول products.');
+        return;
+    }
+    await renderDashboardProducts();
 }
 
 // عرض الطلبات في لوحة التحكم من Supabase
@@ -453,7 +672,6 @@ async function renderDashboardOrders() {
     });
 }
 
-// تأكيد الطلب وخصم الكمية سحابياً من Supabase
 async function confirmOrder(orderId) {
     const t = getDashLang();
     const { data: orders } = await supabaseClient.from('orders').select('*');
@@ -475,7 +693,6 @@ async function confirmOrder(orderId) {
                     let currentQuantity = parseInt(product.quantity) || 0;
                     let newQty = Math.max(0, currentQuantity - orderItem.qty);
                     
-                    // تحديث الكمية في جدول products سحابياً
                     await supabaseClient
                         .from('products')
                         .update({ quantity: newQty })
@@ -484,7 +701,6 @@ async function confirmOrder(orderId) {
             }
         }
 
-        // تحديث حالة الطلب إلى مؤكد في Supabase
         await supabaseClient
             .from('orders')
             .update({ status: 'مؤكد' })
@@ -504,7 +720,6 @@ async function clearAllOrders() {
     }
 }
 
-// عرض المسؤولين من Supabase
 async function renderDashboardAdmins() {
     const tableBody = document.getElementById('dashAdminsTable');
     const addCardContainer = document.getElementById('addAdminCardContainer');
@@ -513,12 +728,14 @@ async function renderDashboardAdmins() {
     const t = getDashLang();
     const { data: admins } = await supabaseClient.from('admins').select('*');
     const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin')) || {};
-    const freshCurrentAdmin = admins.find(function (a) { return a.email === currentAdmin.email; }) || currentAdmin;
+    const freshCurrentAdmin = admins ? (admins.find(function (a) { return a.email === currentAdmin.email; }) || currentAdmin) : currentAdmin;
     const canAdd = freshCurrentAdmin.is_main || freshCurrentAdmin.can_add_admins;
 
     if (addCardContainer) addCardContainer.style.display = canAdd ? 'block' : 'none';
 
     tableBody.innerHTML = '';
+    if (!admins) return;
+
     admins.forEach(function (admin) {
         let permissionsText = admin.is_main ? t.mainAdminRole : (admin.can_add_admins ? t.canAddRole : t.viewOnlyRole);
         let actionButtons = '';

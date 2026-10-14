@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopDz - تصفح الفئة</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- مكتبة Supabase وسكريبت الاتصال السحابي -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
+</head>
+<body>
+
+    <!-- الهيدر الرئيسي -->
+    <header class="main-header">
+        <div class="container header-container">
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="القائمة">☰</button>
+            <a href="index.html" class="logo">Shop<span>Dz</span></a>
+
+            <div class="search-bar">
+                <input type="text" id="searchInput" data-i18n="searchPlaceholder" placeholder="ابحث عن منتج داخل هذه الفئة...">
+                <button id="searchBtn" aria-label="بحث">🔍</button>
+            </div>
+
+            <div class="header-actions" style="display: flex; align-items: center; gap: 12px;">
+                <div class="language-switcher">
+                    <select id="languageSelector" style="padding: 6px 10px; border-radius: 6px; border: 1px solid var(--gray-border); background: #fff; font-family: inherit; font-size: 0.9rem; cursor: pointer;">
+                        <option value="ar">العربية 🇩🇿</option>
+                        <option value="en">English 🇬🇧</option>
+                        <option value="fr">Français 🇫🇷</option>
+                    </select>
+                </div>
+
+                <a href="cart.html" class="action-item cart-btn">
+                    <span class="icon">🛒</span>
+                    <span class="action-text" data-i18n="cart">السلة</span>
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- شريط أقسام الفئات العلوي (يتحدث ديناميكياً من Supabase) -->
+        <nav class="nav-bar" id="navBar">
+            <div class="container">
+                <ul class="nav-list">
+                    <!-- الفئات تضاف هنا تلقائياً بواسطة main.js -->
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- محتوى صفحة الفئة -->
+    <main class="section">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px;">
+                <h1 class="section-title" id="categoryPageTitle" style="margin: 0;">منتجات الفئة</h1>
+                <a href="index.html" class="btn btn-outline-dark btn-sm">← العودة إلى الصفحة الرئيسية</a>
+            </div>
+
+            <!-- شبكة عرض جميع منتجات هذه الفئة -->
+            <div class="products-grid" id="productsGrid">
+                <!-- المنتجات تظهر هنا تلقائياً -->
+            </div>
+        </div>
+    </main>
+
+    <script src="translations.js"></script>
+    <script src="language.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

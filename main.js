@@ -1,23 +1,30 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     initMobileMenu();
     updateCartBadge();
-    renderHomeProducts();
+    await loadAndRenderCategories();
+    await renderHomeProducts();
     initSearchFilter();
 });
 
-// قاموس الترجمة الخاص بملف main.js (البطاقات، الأقسام، التنبيهات)
+let dynamicCategoriesList = [];
+
+// قاموس الترجمة الخاص بملف main.js
 const mainLangTexts = {
     ar: {
         currency: ' د.ج',
         addToCart: 'إضافة للسلة 🛒',
         viewProduct: 'رؤية المنتوج 👁️',
         outOfStock: 'نفذ المخزون',
-        emptyProducts: 'لا توجد منتجات معروضة حالياً. يمكنك إضافة المنتجات من لوحة التحكم (Dashboard).',
+        emptyProducts: 'لا توجد منتجات محددة للعرض في الرئيسية حالياً. يمكنك تصفح الفئات أعلاه أو تحديد منتجات من لوحة التحكم.',
+        emptyCategoryProducts: 'لا توجد منتجات مضافة في هذه الفئة حالياً.',
         noSearchMatch: 'لا توجد منتجات مطابقة لبحثك.',
         alertOutOfStock: 'عذراً، هذا المنتج غير متوفر في المخزون حالياً!',
         alertMaxStock: 'عذراً، لا يمكنك إضافة المزيد. الكمية المتوفرة في المخزون هي ',
         alertMaxStockSuffix: ' قطعة فقط!',
         alertAdded: 'تمت إضافة المنتج إلى سلة التسوق بنجاح! 🛒',
+        browseCategoriesTitle: '📂 تصفح حسب الفئات',
+        allHomeLink: 'الرئيسية',
+        viewAllInCat: 'عرض كل المنتجات ←',
         categories: {
             'الهواتف الذكية': 'الهواتف الذكية',
             'الحواسيب والملحقات': 'الحواسيب والملحقات',
@@ -37,12 +44,16 @@ const mainLangTexts = {
         addToCart: 'Add to Cart 🛒',
         viewProduct: 'View Product 👁️',
         outOfStock: 'Out of Stock',
-        emptyProducts: 'No products available at the moment. You can add products from the Dashboard.',
+        emptyProducts: 'No featured products selected for the home page yet.',
+        emptyCategoryProducts: 'No products available in this category at the moment.',
         noSearchMatch: 'No products match your search.',
         alertOutOfStock: 'Sorry, this product is currently out of stock!',
         alertMaxStock: 'Sorry, you cannot add more. Only ',
         alertMaxStockSuffix: ' piece(s) available in stock!',
         alertAdded: 'Product added to cart successfully! 🛒',
+        browseCategoriesTitle: '📂 Browse by Category',
+        allHomeLink: 'Home',
+        viewAllInCat: 'View Products →',
         categories: {
             'الهواتف الذكية': 'Smartphones',
             'الحواسيب والملحقات': 'Laptops & Accessories',
@@ -62,12 +73,16 @@ const mainLangTexts = {
         addToCart: 'Ajouter 🛒',
         viewProduct: 'Voir produit 👁️',
         outOfStock: 'Rupture de stock',
-        emptyProducts: 'Aucun produit affiché pour le moment. Ajoutez des produits depuis le tableau de bord.',
+        emptyProducts: 'Aucun produit sélectionné pour la page d\'accueil.',
+        emptyCategoryProducts: 'Aucun produit dans cette catégorie pour le moment.',
         noSearchMatch: 'Aucun produit ne correspond à votre recherche.',
         alertOutOfStock: 'Désolé, ce produit est actuellement en rupture de stock !',
         alertMaxStock: 'Désolé, vous ne pouvez pas ajouter plus. Seulement ',
         alertMaxStockSuffix: ' pièce(s) disponible(s) en stock !',
         alertAdded: 'Produit ajouté au panier avec succès ! 🛒',
+        browseCategoriesTitle: '📂 Parcourir par catégorie',
+        allHomeLink: 'Accueil',
+        viewAllInCat: 'Voir les produits →',
         categories: {
             'الهواتف الذكية': 'Smartphones',
             'الحواسيب والملحقات': 'Ordinateurs & Accessoires',
@@ -87,6 +102,85 @@ const mainLangTexts = {
 function getMainLang() {
     const lang = localStorage.getItem('shopLang') || 'ar';
     return mainLangTexts[lang] || mainLangTexts['ar'];
+}
+
+function getTranslatedCategoryName(rawCatAr) {
+    const lang = localStorage.getItem('shopLang') || 'ar';
+    const t = getMainLang();
+    const found = dynamicCategoriesList.find(function (c) { return c.name_ar === rawCatAr; });
+    if (found) {
+        if (lang === 'en' && found.name_en) return found.name_en;
+        if (lang === 'fr' && found.name_fr) return found.name_fr;
+        return found.name_ar;
+    }
+    return t.categories[rawCatAr] || rawCatAr;
+}
+
+// جلب الفئات من Supabase وعرضها في شريط التنقل وفي أعلى الصفحة الرئيسية
+async function loadAndRenderCategories() {
+    const t = getMainLang();
+    const lang = localStorage.getItem('shopLang') || 'ar';
+
+    const { data: cats, error } = await supabaseClient.from('categories').select('*');
+    if (!error && cats && cats.length > 0) {
+        dynamicCategoriesList = cats;
+    } else {
+        dynamicCategoriesList = [
+            { name_ar: 'الهواتف الذكية', name_en: 'Smartphones', name_fr: 'Smartphones', slug: 'smartphones' },
+            { name_ar: 'الحواسيب والملحقات', name_en: 'Laptops & Accessories', name_fr: 'Ordinateurs & Accessoires', slug: 'laptops' },
+            { name_ar: 'إلكترونيات عامة', name_en: 'General Electronics', name_fr: 'Électronique générale', slug: 'electronics' },
+            { name_ar: 'العروض الخاصة', name_en: 'Special Offers', name_fr: 'Offres spéciales', slug: 'offers' }
+        ];
+    }
+
+    // 1. تحديث شريط التنقل العلوي (navBar) بروابط الفئات الديناميكية
+    const navList = document.querySelector('#navBar .nav-list') || document.querySelector('.nav-links');
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeCatParam = urlParams.get('cat');
+
+    if (navList) {
+        let navHTML = '<li><a href="index.html" class="' + (!activeCatParam ? 'active' : '') + '">' + t.allHomeLink + '</a></li>';
+        dynamicCategoriesList.forEach(function (cat) {
+            let displayName = cat.name_ar;
+            if (lang === 'en' && cat.name_en) displayName = cat.name_en;
+            if (lang === 'fr' && cat.name_fr) displayName = cat.name_fr;
+            const isActive = (activeCatParam === cat.name_ar) ? 'active' : '';
+            navHTML += '<li><a href="category.html?cat=' + encodeURIComponent(cat.name_ar) + '" class="' + isActive + '">' + displayName + '</a></li>';
+        });
+        navList.innerHTML = navHTML;
+    }
+
+    // 2. إظهار بطاقات الفئات في أعلى الصفحة الرئيسية (فقط إذا كنا في index.html وليس في صفحة فئة فرعية)
+    const isCategoryPage = window.location.pathname.indexOf('category.html') !== -1 || activeCatParam;
+    const productsGrid = document.getElementById('productsGrid');
+    if (!productsGrid || isCategoryPage) return;
+
+    let homeCatSection = document.getElementById('homeCategoriesWrapper');
+    if (!homeCatSection) {
+        homeCatSection = document.createElement('div');
+        homeCatSection.id = 'homeCategoriesWrapper';
+        homeCatSection.style.marginBottom = '40px';
+        const parentSection = productsGrid.parentElement;
+        parentSection.insertBefore(homeCatSection, productsGrid.previousElementSibling || productsGrid);
+    }
+
+    let cardsHTML = '<h2 class="section-title" style="margin-bottom: 18px; font-size: 1.4rem;">' + t.browseCategoriesTitle + '</h2>';
+    cardsHTML += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">';
+
+    dynamicCategoriesList.forEach(function (cat) {
+        let displayName = cat.name_ar;
+        if (lang === 'en' && cat.name_en) displayName = cat.name_en;
+        if (lang === 'fr' && cat.name_fr) displayName = cat.name_fr;
+
+        cardsHTML += 
+            '<a href="category.html?cat=' + encodeURIComponent(cat.name_ar) + '" style="display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px 15px; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; text-decoration: none; color: #1e293b; box-shadow: 0 2px 6px rgba(0,0,0,0.04); transition: 0.2s;">' +
+                '<strong style="font-size: 1.1rem; margin-bottom: 6px; color: #0f172a;">' + displayName + '</strong>' +
+                '<span style="font-size: 0.82rem; color: #2563eb; font-weight: 600;">' + t.viewAllInCat + '</span>' +
+            '</a>';
+    });
+
+    cardsHTML += '</div><hr style="margin: 35px 0 10px; border: 0; border-top: 1px solid #e2e8f0;">';
+    homeCatSection.innerHTML = cardsHTML;
 }
 
 // توحيد وقراءة السلة بصيغة الكائنات {id, qty}
@@ -119,14 +213,21 @@ function updateCartBadge() {
     cartBadge.textContent = totalCount;
 }
 
-// عرض المنتجات في الصفحة الرئيسية سحابياً من Supabase
+// عرض المنتجات (يعرض فقط المحددة للرئيسية في index.html، أو يعرض كل منتجات الفئة في category.html)
 async function renderHomeProducts(filterText) {
     const productsGrid = document.getElementById('productsGrid');
     if (!productsGrid) return;
 
     const t = getMainLang();
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeCatParam = urlParams.get('cat');
 
-    // جلب المنتجات من جدول products في Supabase
+    // تحديث عنوان القسم إذا كنا داخل صفحة فئة معينة
+    const categoryHeading = document.getElementById('categoryPageTitle');
+    if (categoryHeading && activeCatParam) {
+        categoryHeading.textContent = getTranslatedCategoryName(activeCatParam);
+    }
+
     const { data: productsFromDb, error } = await supabaseClient
         .from('products')
         .select('*');
@@ -139,6 +240,19 @@ async function renderHomeProducts(filterText) {
 
     let products = productsFromDb || [];
 
+    // إذا كنا في صفحة فئة معينة (category.html?cat=...) نعرض جميع منتجات هذه الفئة
+    if (activeCatParam) {
+        products = products.filter(function (p) {
+            return p.category === activeCatParam;
+        });
+    } else if (!filterText || filterText.trim() === '') {
+        // إذا كنا في الصفحة الرئيسية ولا يوجد بحث، نعرض فقط المنتجات التي حددها الأدمن للظهور في الرئيسية
+        products = products.filter(function (p) {
+            return p.show_on_home !== false;
+        });
+    }
+
+    // تصفية البحث إن وجد
     if (filterText && filterText.trim() !== '') {
         const q = filterText.trim().toLowerCase();
         products = products.filter(function (p) {
@@ -148,7 +262,10 @@ async function renderHomeProducts(filterText) {
     }
 
     if (products.length === 0) {
-        const emptyMsg = filterText ? t.noSearchMatch : t.emptyProducts;
+        let emptyMsg = t.emptyProducts;
+        if (filterText) emptyMsg = t.noSearchMatch;
+        else if (activeCatParam) emptyMsg = t.emptyCategoryProducts;
+
         productsGrid.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px;"><p>' + emptyMsg + '</p></div>';
         return;
     }
@@ -158,7 +275,7 @@ async function renderHomeProducts(filterText) {
     products.forEach(function (product) {
         const mainImg = product.image || 'https://via.placeholder.com/300';
         const rawCat = product.category || 'عام';
-        const translatedCat = t.categories[rawCat] || rawCat;
+        const translatedCat = getTranslatedCategoryName(rawCat);
 
         let badgeHTML = '';
         if (product.badge) {
@@ -206,7 +323,6 @@ async function renderHomeProducts(filterText) {
 async function addToCart(productId) {
     const t = getMainLang();
 
-    // جلب المنتج المحدد من Supabase للتحقق من الكمية المتوفرة
     const { data: products, error } = await supabaseClient
         .from('products')
         .select('*')

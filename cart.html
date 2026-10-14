@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="cartPageTitle">ShopDz - سلة التسوق</title>
+    <!-- خط Tajawal من Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- ملف التنسيقات -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 1. الهيدر وشريط التصفح (Header) -->
+    <header class="main-header">
+        <div class="container header-container">
+            <a href="index.html" class="logo">Shop<span>Dz</span></a>
+
+            <div class="search-box">
+                <input type="text" id="searchInput" data-i18n="searchPlaceholder" placeholder="ابحث عن منتج، ماركة، أو فئة...">
+                <button type="submit" id="searchBtn" data-i18n="searchBtn">بحث</button>
+            </div>
+
+            <div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
+                <!-- قائمة اختيار اللغة -->
+                <div class="language-switcher">
+                    <select id="languageSelector" style="padding: 6px 10px; border-radius: 6px; border: 1px solid var(--gray-border); background: #fff; font-family: inherit; font-size: 0.9rem; cursor: pointer;">
+                        <option value="ar">العربية 🇩🇿</option>
+                        <option value="en">English 🇬🇧</option>
+                        <option value="fr">Français 🇫🇷</option>
+                    </select>
+                </div>
+
+                <a href="login.html" class="action-btn" title="حسابي">
+                    <span class="icon">👤</span>
+                    <span class="text" data-i18n="login">دخول</span>
+                </a>
+                <a href="cart.html" class="action-btn cart-btn" title="سلة التسوق">
+                    <span class="icon">🛒</span>
+                    <span class="badge" id="cartBadge">0</span>
+                    <span class="text" data-i18n="cart">السلة</span>
+                </a>
+                <button class="mobile-toggle-btn" id="mobileMenuBtn" aria-label="فتح القائمة">
+                    ☰
+                </button>
+            </div>
+        </div>
+
+        <nav class="nav-bar" id="navBar">
+            <div class="container">
+                <ul class="nav-links">
+                    <li><a href="index.html" data-i18n="home">الرئيسية</a></li>
+                    <li><a href="index.html#products" data-i18n="allProducts">جميع المنتجات</a></li>
+                    <li><a href="#" data-i18n="smartphones">الهواتف الذكية</a></li>
+                    <li><a href="#" data-i18n="laptops">الحواسيب والملحقات</a></li>
+                    <li><a href="#" data-i18n="offers">العروض الخاصة</a></li>
+                    <li><a href="#" data-i18n="contact">اتصل بنا</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 2. مسار التنقل (Breadcrumb) -->
+    <div class="breadcrumb-wrapper">
+        <div class="container">
+            <ul class="breadcrumb">
+                <li><a href="index.html" data-i18n="home">الرئيسية</a></li>
+                <li class="active" data-i18n="cartTitle">سلة التسوق</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 3. محتوى سلة التسوق (Cart Section) -->
+    <section class="section cart-section">
+        <div class="container">
+            <h1 class="page-title" data-i18n="cartTitle">سلة التسوق</h1>
+
+            <div class="cart-layout" id="cartLayout">
+                
+                <!-- جدول عناصر السلة -->
+                <div class="cart-items-container">
+                    <div class="table-responsive">
+                        <table class="cart-table">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="thProduct">المنتج</th>
+                                    <th data-i18n="thPrice">السعر</th>
+                                    <th data-i18n="thQuantity">الكمية</th>
+                                    <th data-i18n="thTotal">المجموع</th>
+                                    <th data-i18n="thDelete">حذف</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cartTableBody">
+                                <!-- سيتم ملء المنتجات ديناميكياً بواسطة JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="cart-actions-bar">
+                        <a href="index.html" class="btn btn-outline-dark" data-i18n="continueShopping">← مواصلة التسوق</a>
+                        <button class="btn btn-cancel" id="clearCartBtn" data-i18n="clearCartBtnText">تفريغ السلة 🗑️</button>
+                    </div>
+                </div>
+
+                <!-- ملخص الطلب -->
+                <div class="cart-summary-card">
+                    <h2 class="summary-title" data-i18n="orderSummaryTitle">ملخص الطلب</h2>
+
+                    <div class="summary-row">
+                        <span data-i18n="cartSubtotal">المجموع الفرعي:</span>
+                        <span id="subtotalPrice">0 د.ج</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span data-i18n="shippingLabel">التوصيل:</span>
+                        <span id="shippingPrice" data-i18n="shippingByWilaya">حسب الولاية</span>
+                    </div>
+
+                    <div class="coupon-box">
+                        <input type="text" id="couponCode" data-i18n="couponPlaceholder" placeholder="كود الخصم (إن وجد)">
+                        <button type="button" class="btn btn-outline-dark btn-sm" id="applyCouponBtn" data-i18n="applyCouponBtnText">تطبيق</button>
+                    </div>
+
+                    <hr class="summary-divider">
+
+                    <div class="summary-row summary-total">
+                        <span data-i18n="grandTotalLabel">المجموع الإجمالي:</span>
+                        <strong id="totalPrice">0 د.ج</strong>
+                    </div>
+
+                    <a href="checkout.html" class="btn btn-primary btn-checkout" data-i18n="checkoutBtn">إتمام الطلب ⚡</a>
+
+                    <div class="trust-features">
+                        <p data-i18n="trustSafe">🔒 إتمام الطلب آمن 100%</p>
+                        <p data-i18n="trustCod">🚚 الدفع عند الاستلام متوفر</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- واجهة السلة الفارغة (تظهر فقط عند عدم وجود عناصر) -->
+            <div class="empty-cart-state" id="emptyCartState" style="display: none;">
+                <div class="empty-cart-icon">🛒</div>
+                <h2 data-i18n="emptyCartTitle">سلة التسوق فارغة حالياً</h2>
+                <p data-i18n="emptyCartDesc">يبدو أنك لم تقم بإضافة أي منتج إلى السلة بعد.</p>
+                <a href="index.html" class="btn btn-primary" data-i18n="browseProducts">تصفح المنتجات الآن</a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 4. تذييل الصفحة (Footer) المبسط -->
+    <footer class="main-footer">
+        <div class="container text-center" style="padding: 25px 0;">
+            <a href="index.html" class="logo footer-logo">Shop<span>Dz</span></a>
+            <p data-i18n="footerDesc" style="margin-top: 10px; color: #64748b; font-size: 0.9rem;">
+                وجهتك الأولى لتسوق أحدث الأجهزة الإلكترونية والهواتف الذكية بأفضل الأسعار في الجزائر.
+            </p>
+            <div data-i18n="footerRights" style="margin-top: 15px; border-top: 1px solid var(--gray-border); padding-top: 15px; color: var(--text-muted); font-size: 0.85rem;">
+                جميع الحقوق محفوظة &copy; 2026 - ShopDz
+            </div>
+        </div>
+    </footer>
+
+    <!-- استدعاء ملفات الترجمة والمنطق -->
+    <script src="translations.js"></script>
+    <script src="language.js"></script>
+    <script src="main.js"></script>
+    <script src="cart.js"></script>
+</body>
+</html>

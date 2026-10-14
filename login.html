@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="adminLoginTitle">ShopDz - تسجيل دخول المسؤولين</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- قائمة اختيار اللغة في أعلى البطاقة -->
+            <div class="language-switcher" style="margin-bottom: 15px; text-align: left;">
+                <select id="languageSelector" style="padding: 6px 10px; border-radius: 6px; border: 1px solid var(--gray-border); background: #fff; font-family: inherit; font-size: 0.9rem; cursor: pointer;">
+                    <option value="ar">العربية 🇩🇿</option>
+                    <option value="en">English 🇬🇧</option>
+                    <option value="fr">Français 🇫🇷</option>
+                </select>
+            </div>
+
+            <a href="index.html" class="logo auth-logo">Shop<span>Dz</span></a>
+            <h1 class="auth-title" data-i18n="adminLoginTitle">تسجيل دخول المسؤولين</h1>
+            <p class="auth-subtitle" data-i18n="adminLoginSubtitle">منطقة مخصصة لإدارة المتجر والطلبات</p>
+
+            <form id="loginForm" class="dash-form">
+                <div class="form-group">
+                    <label for="loginEmail" data-i18n="emailLabel">البريد الإلكتروني *</label>
+                    <input type="email" id="loginEmail" placeholder="admin@shopdz.com" required style="direction: ltr; text-align: left;">
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword" data-i18n="passwordLabel">كلمة المرور *</label>
+                    <input type="password" id="loginPassword" placeholder="********" required style="direction: ltr; text-align: left;">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" data-i18n="loginSubmitBtn">دخول لوحة التحكم</button>
+            </form>
+
+            <div class="auth-footer-links">
+                <p><a href="index.html" data-i18n="backToStore">← العودة إلى واجهة المتجر</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- استدعاء ملفات الترجمة واللغة والمنطق -->
+    <!-- ملاحظة: إذا كانت ملفات الجافاسكريبت في نفس المجلد وليس داخل مجلد js/، احذف كلمة js/ من المسار -->
+    <script src="translations.js"></script>
+    <script src="language.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>

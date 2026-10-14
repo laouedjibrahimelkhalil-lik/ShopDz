@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopDz - الرئيسية</title>
+    <!-- خط Tajawal من Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- ملف التنسيقات -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- الهيدر وشريط التصفح (Header) -->
+    <header class="main-header">
+        <div class="container header-container">
+            <!-- الشعار -->
+            <a href="index.html" class="logo">Shop<span>Dz</span></a>
+
+            <!-- شريط البحث -->
+            <div class="search-box">
+                <input type="text" id="searchInput" data-i18n="searchPlaceholder" placeholder="ابحث عن منتج، ماركة، أو فئة...">
+                <button type="submit" id="searchBtn" data-i18n="searchBtn">بحث</button>
+            </div>
+
+            <!-- أزرار التفاعل (اللغة + الحساب + السلة) -->
+            <div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
+                <!-- قائمة اختيار اللغة -->
+                <div class="language-switcher">
+                    <select id="languageSelector" style="padding: 6px 10px; border-radius: 6px; border: 1px solid var(--gray-border); background: #fff; font-family: inherit; font-size: 0.9rem; cursor: pointer;">
+                        <option value="ar">العربية 🇩🇿</option>
+                        <option value="en">English 🇬🇧</option>
+                        <option value="fr">Français 🇫🇷</option>
+                    </select>
+                </div>
+
+                <a href="login.html" class="action-btn" title="حسابي">
+                    <span class="icon">👤</span>
+                    <span class="text" data-i18n="login">دخول</span>
+                </a>
+                <a href="cart.html" class="action-btn cart-btn" title="سلة التسوق">
+                    <span class="icon">🛒</span>
+                    <span class="badge" id="cartBadge">0</span>
+                    <span class="text" data-i18n="cart">السلة</span>
+                </a>
+                <!-- زر القائمة للهواتف -->
+                <button class="mobile-toggle-btn" id="mobileMenuBtn" aria-label="فتح القائمة">
+                    ☰
+                </button>
+            </div>
+        </div>
+
+        <!-- شريط التنقل الرئيسي -->
+        <nav class="nav-bar" id="navBar">
+            <div class="container">
+                <ul class="nav-links">
+                    <li><a href="index.html" class="active" data-i18n="home">الرئيسية</a></li>
+                    <li><a href="#" data-i18n="allProducts">جميع المنتجات</a></li>
+                    <li><a href="#" data-i18n="smartphones">الهواتف الذكية</a></li>
+                    <li><a href="#" data-i18n="laptops">الحواسيب والملحقات</a></li>
+                    <li><a href="#" data-i18n="offers">العروض الخاصة</a></li>
+                    <li><a href="#" data-i18n="contact">اتصل بنا</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 2. قسم البانر الرئيسي (Hero Section) -->
+    <section class="hero-section">
+        <div class="container hero-container">
+            <div class="hero-content">
+                <span class="tag" data-i18n="heroTag">مرحباً بك في ShopDz</span>
+                <h1 data-i18n="heroTitle">أحدث التقنيات بأفضل الأسعار</h1>
+                <p data-i18n="heroDesc">اكتشف تشكيلتنا المميزة مع ضمان وتوصيل سريع لجميع الولايات.</p>
+                <div class="hero-btns">
+                    <a href="#products" class="btn btn-primary" data-i18n="shopNow">تسوق الآن</a>
+                    <a href="#" class="btn btn-outline" data-i18n="exploreOffers">استكشف العروض</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop" alt="أحدث الأجهزة الذكية">
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. مميزات المتجر (Features Bar) -->
+    <section class="features-section">
+        <div class="container features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🚚</div>
+                <div class="feature-text">
+                    <h3 data-i18n="feat1Title">شحن سريع</h3>
+                    <p data-i18n="feat1Desc">توصيل لجميع المناطق خلال 24-48 ساعة</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <div class="feature-text">
+                    <h3 data-i18n="feat2Title">ضمان الجودة</h3>
+                    <p data-i18n="feat2Desc">منتجات أصلية 100% مع ضمان رسمي</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💳</div>
+                <div class="feature-text">
+                    <h3 data-i18n="feat3Title">دفع آمن</h3>
+                    <p data-i18n="feat3Desc">الدفع عند الاستلام أو عبر البطاقة</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎧</div>
+                <div class="feature-text">
+                    <h3 data-i18n="feat4Title">دعم متواصل</h3>
+                    <p data-i18n="feat4Desc">خدمة عملاء جاهزة للرد طوال اليوم</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. قسم المنتجات -->
+    <section class="section products-section" id="products">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" data-i18n="latestProducts">أحدث المنتجات</h2>
+                <a href="#" class="view-all-link" data-i18n="viewAll">عرض الكل &larr;</a>
+            </div>
+
+            <!-- حاوية المنتجات -->
+            <div class="products-grid" id="productsGrid">
+                <div class="empty-state">
+                    <p data-i18n="emptyProducts">لا توجد منتجات معروضة حالياً. يمكنك إضافة المنتجات من لوحة التحكم (Dashboard).</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ملفات الجافاسكريبت للترجمة والمنطق -->
+    <script src="translations.js"></script>
+    <script src="language.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

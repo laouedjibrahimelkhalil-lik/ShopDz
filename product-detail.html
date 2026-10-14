@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="productDetailPageTitle">ShopDz - تفاصيل المنتج</title>
+    <!-- خط Tajawal من Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- ملف التنسيقات -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 1. الهيدر وشريط التصفح (Header) -->
+    <header class="main-header">
+        <div class="container header-container">
+            <a href="index.html" class="logo">Shop<span>Dz</span></a>
+
+            <div class="search-box">
+                <input type="text" id="searchInput" data-i18n="searchPlaceholder" placeholder="ابحث عن منتج، ماركة، أو فئة...">
+                <button type="submit" id="searchBtn" data-i18n="searchBtn">بحث</button>
+            </div>
+
+            <div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
+                <!-- قائمة اختيار اللغة -->
+                <div class="language-switcher">
+                    <select id="languageSelector" style="padding: 6px 10px; border-radius: 6px; border: 1px solid var(--gray-border); background: #fff; font-family: inherit; font-size: 0.9rem; cursor: pointer;">
+                        <option value="ar">العربية 🇩🇿</option>
+                        <option value="en">English 🇬🇧</option>
+                        <option value="fr">Français 🇫🇷</option>
+                    </select>
+                </div>
+
+                <a href="login.html" class="action-btn" title="حسابي">
+                    <span class="icon">👤</span>
+                    <span class="text" data-i18n="login">دخول</span>
+                </a>
+                <a href="cart.html" class="action-btn cart-btn" title="سلة التسوق">
+                    <span class="icon">🛒</span>
+                    <span class="badge" id="cartBadge">0</span>
+                    <span class="text" data-i18n="cart">السلة</span>
+                </a>
+                <button class="mobile-toggle-btn" id="mobileMenuBtn" aria-label="فتح القائمة">
+                    ☰
+                </button>
+            </div>
+        </div>
+
+        <nav class="nav-bar" id="navBar">
+            <div class="container">
+                <ul class="nav-links">
+                    <li><a href="index.html" data-i18n="home">الرئيسية</a></li>
+                    <li><a href="index.html#products" data-i18n="allProducts">جميع المنتجات</a></li>
+                    <li><a href="#" data-i18n="smartphones">الهواتف الذكية</a></li>
+                    <li><a href="#" data-i18n="laptops">الحواسيب والملحقات</a></li>
+                    <li><a href="#" data-i18n="offers">العروض الخاصة</a></li>
+                    <li><a href="#" data-i18n="contact">اتصل بنا</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 2. مسار التنقل (Breadcrumb) -->
+    <div class="breadcrumb-wrapper">
+        <div class="container">
+            <ul class="breadcrumb">
+                <li><a href="index.html" data-i18n="home">الرئيسية</a></li>
+                <li><span id="breadcrumbCategory" data-i18n="productsWord">المنتجات</span></li>
+                <li class="active" id="breadcrumbTitle" data-i18n="productDetailsWord">تفاصيل المنتج</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 3. قسم تفاصيل المنتج (Product Detail Section) -->
+    <section class="section product-detail-section">
+        <div class="container">
+            <div class="product-detail-grid" id="productDetailContainer">
+                
+                <!-- معرض الصورة والصور المصغرة -->
+                <div class="product-gallery">
+                    <div class="main-image-box">
+                        <span class="badge badge-sale" id="detailBadge" style="display: none;"></span>
+                        <img id="detailImage" src="https://via.placeholder.com/500" alt="صورة المنتج">
+                    </div>
+                    <!-- حاوية الصور المتعددة المصغرة -->
+                    <div class="thumbnails-grid" id="detailThumbnails" style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;"></div>
+                </div>
+
+                <!-- معلومات المنتج -->
+                <div class="product-info-detail">
+                    <span class="product-category" id="detailCategory">الفئة</span>
+                    <h1 class="product-detail-title" id="detailTitle">اسم المنتج</h1>
+                    
+                    <div class="product-rating">
+                        ★★★★★ <span id="detailRating">(5.0)</span>
+                        <span class="stock-status in-stock" id="detailStock">متوفر بالمخزون</span>
+                    </div>
+
+                    <div class="product-price detail-price">
+                        <span class="current-price" id="detailPrice">0 د.ج</span>
+                        <span class="old-price" id="detailOldPrice" style="display: none;"></span>
+                    </div>
+
+                    <p class="product-description" id="detailDescription"></p>
+
+                    <div class="product-actions-box">
+                        <div class="quantity-selector">
+                            <label data-i18n="quantityLabel">الكمية:</label>
+                            <div class="quantity-controls">
+                                <button type="button" id="btnDecrease">-</button>
+                                <input type="number" id="inputQuantity" value="1" min="1" max="99">
+                                <button type="button" id="btnIncrease">+</button>
+                            </div>
+                        </div>
+
+                        <div class="detail-btns">
+                            <button type="button" class="btn btn-primary btn-add-cart" id="addToCartBtn" data-i18n="addToCartBtnText">إضافة إلى السلة 🛒</button>
+                            <a href="cart.html" class="btn btn-secondary-action" id="buyNowBtn" data-i18n="buyNowBtnText">شراء الآن ⚡</a>
+                        </div>
+                    </div>
+
+                    <div class="product-meta-extra">
+                        <p data-i18n="deliveryMeta">🚚 التوصيل: متوفر لجميع 58 ولاية (24-48 ساعة)</p>
+                        <p data-i18n="warrantyMeta">🛡️ الضمان: ضمان لمدة 12 شهر مع إمكانية الإرجاع</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. تذييل الصفحة (Footer) المبسط -->
+    <footer class="main-footer">
+        <div class="container text-center" style="padding: 25px 0;">
+            <a href="index.html" class="logo footer-logo">Shop<span>Dz</span></a>
+            <p data-i18n="footerDesc" style="margin-top: 10px; color: #64748b; font-size: 0.9rem;">
+                وجهتك الأولى لتسوق أحدث الأجهزة الإلكترونية والهواتف الذكية بأفضل الأسعار في الجزائر.
+            </p>
+            <div data-i18n="footerRights" style="margin-top: 15px; border-top: 1px solid var(--gray-border); padding-top: 15px; color: var(--text-muted); font-size: 0.85rem;">
+                جميع الحقوق محفوظة &copy; 2026 - ShopDz
+            </div>
+        </div>
+    </footer>
+
+    <!-- استدعاء ملفات الجافاسكريبت -->
+    <script src="translations.js"></script>
+    <script src="language.js"></script>
+    <script src="main.js"></script>
+    <script src="product-detail.js"></script>
+</body>
+</html>

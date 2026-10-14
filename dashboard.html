@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="dashPageTitle">ShopDz - لوحة التحكم</title>
+    <!-- خط Tajawal من Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- ملف التنسيقات -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- الهيدر الخاص بلوحة التحكم -->
+    <header class="main-header dashboard-header">
+        <div class="container header-container">
+            <a href="index.html" class="logo">Shop<span>Dz</span> <small class="dash-badge" data-i18n="dashBadge">لوحة التحكم</small></a>
+            
+            <div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
+                <!-- قائمة اختيار اللغة -->
+                <div class="language-switcher">
+                    <select id="languageSelector" style="padding: 6px 10px; border-radius: 6px; border: 1px solid var(--gray-border); background: #fff; font-family: inherit; font-size: 0.9rem; cursor: pointer;">
+                        <option value="ar">العربية 🇩🇿</option>
+                        <option value="en">English 🇬🇧</option>
+                        <option value="fr">Français 🇫🇷</option>
+                    </select>
+                </div>
+
+                <a href="index.html" class="btn btn-outline-dark btn-sm" data-i18n="viewStoreBtn">عرض المتجر ↗</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-main section">
+        <div class="container">
+            
+            <!-- أزرار التنقل بين تبويبات لوحة التحكم -->
+            <div class="dash-tabs" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px;">
+                <button class="dash-tab-btn active" id="tabProductsBtn" onclick="switchDashTab('products')" data-i18n="tabProducts">📦 إدارة المنتجات</button>
+                <button class="dash-tab-btn" id="tabOrdersBtn" onclick="switchDashTab('orders')">
+                    <span data-i18n="tabOrders">📋 طلبات الزبائن</span> 
+                    <span class="badge badge-sale" id="ordersBadge">0</span>
+                </button>
+                <button class="dash-tab-btn" id="tabAdminsBtn" onclick="switchDashTab('admins')" data-i18n="tabAdmins">👥 إدارة المسؤولين</button>
+                <button class="dash-tab-btn" id="tabShippingBtn" onclick="switchDashTab('shipping')" data-i18n="tabShipping">🚚 إدارة أسعار التوصيل</button>
+                <button class="dash-tab-btn" onclick="logoutAdmin()" style="background-color: #ef4444; color: white;" data-i18n="logoutBtn">🚪 تسجيل الخروج</button>
+            </div>
+
+            <!-- 1. قسم المنتجات -->
+            <div id="productsTabSection">
+                <div class="dashboard-grid">
+                    <!-- نموذج إضافة منتج جديد -->
+                    <div class="dash-card">
+                        <h2 class="dash-card-title" data-i18n="addProductTitle">إضافة منتج جديد</h2>
+                        <form id="addProductForm" class="dash-form">
+                            
+                            <div class="form-group">
+                                <label for="productTitle" data-i18n="prodNameLabel">اسم المنتج *</label>
+                                <input type="text" id="productTitle" data-i18n="prodNamePlaceholder" placeholder="مثال: هاتف سامسونج S23" required>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="productCategory" data-i18n="prodCatLabel">القسم *</label>
+                                    <select id="productCategory" required>
+                                        <option value="" data-i18n="selectCatOption">اختر القسم...</option>
+                                        <option value="الهواتف الذكية" data-i18n="smartphones">الهواتف الذكية</option>
+                                        <option value="الحواسيب والملحقات" data-i18n="laptops">الحواسيب والملحقات</option>
+                                        <option value="إلكترونيات العامة" data-i18n="generalElectronics">إلكترونيات عامة</option>
+                                        <option value="العروض الخاصة" data-i18n="offers">عروض خاصة</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="productBadge" data-i18n="prodBadgeLabel">شارة التمييز (اختياري)</label>
+                                    <select id="productBadge">
+                                        <option value="" data-i18n="noBadgeOption">بدون شارة</option>
+                                        <option value="خصم" data-i18n="saleBadgeOption">خصم (Sale)</option>
+                                        <option value="جديد" data-i18n="newBadgeOption">جديد (New)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="productPrice" data-i18n="prodPriceLabel">السعر الحالي (د.ج) *</label>
+                                    <input type="number" id="productPrice" placeholder="45000" min="0" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="productOldPrice" data-i18n="prodOldPriceLabel">السعر القديم (اختياري)</label>
+                                    <input type="number" id="productOldPrice" placeholder="52000" min="0">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="productQuantity" data-i18n="prodQtyLabel">الكمية المتوفرة (المخزون) *</label>
+                                <input type="number" id="productQuantity" placeholder="10" min="1" value="1" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="productImage" data-i18n="prodImagesLabel">روابط صور المنتج (رابط في كل سطر) *</label>
+                                <textarea id="productImage" rows="3" placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg" required style="direction: ltr; text-align: left;"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="productDescription" data-i18n="prodDescLabel">وصف المنتج التفصيلي *</label>
+                                <textarea id="productDescription" rows="4" data-i18n="prodDescPlaceholder" placeholder="اكتب المواصفات والمميزات التفصيلية للمنتج هنا..." required></textarea>
+                            </div>
+
+                            <div class="form-actions-btns">
+                                <button type="submit" class="btn btn-primary" data-i18n="submitAddProdBtn">إضافة المنتج</button>
+                                <button type="reset" class="btn btn-cancel" data-i18n="cancelBtn">إلغاء الإدخال</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- قائمة المنتجات الحالية -->
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h2 class="dash-card-title" data-i18n="displayedProdsTitle">المنتجات المعروضة</h2>
+                            <span class="products-count" id="productsCount">0</span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="thImage">الصورة</th>
+                                        <th data-i18n="thProdName">اسم المنتج</th>
+                                        <th data-i18n="thCategory">القسم</th>
+                                        <th data-i18n="thPrice">السعر</th>
+                                        <th data-i18n="thQuantity">الكمية</th>
+                                        <th data-i18n="thActions">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashProductsTable">
+                                    <!-- المنتجات ديناميكياً -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. قسم إدارة الطلبات الواردة -->
+            <div id="ordersTabSection" style="display: none;">
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h2 class="dash-card-title" data-i18n="incomingOrdersTitle">قائمة الطلبات الواردة</h2>
+                        <button class="btn btn-cancel btn-sm" onclick="clearAllOrders()" data-i18n="clearOrdersBtn">تفريغ كشف الطلبات 🗑️</button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="thOrderInfo">معلومات الطلبية والوقت</th>
+                                    <th data-i18n="thClientName">اسم الزبون</th>
+                                    <th data-i18n="thPhone">الهاتف</th>
+                                    <th data-i18n="thAddress">الولاية والعنوان</th>
+                                    <th data-i18n="thOrderedItems">المنتجات والكمية</th>
+                                    <th data-i18n="thTotalAmount">المبلغ الإجمالي</th>
+                                    <th data-i18n="thStatus">الحالة</th>
+                                    <th data-i18n="thActions">إجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashOrdersTable">
+                                <!-- الطلبات ديناميكياً -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. قسم إدارة المسؤولين -->
+            <div id="adminsTabSection" style="display: none;">
+                <div class="dashboard-grid">
+                    
+                    <!-- نموذج إضافة مسؤول (يظهر فقط لمن يملك الإذن) -->
+                    <div class="dash-card" id="addAdminCardContainer">
+                        <h2 class="dash-card-title" data-i18n="adminRegTitle">إضافة مسؤول جديد</h2>
+                        <form id="addAdminForm" class="dash-form">
+                            <div class="form-group">
+                                <label for="newAdminName" data-i18n="adminNameLabel">اسم المسؤول *</label>
+                                <input type="text" id="newAdminName" data-i18n="adminNamePlaceholder" placeholder="الاسم الكامل" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="newAdminEmail" data-i18n="emailLabel">البريد الإلكتروني *</label>
+                                <input type="email" id="newAdminEmail" placeholder="admin2@shopdz.com" required style="direction: ltr; text-align: left;">
+                            </div>
+                            <div class="form-group">
+                                <label for="newAdminPassword" data-i18n="passwordLabel">كلمة المرور *</label>
+                                <input type="password" id="newAdminPassword" placeholder="********" required style="direction: ltr; text-align: left;">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block" data-i18n="addAdminBtn">إضافة المسؤول</button>
+                        </form>
+                    </div>
+
+                    <!-- قائمة المسؤولين الحاليين -->
+                    <div class="dash-card">
+                        <h2 class="dash-card-title" data-i18n="currentAdminsTitle">قائمة المسؤولين الحاليين</h2>
+                        <div class="table-responsive">
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="thName">الاسم</th>
+                                        <th data-i18n="emailLabel">البريد الإلكتروني</th>
+                                        <th data-i18n="thPermissions">الصلاحيات</th>
+                                        <th data-i18n="thActions">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashAdminsTable">
+                                    <!-- المسؤولين ديناميكياً -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. قسم إدارة أسعار التوصيل -->
+            <div id="shippingTabSection" style="display: none;">
+                <div class="dashboard-grid">
+                    <!-- نموذج إضافة/تعديل ولاية -->
+                    <div class="dash-card">
+                        <h2 class="dash-card-title" id="wilayaFormTitle" data-i18n="addWilayaTitle">إضافة ولاية جديدة</h2>
+                        <form id="addWilayaForm" class="dash-form">
+                            <input type="hidden" id="isEditingWilaya" value="false">
+                            <div class="form-group">
+                                <label for="wilayaCode" data-i18n="wilayaCodeLabel">رقم الولاية (الكود) *</label>
+                                <input type="text" id="wilayaCode" placeholder="16" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="wilayaName" data-i18n="wilayaNameLabel">اسم الولاية *</label>
+                                <input type="text" id="wilayaName" placeholder="16. الجزائر" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="deskPrice" data-i18n="deskPriceLabel">السعر الافتراضي للمكتب (د.ج) *</label>
+                                    <input type="number" id="deskPrice" placeholder="400" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="homePrice" data-i18n="homePriceLabel">السعر الافتراضي للمنزل (د.ج) *</label>
+                                    <input type="number" id="homePrice" placeholder="600" required>
+                                </div>
+                            </div>
+
+                            <hr style="margin: 20px 0; border:0; border-top:1px solid var(--gray-border);">
+                            
+                            <h3 style="font-size: 1rem; margin-bottom: 5px; color: var(--dark-color);" data-i18n="manageBaladiyasTitle">إدارة البلديات وأسعارها الخاصة</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;" data-i18n="manageBaladiyasDesc">يمكنك تعديل أسعار التوصيل لكل بلدية على حدة، أو تركها بنفس السعر الافتراضي للولاية.</p>
+                            
+                            <div id="baladiyasEditorContainer" style="margin-bottom: 15px; max-height: 280px; overflow-y: auto; padding: 5px; border: 1px solid var(--gray-border); border-radius: 8px;">
+                                <!-- يتم تعبئة البلديات ديناميكياً هنا -->
+                            </div>
+                            
+                            <button type="button" class="btn btn-sm btn-primary" onclick="addBaladiyaRow()" style="margin-bottom: 15px;" data-i18n="addBaladiyaBtn">+ إضافة بلدية جديدة</button>
+
+                            <button type="submit" class="btn btn-primary btn-block" id="saveWilayaBtn" data-i18n="saveWilayaBtn">حفظ الولاية وتعديلاتها</button>
+                            <button type="button" class="btn btn-cancel btn-block" id="cancelEditWilayaBtn" style="display: none; margin-top: 5px;" onclick="resetWilayaForm()" data-i18n="cancelEditBtn">إلغاء التعديل</button>
+                        </form>
+                    </div>
+
+                    <!-- جدول الولايات والأسعار -->
+                    <div class="dash-card">
+                        <h2 class="dash-card-title" data-i18n="wilayasListTitle">قائمة الولايات وأسعار التوصيل</h2>
+                        <div class="table-responsive">
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="thCode">الكود</th>
+                                        <th data-i18n="wilayaLabel">الولاية</th>
+                                        <th data-i18n="thDeskDefault">مكتب (افتراضي)</th>
+                                        <th data-i18n="thHomeDefault">منزل (افتراضي)</th>
+                                        <th data-i18n="thBaladiyasCount">البلديات</th>
+                                        <th data-i18n="thActions">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashShippingTable">
+                                    <!-- تُعرض الولايات ديناميكياً -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- استدعاء ملفات الترجمة واللغة ولوحة التحكم -->
+    <script src="translations.js"></script>
+    <script src="language.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

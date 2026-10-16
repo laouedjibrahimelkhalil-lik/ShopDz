@@ -6,9 +6,9 @@ const dashLangTexts = {
         noPermAddAdmin: 'عذراً، لا تمتلك الصلاحية لإضافة مسؤولين جدد!',
         emailExists: 'هذا البريد مستخدم مسبقاً!',
         adminAdded: 'تمت إضافة المسؤول الجديد بنجاح!',
-        wilayaUpdated: 'تم تحديث بيانات الولاية وأسعار البلديات بنجاح!',
+        wilayaUpdated: 'تم تحديث بيانات الولاية وأسعار البلديات سحابياً بنجاح!',
         wilayaCodeExists: 'رقم الولاية (الكود) موجود مسبقاً!',
-        wilayaAdded: 'تمت إضافة الولاية الجديدة بنجاح!',
+        wilayaAdded: 'تمت إضافة الولاية الجديدة سحابياً بنجاح!',
         countPrefix: 'العدد: ',
         noProds: 'لا توجد منتجات مضافة بعد.',
         noCats: 'لا توجد فئات مضافة بعد.',
@@ -60,9 +60,9 @@ const dashLangTexts = {
         noPermAddAdmin: 'Sorry, you do not have permission to add new admins!',
         emailExists: 'This email is already in use!',
         adminAdded: 'New admin added successfully!',
-        wilayaUpdated: 'Wilaya and Baladiya shipping rates updated successfully!',
+        wilayaUpdated: 'Wilaya and Baladiya shipping rates updated in Cloud!',
         wilayaCodeExists: 'Wilaya code already exists!',
-        wilayaAdded: 'New Wilaya added successfully!',
+        wilayaAdded: 'New Wilaya added to Cloud successfully!',
         countPrefix: 'Count: ',
         noProds: 'No products added yet.',
         noCats: 'No categories added yet.',
@@ -164,12 +164,87 @@ const dashLangTexts = {
     }
 };
 
+// القائمة الافتراضية الكاملة للولايات الـ 58 الجزائرية مع بلدياتها وأسعارها
+function getDefaultAlgeriaWilayas() {
+    const rawWilayas = [
+        { code: "01", name: "01. أدرار", desk: 600, home: 900, cities: ["أدرار", "رقان", "تيميمون", "أولف", "زاوية كنتة", "فنوغيل"] },
+        { code: "02", name: "02. الشلف", desk: 400, home: 600, cities: ["الشلف", "تنس", "بوقادير", "أولاد فارس", "وادي الفضة", "شطية", "تاوقريت"] },
+        { code: "03", name: "03. الأغواط", desk: 500, home: 750, cities: ["الأغواط", "أفلو", "قصر الحيران", "حاسي الرمل", "عين ماضي"] },
+        { code: "04", name: "04. أم البواقي", desk: 450, home: 650, cities: ["أم البواقي", "عين البيضاء", "عين مليلة", "عين كرشة", "مسكيانة"] },
+        { code: "05", name: "05. باتنة", desk: 450, home: 650, cities: ["باتنة", "بريكة", "عين التوتة", "أريس", "مروانة", "تازولت", "نقاوس"] },
+        { code: "06", name: "06. بجاية", desk: 400, home: 600, cities: ["بجاية", "أقبو", "خراطة", "أميزور", "سيدي عيش", "تازملت", "أوقاس"] },
+        { code: "07", name: "07. بسكرة", desk: 500, home: 700, cities: ["بسكرة", "طولقة", "سيدي عقبة", "أورلال", "زريبة الوادي", "القنطرة"] },
+        { code: "08", name: "08. بشار", desk: 600, home: 850, cities: ["بشار", "القنادسة", "عبادلة", "تاغيت", "بني ونيف"] },
+        { code: "09", name: "09. البليدة", desk: 350, home: 500, cities: ["البليدة", "بوفاريك", "بوقرة", "أولاد سلامة", "الأربعاء", "مفتاح", "العفرون", "موزاية", "أولاد يعيش"] },
+        { code: "10", name: "10. البويرة", desk: 400, home: 600, cities: ["البويرة", "الأخضرية", "سور الغزلان", "عين بسام", "امشدالة", "حيزر"] },
+        { code: "11", name: "11. تمنراست", desk: 800, home: 1100, cities: ["تمنراست", "عين أمقل", "أبلسة", "تاظروك"] },
+        { code: "12", name: "12. تبسة", desk: 500, home: 700, cities: ["تبسة", "بئر العاتر", "الشريعة", "الونزة", "العوينات", "مرسط"] },
+        { code: "13", name: "13. تلمسان", desk: 450, home: 650, cities: ["تلمسان", "مغنية", "غزوات", "الرمشي", "سبدو", "ندرومة", "شتوان", "منصورة"] },
+        { code: "14", name: "14. تيارت", desk: 450, home: 650, cities: ["تيارت", "فرندة", "السوقر", "قصر الشلالة", "مهدية", "رحوية"] },
+        { code: "15", name: "15. تيزي وزو", desk: 400, home: 600, cities: ["تيزي وزو", "ذراع بن خدة", "عزازقة", "ذراع الميزان", "بوغني", "تيقزيرت", "عين الحمام"] },
+        { code: "16", name: "16. الجزائر", desk: 300, home: 450, cities: ["الجزائر الوسطى", "باب الزوار", "بئر مراد رايس", "الشراقة", "الدار البيضاء", "درارية", "الحراش", "حسين داي", "رويبة", "زرالدة", "بوزريعة", "برج الكيفان", "عين البنيان"] },
+        { code: "17", name: "17. الجلفة", desk: 500, home: 700, cities: ["الجلفة", "عين وسارة", "مسعد", "حاسي بحبح", "الشارف", "دار الشيوخ"] },
+        { code: "18", name: "18. جيجل", desk: 450, home: 650, cities: ["جيجل", "الطاهير", "الميلية", "العوانة", "زيامة منصورية", "الشقفة"] },
+        { code: "19", name: "19. سطيف", desk: 400, home: 600, cities: ["سطيف", "العلمة", "عين ولمان", "بوقاعة", "عين أزال", "عين الكبيرة", "حمام السخنة"] },
+        { code: "20", name: "20. سعيدة", desk: 450, home: 650, cities: ["سعيدة", "عين الحجر", "يوب", "أولاد ابراهيم", "الحساسنة"] },
+        { code: "21", name: "21. سكيكدة", desk: 450, home: 650, cities: ["سكيكدة", "عزابة", "القل", "الحروش", "تمالوس", "رمضان جمال"] },
+        { code: "22", name: "22. سيدي بلعباس", desk: 450, home: 650, cities: ["سيدي بلعباس", "تلاغ", "سفيزف", "بن باديس", "رأس الماء"] },
+        { code: "23", name: "23. عنابة", desk: 450, home: 650, cities: ["عنابة", "البوني", "الحجار", "برحال", "سرايدي", "عين الباردة"] },
+        { code: "24", name: "24. قالمة", desk: 450, home: 650, cities: ["قالمة", "وادي الزناتي", "بوشقوف", "حمام دباغ", "هيليوبوليس"] },
+        { code: "25", name: "25. قسنطينة", desk: 400, home: 600, cities: ["قسنطينة", "الخروب", "عين عبيد", "حامة بوزيان", "ديدوش مراد", "زيغود يوسف"] },
+        { code: "26", name: "26. المدية", desk: 400, home: 600, cities: ["المدية", "البرواقية", "قصر البخاري", "وزرة", "بني سليمان", "تابلاط"] },
+        { code: "27", name: "27. مستغانم", desk: 450, home: 650, cities: ["مستغانم", "عين تادلس", "سيدي علي", "بوقيراط", "حاسي ماماش", "مزغران"] },
+        { code: "28", name: "28. المسيلة", desk: 450, home: 650, cities: ["المسيلة", "بوسعادة", "سيدي عيسى", "عين الحجل", "مقرة", "برهوم", "حمام الضلعة", "أولاد دراج"] },
+        { code: "29", name: "29. معسكر", desk: 450, home: 650, cities: ["معسكر", "سيق", "غريس", "المحمدية", "تيغنيف", "وادي الأبطال"] },
+        { code: "30", name: "30. ورقلة", desk: 550, home: 800, cities: ["ورقلة", "حاسي مسعود", "سيدي خويلد", "عين البيضاء", "انقوسة"] },
+        { code: "31", name: "31. وهران", desk: 400, home: 600, cities: ["وهران", "بئر الجير", "السانية", "أرزيو", "عين الترك", "قديل", "بطيوة", "وادي تليلات"] },
+        { code: "32", name: "32. البيض", desk: 550, home: 800, cities: ["البيض", "بوقطب", "الأبيض سيدي الشيخ", "بريزينة", "رقاصة"] },
+        { code: "33", name: "33. إليزي", desk: 800, home: 1100, cities: ["إليزي", "إن أميناس", "دبداب", "برج عمر إدريس"] },
+        { code: "34", name: "34. برج بوعريريج", desk: 400, home: 600, cities: ["برج بوعريريج", "رأس الوادي", "برج الغدير", "المنصورة", "مجانة", "بئر قاصد علي"] },
+        { code: "35", name: "35. بومرداس", desk: 350, home: 550, cities: ["بومرداس", "برج منايل", "بودواو", "خميس الخشنة", "دلس", "يسر", "الثنية", "قورصو"] },
+        { code: "36", name: "36. الطارف", desk: 450, home: 650, cities: ["الطارف", "القالة", "بن مهيدي", "بوحجار", "الذرعان", "البسباس"] },
+        { code: "37", name: "37. تندوف", desk: 800, home: 1100, cities: ["تندوف", "أم العسل"] },
+        { code: "38", name: "38. تيسمسيلت", desk: 450, home: 650, cities: ["تيسمسيلت", "ثنية الحد", "برج بونعامة", "لرجام", "خميستي"] },
+        { code: "39", name: "39. الوادي", desk: 550, home: 800, cities: ["الوادي", "قمار", "الرباح", "جامعة", "الدبيلة", "حاسي خليفة", "الرقيبة"] },
+        { code: "40", name: "40. خنشلة", desk: 450, home: 650, cities: ["خنشلة", "قايس", "ششار", "أولاد رشاش", "الحامة", "بوحمامة"] },
+        { code: "41", name: "41. سوق أهراس", desk: 450, home: 650, cities: ["سوق أهراس", "سدراتة", "مداوروش", "تاورة", "الحدادة"] },
+        { code: "42", name: "42. تيبازة", desk: 350, home: 550, cities: ["تيبازة", "شرشال", "القليعة", "حجوط", "فوكة", "بوسماعيل", "الداموس", "قوراية"] },
+        { code: "43", name: "43. ميلة", desk: 450, home: 650, cities: ["ميلة", "فرجيوة", "شلغوم العيد", "التلاغمة", "تاجنانت", "وادي العثمانية", "قرارم قوقة"] },
+        { code: "44", name: "44. عين الدفلى", desk: 400, home: 600, cities: ["عين الدفلى", "خميس مليانة", "مليانة", "العطاف", "جندل", "حمام ريغة", "العبادية"] },
+        { code: "45", name: "45. النعامة", desk: 550, home: 800, cities: ["النعامة", "المشرية", "عين الصفراء", "عسلة", "مكمن بن عمار"] },
+        { code: "46", name: "46. عين تموشنت", desk: 450, home: 650, cities: ["عين تموشنت", "بني صاف", "حمام بوحجر", "المالح", "العامرية"] },
+        { code: "47", name: "47. غرداية", desk: 550, home: 800, cities: ["غرداية", "متليلي", "القرارة", "بريان", "ضاية بن ضحوة", "بونورة"] },
+        { code: "48", name: "48. غليزان", desk: 450, home: 650, cities: ["غليزان", "وادي رهيو", "مازونة", "يلل", "عمي موسى", "زمورة"] },
+        { code: "49", name: "49. تيميمون", desk: 650, home: 900, cities: ["تيميمون", "أولاد سعيد", "شروين", "تينركوك"] },
+        { code: "50", name: "50. برج باجي مختار", desk: 850, home: 1200, cities: ["برج باجي مختار", "تيمياوين"] },
+        { code: "51", name: "51. أولاد جلال", desk: 500, home: 750, cities: ["أولاد جلال", "سيدي خالد", "الدوسن", "الشعيبة"] },
+        { code: "52", name: "52. بني عباس", desk: 650, home: 900, cities: ["بني عباس", "إيقلي", "تبلبالة", "الواتة", "كرزاز"] },
+        { code: "53", name: "53. عين صالح", desk: 750, home: 1050, cities: ["عين صالح", "إينغر", "فقارة الزوى"] },
+        { code: "54", name: "54. عين قزام", desk: 850, home: 1200, cities: ["عين قزام", "تين زواتين"] },
+        { code: "55", name: "55. تقرت", desk: 550, home: 800, cities: ["تقرت", "تماسين", "المقارين", "الطيبات", "بلدة عمر", "النزلة"] },
+        { code: "56", name: "56. جانت", desk: 850, home: 1150, cities: ["جانت", "برج الحواس"] },
+        { code: "57", name: "57. المغير", desk: 550, home: 800, cities: ["المغير", "جامعة", "سيدي عمران", "أم الطيور"] },
+        { code: "58", name: "58. المنيعة", desk: 600, home: 850, cities: ["المنيعة", "حاسي القارة", "حاسي الفحل"] }
+    ];
+
+    return rawWilayas.map(function (w) {
+        return {
+            code: w.code,
+            name: w.name,
+            deskPrice: w.desk,
+            homePrice: w.home,
+            baladiyas: w.cities.map(function (cName) {
+                return { name: cName, deskPrice: w.desk, homePrice: w.home };
+            })
+        };
+    });
+}
+
 function getDashLang() {
     const lang = localStorage.getItem('shopLang') || 'ar';
     return dashLangTexts[lang] || dashLangTexts['ar'];
 }
 
-// دالة مساعدة لتحويل أي سعر نصي (مثل "45,000") إلى رقم حسابي صحيح (45000)
 function parsePriceNum(val) {
     if (val === null || val === undefined) return 0;
     if (typeof val === 'number') return val;
@@ -187,14 +262,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     await ensureDefaultCategories();
+    await ensureDefaultShippingData();
     await renderDashboardCategories();
     await renderDashboardProducts();
     await renderDashboardOrders();
     await renderDashboardStats();
     await renderDashboardAdmins();
-    renderDashboardShipping();
+    await renderDashboardShipping();
 
-    // 1. معالجة إضافة منتج جديد إلى Supabase (مع سعر الشراء)
+    // 1. معالجة إضافة منتج جديد إلى Supabase
     const addProductForm = document.getElementById('addProductForm');
     if (addProductForm) {
         addProductForm.addEventListener('submit', async function (e) {
@@ -236,7 +312,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             if (error) {
                 console.error('Error inserting product:', error);
-                alert('حدث خطأ أثناء حفظ المنتج في السحابة. تأكد من تشغيل أمر SQL لإضافة عمود cost_price في جدول products.');
+                alert('حدث خطأ أثناء حفظ المنتج في السحابة.');
                 return;
             }
 
@@ -334,10 +410,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    // 4. معالجة حفظ أو تعديل ولاية وتوصيل البلديات
+    // 4. معالجة حفظ أو تعديل ولاية وتوصيل البلديات (في Supabase + LocalStorage)
     const addWilayaForm = document.getElementById('addWilayaForm');
     if (addWilayaForm) {
-        addWilayaForm.addEventListener('submit', function (e) {
+        addWilayaForm.addEventListener('submit', async function (e) {
             e.preventDefault();
             const t = getDashLang();
 
@@ -364,29 +440,42 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
             });
 
-            let shippingData = JSON.parse(localStorage.getItem('algeriaShippingData')) || [];
-            const newWilayaObj = { code: code, name: name, deskPrice: deskPrice, homePrice: homePrice, baladiyas: baladiyasList };
+            let shippingData = await getShippingDataList();
+            const newWilayaObj = {
+                code: code,
+                name: name,
+                deskPrice: deskPrice,
+                homePrice: homePrice,
+                baladiyas: baladiyasList
+            };
 
-            if (isEditing) {
-                const index = shippingData.findIndex(function (w) { return w.code === code; });
-                if (index !== -1) {
-                    shippingData[index] = newWilayaObj;
-                } else {
-                    shippingData.push(newWilayaObj);
-                }
-                alert(t.wilayaUpdated);
-            } else {
-                if (shippingData.some(function (w) { return w.code === code; })) {
-                    alert(t.wilayaCodeExists);
-                    return;
-                }
-                shippingData.push(newWilayaObj);
-                alert(t.wilayaAdded);
+            if (!isEditing && shippingData.some(function (w) { return w.code === code; })) {
+                alert(t.wilayaCodeExists);
+                return;
             }
 
+            // حفظ/تحديث في Supabase إن كان جدول shipping_rates موجوداً
+            await supabaseClient.from('shipping_rates').upsert([{
+                code: code,
+                name: name,
+                desk_price: deskPrice,
+                home_price: homePrice,
+                baladiyas: baladiyasList
+            }]);
+
+            // تحديث النسخة المحلية أيضاً لتعمل صفحة السلة فوراً
+            const index = shippingData.findIndex(function (w) { return w.code === code; });
+            if (index !== -1) {
+                shippingData[index] = newWilayaObj;
+            } else {
+                shippingData.push(newWilayaObj);
+            }
+            shippingData.sort(function (a, b) { return a.code.localeCompare(b.code); });
             localStorage.setItem('algeriaShippingData', JSON.stringify(shippingData));
+
+            alert(isEditing ? t.wilayaUpdated : t.wilayaAdded);
             resetWilayaForm();
-            renderDashboardShipping();
+            await renderDashboardShipping();
         });
     }
 });
@@ -403,6 +492,73 @@ async function ensureDefaultCategories() {
         ];
         await supabaseClient.from('categories').insert(defaults);
     }
+}
+
+// تعبئة الولايات الـ 58 الافتراضية تلقائياً إذا كانت فارغة (سحابياً ومحلياً)
+async function ensureDefaultShippingData() {
+    const defaults = getDefaultAlgeriaWilayas();
+
+    // 1. فحص Supabase أولاً
+    const { data: cloudShipping, error } = await supabaseClient.from('shipping_rates').select('*');
+    if (!error && cloudShipping) {
+        if (cloudShipping.length === 0) {
+            const rowsToInsert = defaults.map(function (w) {
+                return {
+                    code: w.code,
+                    name: w.name,
+                    desk_price: w.deskPrice,
+                    home_price: w.homePrice,
+                    baladiyas: w.baladiyas
+                };
+            });
+            await supabaseClient.from('shipping_rates').insert(rowsToInsert);
+            localStorage.setItem('algeriaShippingData', JSON.stringify(defaults));
+            return;
+        } else {
+            const formatted = cloudShipping.map(function (r) {
+                return {
+                    code: r.code,
+                    name: r.name,
+                    deskPrice: Number(r.desk_price),
+                    homePrice: Number(r.home_price),
+                    baladiyas: r.baladiyas || []
+                };
+            }).sort(function (a, b) { return a.code.localeCompare(b.code); });
+            localStorage.setItem('algeriaShippingData', JSON.stringify(formatted));
+            return;
+        }
+    }
+
+    // 2. في حال لم يُنشأ جدول shipping_rates بعد، نضمن وجودها في LocalStorage
+    let localData = JSON.parse(localStorage.getItem('algeriaShippingData')) || [];
+    if (localData.length === 0) {
+        localStorage.setItem('algeriaShippingData', JSON.stringify(defaults));
+    }
+}
+
+// جلب قائمة الولايات المحدثة
+async function getShippingDataList() {
+    const { data: cloudShipping, error } = await supabaseClient.from('shipping_rates').select('*');
+    if (!error && cloudShipping && cloudShipping.length > 0) {
+        const list = cloudShipping.map(function (r) {
+            return {
+                code: r.code,
+                name: r.name,
+                deskPrice: Number(r.desk_price),
+                homePrice: Number(r.home_price),
+                baladiyas: r.baladiyas || []
+            };
+        }).sort(function (a, b) { return a.code.localeCompare(b.code); });
+        localStorage.setItem('algeriaShippingData', JSON.stringify(list));
+        return list;
+    }
+
+    let localData = JSON.parse(localStorage.getItem('algeriaShippingData')) || [];
+    if (localData.length === 0) {
+        localData = getDefaultAlgeriaWilayas();
+        localStorage.setItem('algeriaShippingData', JSON.stringify(localData));
+    }
+    return migrateShippingData(localData);
 }
 
 // التبديل بين تبويبات لوحة التحكم الستة
@@ -462,7 +618,6 @@ function switchDashTab(tabName) {
     }
 }
 
-// استخراج تاريخ إضافة المنتج من حقل created_at أو من معرف المنتج (prod_172...)
 function getProductAddedTimestamp(product) {
     if (product.created_at) {
         const t = new Date(product.created_at).getTime();
@@ -489,7 +644,6 @@ async function renderDashboardStats() {
     const startOfWeek = now.getTime() - (7 * 24 * 60 * 60 * 1000);
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
 
-    // 1. تجهيز خريطة المنتجات
     let prodMap = {};
     let totalRemainingStock = 0;
 
@@ -507,7 +661,6 @@ async function renderDashboardStats() {
         };
     });
 
-    // 2. حساب المبيعات وصافي الأرباح من الطلبات المؤكدة
     let totalSoldConfirmed = 0;
     let profitToday = 0;
     let profitWeek = 0;
@@ -552,8 +705,6 @@ async function renderDashboardStats() {
         if (orderTime >= startOfMonth) profitMonth += orderNetProfit;
     });
 
-    // 3. حساب تكلفة شراء المنتجات (لليوم، الأسبوع، الشهر، والكامل)
-    // إجمالي الكمية المشتراة لكل منتج = الكمية المتبقية حالياً + الكمية المباعة المؤكدة
     let costToday = 0;
     let costWeek = 0;
     let costMonth = 0;
@@ -575,7 +726,6 @@ async function renderDashboardStats() {
 
     const totalPurchasedAllTime = totalRemainingStock + totalSoldConfirmed;
 
-    // تحديث بطاقات تكلفة المشتريات
     const elPurchased = document.getElementById('statTotalPurchased');
     const elCostToday = document.getElementById('statCostToday');
     const elCostWeek = document.getElementById('statCostWeek');
@@ -588,7 +738,6 @@ async function renderDashboardStats() {
     if (elCostMonth) elCostMonth.textContent = costMonth.toLocaleString() + t.currency;
     if (elCostTotal) elCostTotal.textContent = costTotal.toLocaleString() + t.currency;
 
-    // تحديث بطاقات المبيعات وصافي الأرباح
     const elSold = document.getElementById('statTotalSold');
     const elToday = document.getElementById('statProfitToday');
     const elWeek = document.getElementById('statProfitWeek');
@@ -601,7 +750,6 @@ async function renderDashboardStats() {
     if (elMonth) elMonth.textContent = profitMonth.toLocaleString() + t.currency;
     if (elTotal) elTotal.textContent = profitTotal.toLocaleString() + t.currency;
 
-    // 4. ملء جدول تفصيل التكلفة والمبيعات والأرباح لكل منتج
     const statsTableBody = document.getElementById('dashStatsProductsTable');
     if (!statsTableBody) return;
 
@@ -632,7 +780,7 @@ async function renderDashboardStats() {
     });
 }
 
-// عرض الفئات وتحديث القائمة المنسدلة في نموذج إضافة منتج
+// عرض الفئات وتحديث القائمة المنسدلة
 async function renderDashboardCategories() {
     const tableBody = document.getElementById('dashCategoriesTable');
     const categoriesCount = document.getElementById('categoriesCount');
@@ -640,11 +788,7 @@ async function renderDashboardCategories() {
     const t = getDashLang();
 
     const { data: categories, error } = await supabaseClient.from('categories').select('*');
-
-    if (error) {
-        console.error('Error fetching categories:', error);
-        return;
-    }
+    if (error) return;
 
     const catList = categories || [];
 
@@ -734,7 +878,6 @@ async function deleteCategory(catId) {
     }
 }
 
-// عرض المنتجات في لوحة التحكم مع سعر الشراء وإمكانية تعديله
 async function renderDashboardProducts() {
     const tableBody = document.getElementById('dashProductsTable');
     const productsCount = document.getElementById('productsCount');
@@ -742,11 +885,7 @@ async function renderDashboardProducts() {
 
     const t = getDashLang();
     const { data: products, error } = await supabaseClient.from('products').select('*');
-
-    if (error) {
-        console.error('Error fetching products:', error);
-        return;
-    }
+    if (error) return;
 
     if (productsCount) productsCount.textContent = t.countPrefix + products.length;
 
@@ -786,7 +925,6 @@ async function renderDashboardProducts() {
     });
 }
 
-// إمكانية تعديل سعر الشراء لأي منتج بضغطة زر
 async function editProductCost(productId, currentCost) {
     const newCostStr = prompt('أدخل سعر الشراء (التكلفة) الجديد لهذا المنتج (د.ج):', currentCost);
     if (newCostStr === null || newCostStr.trim() === '') return;
@@ -798,7 +936,7 @@ async function editProductCost(productId, currentCost) {
         .eq('id', productId);
 
     if (error) {
-        alert('حدث خطأ أثناء تحديث سعر الشراء. تأكد من إضافة عمود cost_price في جدول products.');
+        alert('حدث خطأ أثناء تحديث سعر الشراء.');
         return;
     }
 
@@ -813,14 +951,10 @@ async function toggleProductHome(productId, currentState) {
         .update({ show_on_home: newState })
         .eq('id', productId);
 
-    if (error) {
-        alert('حدث خطأ أثناء تحديث حالة ظهور المنتج.');
-        return;
-    }
+    if (error) return;
     await renderDashboardProducts();
 }
 
-// عرض الطلبات في لوحة التحكم من Supabase
 async function renderDashboardOrders() {
     const tableBody = document.getElementById('dashOrdersTable');
     const ordersBadge = document.getElementById('ordersBadge');
@@ -828,7 +962,7 @@ async function renderDashboardOrders() {
 
     const t = getDashLang();
     const { data: orders, error: ordErr } = await supabaseClient.from('orders').select('*');
-    const { data: products, error: prodErr } = await supabaseClient.from('products').select('*');
+    const { data: products } = await supabaseClient.from('products').select('*');
 
     if (ordErr) return;
 
@@ -888,7 +1022,6 @@ async function renderDashboardOrders() {
     });
 }
 
-// تأكيد الطلب، خصم الكمية من المخزون، وتسجيل وقت التأكيد لحساب الأرباح
 async function confirmOrder(orderId) {
     const t = getDashLang();
     const { data: orders } = await supabaseClient.from('orders').select('*');
@@ -1007,26 +1140,31 @@ function migrateShippingData(data) {
     });
 }
 
-function renderDashboardShipping() {
+// عرض جدول الولايات والبلديات وأسعار التوصيل
+async function renderDashboardShipping() {
     const tableBody = document.getElementById('dashShippingTable');
     if (!tableBody) return;
 
     const t = getDashLang();
-    let shippingData = JSON.parse(localStorage.getItem('algeriaShippingData')) || [];
-    shippingData = migrateShippingData(shippingData);
-    localStorage.setItem('algeriaShippingData', JSON.stringify(shippingData));
+    const shippingData = await getShippingDataList();
 
     tableBody.innerHTML = '';
     shippingData.forEach(function (item) {
+        const bList = item.baladiyas || [];
+        const bNamesPreview = bList.slice(0, 4).map(function (b) { return b.name; }).join('، ') + (bList.length > 4 ? ' ...' : '');
+
         tableBody.innerHTML += 
             '<tr>' +
                 '<td><strong>' + item.code + '</strong></td>' +
-                '<td>' + item.name + '</td>' +
-                '<td>' + Number(item.deskPrice).toLocaleString() + t.currency + '</td>' +
-                '<td>' + Number(item.homePrice).toLocaleString() + t.currency + '</td>' +
-                '<td><span class="badge badge-new">' + (item.baladiyas ? item.baladiyas.length : 0) + t.baladiyaUnit + '</span></td>' +
+                '<td><strong>' + item.name + '</strong></td>' +
+                '<td style="color: #2563eb; font-weight: 700;">' + Number(item.deskPrice).toLocaleString() + t.currency + '</td>' +
+                '<td style="color: #16a34a; font-weight: 700;">' + Number(item.homePrice).toLocaleString() + t.currency + '</td>' +
                 '<td>' +
-                    '<button class="btn btn-primary btn-sm" onclick="editWilayaShipping(\'' + item.code + '\')" style="padding:4px 8px; font-size:0.75rem; margin: 0 4px;">' + t.editBtn + '</button>' +
+                    '<span class="badge badge-new">' + bList.length + t.baladiyaUnit + '</span>' +
+                    '<div style="font-size: 0.78rem; color: #64748b; margin-top: 4px;">' + bNamesPreview + '</div>' +
+                '</td>' +
+                '<td>' +
+                    '<button class="btn btn-primary btn-sm" onclick="editWilayaShipping(\'' + item.code + '\')" style="padding:5px 10px; font-size:0.78rem; margin: 0 4px;">' + t.editBtn + '</button>' +
                     '<button class="btn-delete" onclick="deleteWilayaShipping(\'' + item.code + '\')">' + t.deleteBtn + '</button>' +
                 '</td>' +
             '</tr>';
@@ -1054,9 +1192,10 @@ function addBaladiyaRow(name, desk, home) {
     container.appendChild(rowDiv);
 }
 
-function editWilayaShipping(code) {
+// فتح بيانات الولاية وبلدياتها للتعديل
+async function editWilayaShipping(code) {
     const t = getDashLang();
-    let shippingData = JSON.parse(localStorage.getItem('algeriaShippingData')) || [];
+    const shippingData = await getShippingDataList();
     const target = shippingData.find(function (w) { return w.code === code; });
     if (!target) return;
 
@@ -1076,7 +1215,7 @@ function editWilayaShipping(code) {
     
     if (target.baladiyas && target.baladiyas.length > 0) {
         target.baladiyas.forEach(function (b) {
-            addBaladiyaRow(b.name, b.deskPrice !== target.deskPrice ? b.deskPrice : '', b.homePrice !== target.homePrice ? b.homePrice : '');
+            addBaladiyaRow(b.name, b.deskPrice, b.homePrice);
         });
     }
 
@@ -1093,13 +1232,17 @@ function resetWilayaForm() {
     document.getElementById('baladiyasEditorContainer').innerHTML = '';
 }
 
-function deleteWilayaShipping(code) {
+// حذف ولاية من نظام التوصيل (من Supabase ومن التخزين المحلي)
+async function deleteWilayaShipping(code) {
     const t = getDashLang();
     if (confirm(t.confirmDeleteWilaya)) {
+        await supabaseClient.from('shipping_rates').delete().eq('code', code);
+
         let shippingData = JSON.parse(localStorage.getItem('algeriaShippingData')) || [];
         shippingData = shippingData.filter(function (w) { return w.code !== code; });
         localStorage.setItem('algeriaShippingData', JSON.stringify(shippingData));
-        renderDashboardShipping();
+
+        await renderDashboardShipping();
     }
 }
 

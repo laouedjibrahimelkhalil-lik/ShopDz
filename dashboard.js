@@ -462,7 +462,20 @@ function switchDashTab(tabName) {
     }
 }
 
-// حساب وعرض الإحصائيات والأرباح الصافية (اليوم، الأسبوع، الشهر، الكامل)
+// استخراج تاريخ إضافة المنتج من حقل created_at أو من معرف المنتج (prod_172...)
+function getProductAddedTimestamp(product) {
+    if (product.created_at) {
+        const t = new Date(product.created_at).getTime();
+        if (!isNaN(t)) return t;
+    }
+    if (product.id && String(product.id).indexOf('prod_') === 0) {
+        const ts = parseInt(String(product.id).replace('prod_', ''));
+        if (!isNaN(ts) && ts > 1000000000000) return ts;
+    }
+    return 0;
+}
+
+// حساب وعرض الإحصائيات (تكلفة المشتريات + صافي الأرباح لليوم والأسبوع والشهر والكامل)
 async function renderDashboardStats() {
     const t = getDashLang();
     const { data: products } = await supabaseClient.from('products').select('*');
@@ -471,7 +484,12 @@ async function renderDashboardStats() {
     const prodList = products || [];
     const ordList = orders || [];
 
-    // خريطة لتخزين بيانات كل منتج
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startOfWeek = now.getTime() - (7 * 24 * 60 * 60 * 1000);
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+    // 1. تجهيز خريطة المنتجات
     let prodMap = {};
     let totalRemainingStock = 0;
 
@@ -484,26 +502,22 @@ async function renderDashboardStats() {
             sellPrice: parsePriceNum(p.price),
             remainingQty: remQty,
             soldQty: 0,
-            totalProfit: 0
+            totalProfit: 0,
+            addedTime: getProductAddedTimestamp(p)
         };
     });
 
+    // 2. حساب المبيعات وصافي الأرباح من الطلبات المؤكدة
     let totalSoldConfirmed = 0;
     let profitToday = 0;
     let profitWeek = 0;
     let profitMonth = 0;
     let profitTotal = 0;
 
-    const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    const startOfWeek = now.getTime() - (7 * 24 * 60 * 60 * 1000);
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-
     ordList.forEach(function (order) {
         const isConfirmed = order.status === 'مؤكد' || order.status === 'Confirmed' || order.status === 'Confirmée';
         if (!isConfirmed) return;
 
-        // تحديد تاريخ التأكيد للطلبية
         let orderTime = now.getTime();
         if (order.confirmed_at) {
             orderTime = new Date(order.confirmed_at).getTime();
@@ -538,29 +552,61 @@ async function renderDashboardStats() {
         if (orderTime >= startOfMonth) profitMonth += orderNetProfit;
     });
 
-    // إجمالي القطع التي اشتريتها = المخزون المتبقي حالياً + القطع التي تم بيعها وتأكيدها
+    // 3. حساب تكلفة شراء المنتجات (لليوم، الأسبوع، الشهر، والكامل)
+    // إجمالي الكمية المشتراة لكل منتج = الكمية المتبقية حالياً + الكمية المباعة المؤكدة
+    let costToday = 0;
+    let costWeek = 0;
+    let costMonth = 0;
+    let costTotal = 0;
+
+    Object.keys(prodMap).forEach(function (id) {
+        const info = prodMap[id];
+        const totalPurchasedQtyForProd = info.remainingQty + info.soldQty;
+        const totalCostForProd = info.costPrice * totalPurchasedQtyForProd;
+
+        info.totalPurchasedQty = totalPurchasedQtyForProd;
+        info.totalPurchaseCost = totalCostForProd;
+
+        costTotal += totalCostForProd;
+        if (info.addedTime >= startOfToday) costToday += totalCostForProd;
+        if (info.addedTime >= startOfWeek) costWeek += totalCostForProd;
+        if (info.addedTime >= startOfMonth) costMonth += totalCostForProd;
+    });
+
     const totalPurchasedAllTime = totalRemainingStock + totalSoldConfirmed;
 
+    // تحديث بطاقات تكلفة المشتريات
     const elPurchased = document.getElementById('statTotalPurchased');
+    const elCostToday = document.getElementById('statCostToday');
+    const elCostWeek = document.getElementById('statCostWeek');
+    const elCostMonth = document.getElementById('statCostMonth');
+    const elCostTotal = document.getElementById('statCostTotal');
+
+    if (elPurchased) elPurchased.textContent = totalPurchasedAllTime.toLocaleString() + t.pieceUnit;
+    if (elCostToday) elCostToday.textContent = costToday.toLocaleString() + t.currency;
+    if (elCostWeek) elCostWeek.textContent = costWeek.toLocaleString() + t.currency;
+    if (elCostMonth) elCostMonth.textContent = costMonth.toLocaleString() + t.currency;
+    if (elCostTotal) elCostTotal.textContent = costTotal.toLocaleString() + t.currency;
+
+    // تحديث بطاقات المبيعات وصافي الأرباح
     const elSold = document.getElementById('statTotalSold');
     const elToday = document.getElementById('statProfitToday');
     const elWeek = document.getElementById('statProfitWeek');
     const elMonth = document.getElementById('statProfitMonth');
     const elTotal = document.getElementById('statProfitTotal');
 
-    if (elPurchased) elPurchased.textContent = totalPurchasedAllTime.toLocaleString() + t.pieceUnit;
     if (elSold) elSold.textContent = totalSoldConfirmed.toLocaleString() + t.pieceUnit;
     if (elToday) elToday.textContent = profitToday.toLocaleString() + t.currency;
     if (elWeek) elWeek.textContent = profitWeek.toLocaleString() + t.currency;
     if (elMonth) elMonth.textContent = profitMonth.toLocaleString() + t.currency;
     if (elTotal) elTotal.textContent = profitTotal.toLocaleString() + t.currency;
 
-    // ملء جدول تفصيل أرباح المنتجات
+    // 4. ملء جدول تفصيل التكلفة والمبيعات والأرباح لكل منتج
     const statsTableBody = document.getElementById('dashStatsProductsTable');
     if (!statsTableBody) return;
 
     if (prodList.length === 0) {
-        statsTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 25px; color: #64748b;">' + t.noProds + '</td></tr>';
+        statsTableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 25px; color: #64748b;">' + t.noProds + '</td></tr>';
         return;
     }
 
@@ -577,6 +623,8 @@ async function renderDashboardStats() {
                 '<td style="color: #b45309; font-weight: 600;">' + info.costPrice.toLocaleString() + t.currency + '</td>' +
                 '<td style="font-weight: 600;">' + info.sellPrice.toLocaleString() + t.currency + '</td>' +
                 '<td style="color: ' + unitProfitColor + '; font-weight: bold;">' + unitProfit.toLocaleString() + t.currency + '</td>' +
+                '<td><strong>' + info.totalPurchasedQty + t.pieceUnit + '</strong></td>' +
+                '<td style="color: #c2410c; font-weight: 700;">' + info.totalPurchaseCost.toLocaleString() + t.currency + '</td>' +
                 '<td><span class="badge badge-new">' + info.remainingQty + '</span></td>' +
                 '<td><strong style="color: #9333ea;">' + info.soldQty + t.pieceUnit + '</strong></td>' +
                 '<td style="color: ' + totalProfitColor + '; font-weight: 800; font-size: 1rem;">' + info.totalProfit.toLocaleString() + t.currency + '</td>' +
@@ -870,7 +918,6 @@ async function confirmOrder(orderId) {
             }
         }
 
-        // تحديث حالة الطلب مع حفظ وقت التأكيد
         const { error: confErr } = await supabaseClient
             .from('orders')
             .update({ 
@@ -879,7 +926,6 @@ async function confirmOrder(orderId) {
             })
             .eq('order_id', orderId);
 
-        // في حال لم يضف المستخدم عمود confirmed_at بعد، نحدث الحالة فقط حتى لا يتوقف النظام
         if (confErr) {
             await supabaseClient
                 .from('orders')

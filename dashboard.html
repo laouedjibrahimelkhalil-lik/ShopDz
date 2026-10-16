@@ -12,18 +12,29 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabaseClient.js"></script>
     <style>
-        /* تنسيقات بطاقات الإحصائيات والأرباح */
+        /* تنسيقات بطاقات الإحصائيات والأرباح وتكلفة المشتريات */
+        .stats-section-heading {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 25px 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
+        }
         .stats-cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 18px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+            margin-bottom: 25px;
         }
         .stat-box {
             background: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 14px;
-            padding: 20px;
+            padding: 18px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
             display: flex;
             flex-direction: column;
@@ -44,8 +55,10 @@
         .stat-box.purple::before { background: #9333ea; }
         .stat-box.orange::before { background: #ea580c; }
         .stat-box.gold::before { background: #ca8a04; }
+        .stat-box.red::before { background: #dc2626; }
+        
         .stat-box-title {
-            font-size: 0.92rem;
+            font-size: 0.9rem;
             color: #64748b;
             font-weight: 700;
             display: flex;
@@ -53,14 +66,16 @@
             justify-content: space-between;
         }
         .stat-box-value {
-            font-size: 1.65rem;
+            font-size: 1.55rem;
             font-weight: 800;
             color: #0f172a;
         }
         .stat-box.green .stat-box-value { color: #15803d; }
         .stat-box.gold .stat-box-value { color: #b45309; }
+        .stat-box.orange .stat-box-value { color: #c2410c; }
+        .stat-box.red .stat-box-value { color: #b91c1c; }
         .stat-box-sub {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: #94a3b8;
         }
     </style>
@@ -140,7 +155,7 @@
                             <!-- صف الأسعار: سعر الشراء + سعر البيع -->
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="productCostPrice" style="color: #b45309; font-weight: 700;">سعر الشراء / التكلفة (د.ج) *</label>
+                                    <label for="productCostPrice" style="color: #b45309; font-weight: 700;">سعر الشراء للقطعة (د.ج) *</label>
                                     <input type="number" id="productCostPrice" placeholder="مثال: 38000" min="0" required style="border-color: #fcd34d; background: #fffbeb;">
                                 </div>
 
@@ -218,25 +233,58 @@
                 </div>
             </div>
 
-            <!-- 2. قسم الإحصائيات والأرباح (جديد) -->
+            <!-- 2. قسم الإحصائيات والأرباح وتكلفة المشتريات -->
             <div id="statsTabSection" style="display: none;">
-                <div style="margin-bottom: 20px;">
-                    <h2 style="margin: 0 0 5px 0; color: #0f172a;">📊 ملخص الإحصائيات والأرباح الصافية</h2>
-                    <p style="margin: 0; color: #64748b; font-size: 0.9rem;">يتم احتساب المبيعات والأرباح تلقائياً بناءً على الطلبات المؤكدة فقط (سعر البيع ناقص سعر الشراء).</p>
+                <div style="margin-bottom: 15px;">
+                    <h2 style="margin: 0 0 5px 0; color: #0f172a;">📊 التقرير المالي الشامل (المشتريات، المبيعات، وصافي الأرباح)</h2>
+                    <p style="margin: 0; color: #64748b; font-size: 0.9rem;">متابعة دقيقة لتكلفة البضاعة التي اشتريتها وأرباحك الصافية من المبيعات المؤكدة.</p>
                 </div>
 
-                <!-- بطاقات الإحصائيات الـ 6 -->
+                <!-- أولاً: إحصائيات الكميات وتكلفة شراء البضاعة -->
+                <div class="stats-section-heading">
+                    <span>🛒 أولاً: إحصائيات وتكلفة شراء المنتجات (البضاعة الداخلة للمتجر)</span>
+                </div>
                 <div class="stats-cards-grid">
                     <div class="stat-box">
                         <div class="stat-box-title"><span>📦 إجمالي القطع المشتراة</span></div>
                         <div class="stat-box-value" id="statTotalPurchased">0</div>
-                        <div class="stat-box-sub">مجموع المخزون الحالي + القطع المباعة</div>
+                        <div class="stat-box-sub">مجموع المخزون الحالي + المباع</div>
                     </div>
 
+                    <div class="stat-box orange">
+                        <div class="stat-box-title"><span>💵 تكلفة مشتريات اليوم</span></div>
+                        <div class="stat-box-value" id="statCostToday">0 د.ج</div>
+                        <div class="stat-box-sub">سعر البضاعة المضافة اليوم</div>
+                    </div>
+
+                    <div class="stat-box orange">
+                        <div class="stat-box-title"><span>📦 تكلفة مشتريات الأسبوع</span></div>
+                        <div class="stat-box-value" id="statCostWeek">0 د.ج</div>
+                        <div class="stat-box-sub">سعر البضاعة المضافة آخر 7 أيام</div>
+                    </div>
+
+                    <div class="stat-box orange">
+                        <div class="stat-box-title"><span>🗓️ تكلفة مشتريات الشهر</span></div>
+                        <div class="stat-box-value" id="statCostMonth">0 د.ج</div>
+                        <div class="stat-box-sub">سعر البضاعة المضافة هذا الشهر</div>
+                    </div>
+
+                    <div class="stat-box red">
+                        <div class="stat-box-title"><span>🏦 إجمالي تكلفة المشتريات</span></div>
+                        <div class="stat-box-value" id="statCostTotal">0 د.ج</div>
+                        <div class="stat-box-sub">إجمالي رأس المال المشترى به</div>
+                    </div>
+                </div>
+
+                <!-- ثانياً: إحصائيات المبيعات وصافي الأرباح -->
+                <div class="stats-section-heading">
+                    <span>💰 ثانياً: إحصائيات المبيعات وصافي الأرباح (بعد التأكيد)</span>
+                </div>
+                <div class="stats-cards-grid">
                     <div class="stat-box purple">
                         <div class="stat-box-title"><span>🤝 القطع المباعة (المؤكدة)</span></div>
                         <div class="stat-box-value" id="statTotalSold">0</div>
-                        <div class="stat-box-sub">إجمالي المنتجات المباعة بعد التأكيد</div>
+                        <div class="stat-box-sub">إجمالي القطع المباعة بعد التأكيد</div>
                     </div>
 
                     <div class="stat-box green">
@@ -251,35 +299,37 @@
                         <div class="stat-box-sub">أرباح آخر 7 أيام</div>
                     </div>
 
-                    <div class="stat-box orange">
+                    <div class="stat-box green">
                         <div class="stat-box-title"><span>🗓️ صافي ربح الشهر</span></div>
                         <div class="stat-box-value" id="statProfitMonth">0 د.ج</div>
                         <div class="stat-box-sub">أرباح هذا الشهر الحالي</div>
                     </div>
 
                     <div class="stat-box gold">
-                        <div class="stat-box-title"><span>💰 صافي الربح الكامل</span></div>
+                        <div class="stat-box-title"><span>🏆 صافي الربح الكامل</span></div>
                         <div class="stat-box-value" id="statProfitTotal">0 د.ج</div>
-                        <div class="stat-box-sub">إجمالي الأرباح الصافية الكلية للمتجر</div>
+                        <div class="stat-box-sub">إجمالي الأرباح الصافية الكلية</div>
                     </div>
                 </div>
 
-                <!-- جدول تفصيل الأرباح والمخزون لكل منتج -->
-                <div class="dash-card">
+                <!-- جدول تفصيل المشتريات والأرباح والمخزون لكل منتج -->
+                <div class="dash-card" style="margin-top: 25px;">
                     <div class="dash-card-header">
-                        <h2 class="dash-card-title">📈 تفصيل المبيعات والأرباح حسب كل منتج</h2>
+                        <h2 class="dash-card-title">📈 تفصيل التكلفة والمبيعات والأرباح حسب كل منتج</h2>
                     </div>
                     <div class="table-responsive">
                         <table class="dash-table">
                             <thead>
                                 <tr>
                                     <th>المنتج</th>
-                                    <th>سعر الشراء</th>
-                                    <th>سعر البيع</th>
-                                    <th>ربح القطعة الواحدة</th>
-                                    <th>الكمية المتبقية</th>
-                                    <th>الكمية المباعة (المؤكدة)</th>
-                                    <th>إجمالي صافي ربح المنتج</th>
+                                    <th>سعر الشراء (للقطعة)</th>
+                                    <th>سعر البيع (للقطعة)</th>
+                                    <th>ربح القطعة</th>
+                                    <th>إجمالي المشترى</th>
+                                    <th>إجمالي تكلفة الشراء</th>
+                                    <th>المتبقي بالمخزون</th>
+                                    <th>المباع (المؤكد)</th>
+                                    <th>صافي ربح المنتج</th>
                                 </tr>
                             </thead>
                             <tbody id="dashStatsProductsTable">

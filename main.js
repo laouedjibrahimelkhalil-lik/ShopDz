@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', async function () {
     initMobileMenu();
     updateCartBadge();
+    loadStoreHeroBanner();
     await loadAndRenderCategories();
     await renderHomeProducts();
     initSearchFilter();
@@ -104,7 +105,27 @@ function getMainLang() {
     return mainLangTexts[lang] || mainLangTexts['ar'];
 }
 
-// دالة مساعدة لتوحيد النص العربي (تتجاهل الفرق بين "إلكترونيات العامة" و "إلكترونيات عامة" والهمزات)
+// تحميل وعرض الصورة الرئيسية المخصصة للمتجر من السحابة
+async function loadStoreHeroBanner() {
+    const heroImgEl = document.querySelector('.hero-image img');
+    if (!heroImgEl) return;
+
+    const cachedHero = localStorage.getItem('shopHeroImage');
+    if (cachedHero) {
+        heroImgEl.src = cachedHero;
+    }
+
+    const { data, error } = await supabaseClient
+        .from('store_settings')
+        .select('*')
+        .eq('key', 'hero_image');
+
+    if (!error && data && data.length > 0 && data[0].value) {
+        heroImgEl.src = data[0].value;
+        localStorage.setItem('shopHeroImage', data[0].value);
+    }
+}
+
 function normalizeArabicCat(str) {
     if (!str) return '';
     return str.trim()
@@ -146,7 +167,6 @@ async function loadAndRenderCategories() {
         ];
     }
 
-    // 1. تحديث شريط التنقل العلوي (navBar) بروابط الفئات الديناميكية
     const navList = document.querySelector('#navBar .nav-list') || document.querySelector('.nav-links') || document.querySelector('.cat-nav-list');
     const urlParams = new URLSearchParams(window.location.search);
     const activeCatParam = urlParams.get('cat');
@@ -163,7 +183,6 @@ async function loadAndRenderCategories() {
         navList.innerHTML = navHTML;
     }
 
-    // 2. إظهار بطاقات الفئات في أعلى الصفحة الرئيسية (فقط إذا كنا في index.html وليس في صفحة فئة فرعية)
     const isCategoryPage = window.location.pathname.indexOf('category.html') !== -1 || activeCatParam;
     const productsGrid = document.getElementById('productsGrid');
     if (!productsGrid || isCategoryPage) return;
@@ -196,7 +215,6 @@ async function loadAndRenderCategories() {
     homeCatSection.innerHTML = cardsHTML;
 }
 
-// توحيد وقراءة السلة بصيغة الكائنات {id, qty}
 function getDetailedCart() {
     let rawCart = JSON.parse(localStorage.getItem('cartItems')) || [];
     if (rawCart.length > 0 && typeof rawCart[0] === 'string') {
@@ -213,7 +231,6 @@ function getDetailedCart() {
     return rawCart || [];
 }
 
-// تحديث رقم السلة في الهيدر
 function updateCartBadge() {
     const cartBadge = document.getElementById('cartBadge');
     if (!cartBadge) return;
@@ -226,7 +243,6 @@ function updateCartBadge() {
     cartBadge.textContent = totalCount;
 }
 
-// عرض المنتجات (يعرض فقط المحددة للرئيسية في index.html، أو يعرض كل منتجات الفئة في category.html)
 async function renderHomeProducts(filterText) {
     const productsGrid = document.getElementById('productsGrid');
     if (!productsGrid) return;
@@ -235,7 +251,6 @@ async function renderHomeProducts(filterText) {
     const urlParams = new URLSearchParams(window.location.search);
     const activeCatParam = urlParams.get('cat');
 
-    // تحديث عنوان القسم إذا كنا داخل صفحة فئة معينة
     const categoryHeading = document.getElementById('categoryPageTitle');
     if (categoryHeading && activeCatParam) {
         categoryHeading.textContent = getTranslatedCategoryName(activeCatParam);
@@ -253,20 +268,17 @@ async function renderHomeProducts(filterText) {
 
     let products = productsFromDb || [];
 
-    // إذا كنا في صفحة فئة معينة (category.html?cat=...) نعرض جميع منتجات هذه الفئة بمرونة
     if (activeCatParam) {
         const targetNorm = normalizeArabicCat(activeCatParam);
         products = products.filter(function (p) {
             return p.category === activeCatParam || normalizeArabicCat(p.category) === targetNorm;
         });
     } else if (!filterText || filterText.trim() === '') {
-        // إذا كنا في الصفحة الرئيسية ولا يوجد بحث، نعرض فقط المنتجات التي حددها الأدمن للظهور في الرئيسية
         products = products.filter(function (p) {
             return p.show_on_home !== false;
         });
     }
 
-    // تصفية البحث إن وجد
     if (filterText && filterText.trim() !== '') {
         const q = filterText.trim().toLowerCase();
         products = products.filter(function (p) {
@@ -333,7 +345,6 @@ async function renderHomeProducts(filterText) {
     });
 }
 
-// دالة إضافة منتج للسلة مع التحقق من المخزون السحابي
 async function addToCart(productId) {
     const t = getMainLang();
 
@@ -375,7 +386,6 @@ async function addToCart(productId) {
     alert(t.alertAdded);
 }
 
-// تفعيل شريط البحث في الهيدر
 function initSearchFilter() {
     const searchInput = document.getElementById('searchInput');
     const searchBtn = document.getElementById('searchBtn');
@@ -394,7 +404,6 @@ function initSearchFilter() {
     }
 }
 
-// تفعيل قائمة الهاتف المحمول
 function initMobileMenu() {
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const navBar = document.getElementById('navBar');

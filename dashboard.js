@@ -164,6 +164,8 @@ const dashLangTexts = {
     }
 };
 
+const DEFAULT_HERO_IMAGE = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop';
+
 // القائمة الافتراضية الكاملة للولايات الـ 58 الجزائرية مع بلدياتها وأسعارها
 function getDefaultAlgeriaWilayas() {
     const rawWilayas = [
@@ -263,12 +265,48 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     await ensureDefaultCategories();
     await ensureDefaultShippingData();
+    await loadHeroImagePreview();
     await renderDashboardCategories();
     await renderDashboardProducts();
     await renderDashboardOrders();
     await renderDashboardStats();
     await renderDashboardAdmins();
     await renderDashboardShipping();
+
+    // إعداد معاينة ورفع الصورة الرئيسية للمتجر (Hero Banner)
+    const heroFileInput = document.getElementById('heroImageFile');
+    const heroPreview = document.getElementById('currentHeroPreview');
+
+    if (heroFileInput) {
+        heroFileInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            resizeAndConvertImage(file, 900, 675, function (compressedDataUrl) {
+                if (heroPreview) heroPreview.src = compressedDataUrl;
+                heroFileInput.dataset.compressed = compressedDataUrl;
+            });
+        });
+    }
+
+    const heroForm = document.getElementById('heroImageForm');
+    if (heroForm) {
+        heroForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const urlInput = document.getElementById('heroImageUrl');
+            let finalImage = '';
+
+            if (heroFileInput && heroFileInput.dataset.compressed) {
+                finalImage = heroFileInput.dataset.compressed;
+            } else if (urlInput && urlInput.value.trim() !== '') {
+                finalImage = urlInput.value.trim();
+            } else {
+                alert('يرجى اختيار ملف صورة من جهازك أو إدخال رابط صورة أولاً!');
+                return;
+            }
+
+            await saveHeroImageToCloud(finalImage);
+        });
+    }
 
     // 1. معالجة إضافة منتج جديد إلى Supabase
     const addProductForm = document.getElementById('addProductForm');
@@ -410,7 +448,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    // 4. معالجة حفظ أو تعديل ولاية وتوصيل البلديات (في Supabase + LocalStorage)
+    // 4. معالجة حفظ أو تعديل ولاية وتوصيل البلديات
     const addWilayaForm = document.getElementById('addWilayaForm');
     if (addWilayaForm) {
         addWilayaForm.addEventListener('submit', async function (e) {
@@ -454,7 +492,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return;
             }
 
-            // حفظ/تحديث في Supabase إن كان جدول shipping_rates موجوداً
             await supabaseClient.from('shipping_rates').upsert([{
                 code: code,
                 name: name,
@@ -463,7 +500,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 baladiyas: baladiyasList
             }]);
 
-            // تحديث النسخة المحلية أيضاً لتعمل صفحة السلة فوراً
             const index = shippingData.findIndex(function (w) { return w.code === code; });
             if (index !== -1) {
                 shippingData[index] = newWilayaObj;
@@ -480,6 +516,92 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 });
 
+// ضغط وتصغير الصورة المختارة من الجهاز لتكون سريعة وخفيفة على السحابة
+function resizeAndConvertImage(file, maxWidth, maxHeight, callback) {
+    const reader = new FileReader();
+    reader.onload = function (event) {
+        const img = new Image();
+        img.onload = function () {
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth || height > maxHeight) {
+                const ratio = Math.min(maxWidth / width, maxHeight / height);
+                width = Math.round(width * ratio);
+                height = Math.round(height * ratio);
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            callback(dataUrl);
+        };
+        img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+// جلب الصورة الحالية وعرضها في المعاينة داخل لوحة التحكم
+async function loadHeroImagePreview() {
+    const previewImg = document.getElementById('currentHeroPreview');
+    const urlInput = document.getElementById('heroImageUrl');
+    if (!previewImg) return;
+
+    let savedImg = localStorage.getItem('shopHeroImage') || DEFAULT_HERO_IMAGE;
+
+    const { data, error } = await supabaseClient
+        .from('store_settings')
+        .select('*')
+        .eq('key', 'hero_image');
+
+    if (!error && data && data.length > 0 && data[0].value) {
+        savedImg = data[0].value;
+        localStorage.setItem('shopHeroImage', savedImg);
+    }
+
+    previewImg.src = savedImg;
+    if (urlInput && savedImg.indexOf('http') === 0) {
+        urlInput.value = savedImg;
+    }
+}
+
+// حفظ الصورة الجديدة في Supabase و LocalStorage
+async function saveHeroImageToCloud(imageData) {
+    localStorage.setItem('shopHeroImage', imageData);
+
+    const { error } = await supabaseClient
+        .from('store_settings')
+        .upsert([{ key: 'hero_image', value: imageData }]);
+
+    if (error) {
+        console.warn('Saved locally:', error);
+    }
+
+    const previewImg = document.getElementById('currentHeroPreview');
+    if (previewImg) previewImg.src = imageData;
+
+    const heroFileInput = document.getElementById('heroImageFile');
+    if (heroFileInput) {
+        heroFileInput.value = '';
+        delete heroFileInput.dataset.compressed;
+    }
+
+    alert('تم تحديث الصورة الرئيسية لواجهة المتجر بنجاح! 🖼️✅');
+}
+
+// استعادة الصورة الافتراضية
+async function resetDefaultHeroImage() {
+    if (confirm('هل تريد استعادة الصورة الافتراضية للمتجر؟')) {
+        const urlInput = document.getElementById('heroImageUrl');
+        if (urlInput) urlInput.value = '';
+        await saveHeroImageToCloud(DEFAULT_HERO_IMAGE);
+    }
+}
+
 // إنشاء الفئات الافتراضية تلقائياً إذا كان الجدول فارغاً
 async function ensureDefaultCategories() {
     const { data: categories, error } = await supabaseClient.from('categories').select('*');
@@ -494,11 +616,10 @@ async function ensureDefaultCategories() {
     }
 }
 
-// تعبئة الولايات الـ 58 الافتراضية تلقائياً إذا كانت فارغة (سحابياً ومحلياً)
+// تعبئة الولايات الـ 58 الافتراضية تلقائياً إذا كانت فارغة
 async function ensureDefaultShippingData() {
     const defaults = getDefaultAlgeriaWilayas();
 
-    // 1. فحص Supabase أولاً
     const { data: cloudShipping, error } = await supabaseClient.from('shipping_rates').select('*');
     if (!error && cloudShipping) {
         if (cloudShipping.length === 0) {
@@ -529,14 +650,12 @@ async function ensureDefaultShippingData() {
         }
     }
 
-    // 2. في حال لم يُنشأ جدول shipping_rates بعد، نضمن وجودها في LocalStorage
     let localData = JSON.parse(localStorage.getItem('algeriaShippingData')) || [];
     if (localData.length === 0) {
         localStorage.setItem('algeriaShippingData', JSON.stringify(defaults));
     }
 }
 
-// جلب قائمة الولايات المحدثة
 async function getShippingDataList() {
     const { data: cloudShipping, error } = await supabaseClient.from('shipping_rates').select('*');
     if (!error && cloudShipping && cloudShipping.length > 0) {
@@ -603,6 +722,7 @@ function switchDashTab(tabName) {
         if (categoriesSection) categoriesSection.style.display = 'block';
         if (btnCat) btnCat.classList.add('active');
         renderDashboardCategories();
+        loadHeroImagePreview();
     } else if (tabName === 'orders') {
         if (ordersSection) ordersSection.style.display = 'block';
         if (btnOrd) btnOrd.classList.add('active');
@@ -1140,7 +1260,6 @@ function migrateShippingData(data) {
     });
 }
 
-// عرض جدول الولايات والبلديات وأسعار التوصيل
 async function renderDashboardShipping() {
     const tableBody = document.getElementById('dashShippingTable');
     if (!tableBody) return;
@@ -1192,7 +1311,6 @@ function addBaladiyaRow(name, desk, home) {
     container.appendChild(rowDiv);
 }
 
-// فتح بيانات الولاية وبلدياتها للتعديل
 async function editWilayaShipping(code) {
     const t = getDashLang();
     const shippingData = await getShippingDataList();
@@ -1232,7 +1350,6 @@ function resetWilayaForm() {
     document.getElementById('baladiyasEditorContainer').innerHTML = '';
 }
 
-// حذف ولاية من نظام التوصيل (من Supabase ومن التخزين المحلي)
 async function deleteWilayaShipping(code) {
     const t = getDashLang();
     if (confirm(t.confirmDeleteWilaya)) {

@@ -2,7 +2,7 @@
 const dashLangTexts = {
     ar: {
         mustLogin: 'يجب تسجيل الدخول كمسؤول أولاً للوصول إلى لوحة التحكم!',
-        prodAdded: 'تمت إضافة المنتج بنجاح مع الصور والوصف إلى المتجر السحابي!',
+        prodAdded: 'تمت إضافة المنتج بنجاح مع سعر الشراء والبيع إلى المتجر السحابي!',
         noPermAddAdmin: 'عذراً، لا تمتلك الصلاحية لإضافة مسؤولين جدد!',
         emailExists: 'هذا البريد مستخدم مسبقاً!',
         adminAdded: 'تمت إضافة المسؤول الجديد بنجاح!',
@@ -14,6 +14,7 @@ const dashLangTexts = {
         noCats: 'لا توجد فئات مضافة بعد.',
         noOrders: 'لا توجد طلبات أرسلت بعد.',
         currency: ' د.ج',
+        pieceUnit: ' قطعة',
         deleteBtn: 'حذف 🗑️',
         editBtn: 'تعديل ✏️',
         confirmBtn: 'تأكيد ✅',
@@ -25,8 +26,8 @@ const dashLangTexts = {
         itemsCountWord: 'عدد القطع: ',
         newOrderWord: 'طلب جديد',
         alreadyConfirmed: 'هذا الطلب تم تأكيده مسبقاً!',
-        confirmOrderPrompt: 'هل أنت متأكد من تأكيد الطلب؟ سيتم خصم الكميات المطلوبة من المخزون العام للمنتجات.',
-        orderConfirmedAlert: 'تم تأكيد الطلب بنجاح وخصم الكميات من المخزون السحابي! ✅',
+        confirmOrderPrompt: 'هل أنت متأكد من تأكيد الطلب؟ سيتم خصم الكميات من المخزون وإضافة صافي الربح إلى الإحصائيات.',
+        orderConfirmedAlert: 'تم تأكيد الطلب بنجاح، خصم الكميات، واحتساب الربح الصافي! ✅',
         mainAdminRole: 'المدير الرئيسي',
         canAddRole: 'مسؤول (يستطيع الإضافة)',
         viewOnlyRole: 'مسؤول (عرض فقط)',
@@ -55,7 +56,7 @@ const dashLangTexts = {
     },
     en: {
         mustLogin: 'You must login as an admin first to access the Dashboard!',
-        prodAdded: 'Product added successfully with images and description to Cloud!',
+        prodAdded: 'Product added successfully with cost and selling price!',
         noPermAddAdmin: 'Sorry, you do not have permission to add new admins!',
         emailExists: 'This email is already in use!',
         adminAdded: 'New admin added successfully!',
@@ -67,6 +68,7 @@ const dashLangTexts = {
         noCats: 'No categories added yet.',
         noOrders: 'No orders received yet.',
         currency: ' DZD',
+        pieceUnit: ' pcs',
         deleteBtn: 'Delete 🗑️',
         editBtn: 'Edit ✏️',
         confirmBtn: 'Confirm ✅',
@@ -78,8 +80,8 @@ const dashLangTexts = {
         itemsCountWord: 'Items count: ',
         newOrderWord: 'New Order',
         alreadyConfirmed: 'This order is already confirmed!',
-        confirmOrderPrompt: 'Are you sure you want to confirm this order? Purchased quantities will be deducted from total stock.',
-        orderConfirmedAlert: 'Order confirmed and stock quantities deducted successfully! ✅',
+        confirmOrderPrompt: 'Are you sure you want to confirm this order? Stock will be deducted and net profit recorded.',
+        orderConfirmedAlert: 'Order confirmed, stock deducted, and net profit calculated! ✅',
         mainAdminRole: 'Main Admin',
         canAddRole: 'Admin (Can Add)',
         viewOnlyRole: 'Admin (View Only)',
@@ -108,7 +110,7 @@ const dashLangTexts = {
     },
     fr: {
         mustLogin: 'Vous devez vous connecter en tant qu\'administrateur pour accéder au tableau de bord !',
-        prodAdded: 'Produit ajouté avec succès dans le cloud !',
+        prodAdded: 'Produit ajouté avec succès avec prix d\'achat et de vente !',
         noPermAddAdmin: 'Désolé, vous n\'avez pas la permission d\'ajouter des administrateurs !',
         emailExists: 'Cet e-mail est déjà utilisé !',
         adminAdded: 'Nouvel administrateur ajouté avec succès !',
@@ -120,6 +122,7 @@ const dashLangTexts = {
         noCats: 'Aucune catégorie ajoutée pour le moment.',
         noOrders: 'Aucune commande reçue pour le moment.',
         currency: ' DA',
+        pieceUnit: ' pcs',
         deleteBtn: 'Supprimer 🗑️',
         editBtn: 'Modifier ✏️',
         confirmBtn: 'Confirmer ✅',
@@ -131,8 +134,8 @@ const dashLangTexts = {
         itemsCountWord: 'Nombre d\'articles : ',
         newOrderWord: 'Nouvelle commande',
         alreadyConfirmed: 'Cette commande est déjà confirmée !',
-        confirmOrderPrompt: 'Confirmer cette commande ? Les quantités seront déduites du stock global.',
-        orderConfirmedAlert: 'Commande confirmée et quantités déduites du stock avec succès ! ✅',
+        confirmOrderPrompt: 'Confirmer cette commande ? Les quantités seront déduites et le bénéfice net calculé.',
+        orderConfirmedAlert: 'Commande confirmée, stock déduit et bénéfice calculé ! ✅',
         mainAdminRole: 'Administrateur Principal',
         canAddRole: 'Admin (Peut ajouter)',
         viewOnlyRole: 'Admin (Lecture seule)',
@@ -166,6 +169,14 @@ function getDashLang() {
     return dashLangTexts[lang] || dashLangTexts['ar'];
 }
 
+// دالة مساعدة لتحويل أي سعر نصي (مثل "45,000") إلى رقم حسابي صحيح (45000)
+function parsePriceNum(val) {
+    if (val === null || val === undefined) return 0;
+    if (typeof val === 'number') return val;
+    const cleaned = String(val).replace(/[^0-9.-]+/g, '');
+    return parseFloat(cleaned) || 0;
+}
+
 document.addEventListener('DOMContentLoaded', async function () {
     const t = getDashLang();
     const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin'));
@@ -179,10 +190,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     await renderDashboardCategories();
     await renderDashboardProducts();
     await renderDashboardOrders();
+    await renderDashboardStats();
     await renderDashboardAdmins();
     renderDashboardShipping();
 
-    // 1. معالجة إضافة منتج جديد إلى Supabase
+    // 1. معالجة إضافة منتج جديد إلى Supabase (مع سعر الشراء)
     const addProductForm = document.getElementById('addProductForm');
     if (addProductForm) {
         addProductForm.addEventListener('submit', async function (e) {
@@ -192,6 +204,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             const title = document.getElementById('productTitle').value.trim();
             const category = document.getElementById('productCategory').value;
             const badgeValue = document.getElementById('productBadge').value;
+            const costPriceInput = document.getElementById('productCostPrice');
+            const costPrice = costPriceInput ? Number(costPriceInput.value) : 0;
             const price = document.getElementById('productPrice').value;
             const oldPrice = document.getElementById('productOldPrice').value;
             const quantity = document.getElementById('productQuantity').value;
@@ -207,6 +221,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 title: title,
                 category: category,
                 badge: badgeValue || null,
+                cost_price: costPrice,
                 price: Number(price).toLocaleString(),
                 old_price: oldPrice ? Number(oldPrice).toLocaleString() : null,
                 quantity: Number(quantity),
@@ -221,13 +236,14 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             if (error) {
                 console.error('Error inserting product:', error);
-                alert('حدث خطأ أثناء حفظ المنتج في السحابة. تأكد من إضافة عمود show_on_home في جدول products.');
+                alert('حدث خطأ أثناء حفظ المنتج في السحابة. تأكد من تشغيل أمر SQL لإضافة عمود cost_price في جدول products.');
                 return;
             }
 
             addProductForm.reset();
             if (showOnHomeCheckbox) showOnHomeCheckbox.checked = true;
             await renderDashboardProducts();
+            await renderDashboardStats();
             alert(t.prodAdded);
         });
     }
@@ -389,27 +405,31 @@ async function ensureDefaultCategories() {
     }
 }
 
-// التبديل بين تبويبات لوحة التحكم الخمسة
+// التبديل بين تبويبات لوحة التحكم الستة
 function switchDashTab(tabName) {
     const productsSection = document.getElementById('productsTabSection');
+    const statsSection = document.getElementById('statsTabSection');
     const categoriesSection = document.getElementById('categoriesTabSection');
     const ordersSection = document.getElementById('ordersTabSection');
     const adminsSection = document.getElementById('adminsTabSection');
     const shippingSection = document.getElementById('shippingTabSection');
     
     const btnProd = document.getElementById('tabProductsBtn');
+    const btnStats = document.getElementById('tabStatsBtn');
     const btnCat = document.getElementById('tabCategoriesBtn');
     const btnOrd = document.getElementById('tabOrdersBtn');
     const btnAdm = document.getElementById('tabAdminsBtn');
     const btnShip = document.getElementById('tabShippingBtn');
 
     if (productsSection) productsSection.style.display = 'none';
+    if (statsSection) statsSection.style.display = 'none';
     if (categoriesSection) categoriesSection.style.display = 'none';
     if (ordersSection) ordersSection.style.display = 'none';
     if (adminsSection) adminsSection.style.display = 'none';
     if (shippingSection) shippingSection.style.display = 'none';
 
     if (btnProd) btnProd.classList.remove('active');
+    if (btnStats) btnStats.classList.remove('active');
     if (btnCat) btnCat.classList.remove('active');
     if (btnOrd) btnOrd.classList.remove('active');
     if (btnAdm) btnAdm.classList.remove('active');
@@ -419,6 +439,10 @@ function switchDashTab(tabName) {
         if (productsSection) productsSection.style.display = 'block';
         if (btnProd) btnProd.classList.add('active');
         renderDashboardProducts();
+    } else if (tabName === 'stats') {
+        if (statsSection) statsSection.style.display = 'block';
+        if (btnStats) btnStats.classList.add('active');
+        renderDashboardStats();
     } else if (tabName === 'categories') {
         if (categoriesSection) categoriesSection.style.display = 'block';
         if (btnCat) btnCat.classList.add('active');
@@ -438,6 +462,128 @@ function switchDashTab(tabName) {
     }
 }
 
+// حساب وعرض الإحصائيات والأرباح الصافية (اليوم، الأسبوع، الشهر، الكامل)
+async function renderDashboardStats() {
+    const t = getDashLang();
+    const { data: products } = await supabaseClient.from('products').select('*');
+    const { data: orders } = await supabaseClient.from('orders').select('*');
+
+    const prodList = products || [];
+    const ordList = orders || [];
+
+    // خريطة لتخزين بيانات كل منتج
+    let prodMap = {};
+    let totalRemainingStock = 0;
+
+    prodList.forEach(function (p) {
+        const remQty = parseInt(p.quantity) || 0;
+        totalRemainingStock += remQty;
+        prodMap[p.id] = {
+            product: p,
+            costPrice: parsePriceNum(p.cost_price),
+            sellPrice: parsePriceNum(p.price),
+            remainingQty: remQty,
+            soldQty: 0,
+            totalProfit: 0
+        };
+    });
+
+    let totalSoldConfirmed = 0;
+    let profitToday = 0;
+    let profitWeek = 0;
+    let profitMonth = 0;
+    let profitTotal = 0;
+
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startOfWeek = now.getTime() - (7 * 24 * 60 * 60 * 1000);
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+    ordList.forEach(function (order) {
+        const isConfirmed = order.status === 'مؤكد' || order.status === 'Confirmed' || order.status === 'Confirmée';
+        if (!isConfirmed) return;
+
+        // تحديد تاريخ التأكيد للطلبية
+        let orderTime = now.getTime();
+        if (order.confirmed_at) {
+            orderTime = new Date(order.confirmed_at).getTime();
+        } else if (order.created_at) {
+            orderTime = new Date(order.created_at).getTime();
+        } else if (order.order_id && order.order_id.indexOf('ORD-') === 0) {
+            const ts = parseInt(order.order_id.replace('ORD-', ''));
+            if (!isNaN(ts) && ts > 1000000000000) orderTime = ts;
+        }
+
+        let orderNetProfit = 0;
+        const items = order.items || [];
+
+        items.forEach(function (item) {
+            const qty = parseInt(item.qty) || 1;
+            totalSoldConfirmed += qty;
+
+            if (prodMap[item.id]) {
+                const pInfo = prodMap[item.id];
+                const unitProfit = pInfo.sellPrice - pInfo.costPrice;
+                const itemProfit = unitProfit * qty;
+
+                pInfo.soldQty += qty;
+                pInfo.totalProfit += itemProfit;
+                orderNetProfit += itemProfit;
+            }
+        });
+
+        profitTotal += orderNetProfit;
+        if (orderTime >= startOfToday) profitToday += orderNetProfit;
+        if (orderTime >= startOfWeek) profitWeek += orderNetProfit;
+        if (orderTime >= startOfMonth) profitMonth += orderNetProfit;
+    });
+
+    // إجمالي القطع التي اشتريتها = المخزون المتبقي حالياً + القطع التي تم بيعها وتأكيدها
+    const totalPurchasedAllTime = totalRemainingStock + totalSoldConfirmed;
+
+    const elPurchased = document.getElementById('statTotalPurchased');
+    const elSold = document.getElementById('statTotalSold');
+    const elToday = document.getElementById('statProfitToday');
+    const elWeek = document.getElementById('statProfitWeek');
+    const elMonth = document.getElementById('statProfitMonth');
+    const elTotal = document.getElementById('statProfitTotal');
+
+    if (elPurchased) elPurchased.textContent = totalPurchasedAllTime.toLocaleString() + t.pieceUnit;
+    if (elSold) elSold.textContent = totalSoldConfirmed.toLocaleString() + t.pieceUnit;
+    if (elToday) elToday.textContent = profitToday.toLocaleString() + t.currency;
+    if (elWeek) elWeek.textContent = profitWeek.toLocaleString() + t.currency;
+    if (elMonth) elMonth.textContent = profitMonth.toLocaleString() + t.currency;
+    if (elTotal) elTotal.textContent = profitTotal.toLocaleString() + t.currency;
+
+    // ملء جدول تفصيل أرباح المنتجات
+    const statsTableBody = document.getElementById('dashStatsProductsTable');
+    if (!statsTableBody) return;
+
+    if (prodList.length === 0) {
+        statsTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 25px; color: #64748b;">' + t.noProds + '</td></tr>';
+        return;
+    }
+
+    statsTableBody.innerHTML = '';
+    Object.keys(prodMap).forEach(function (id) {
+        const info = prodMap[id];
+        const unitProfit = info.sellPrice - info.costPrice;
+        const unitProfitColor = unitProfit >= 0 ? '#16a34a' : '#dc2626';
+        const totalProfitColor = info.totalProfit >= 0 ? '#15803d' : '#dc2626';
+
+        statsTableBody.innerHTML +=
+            '<tr>' +
+                '<td><strong>' + info.product.title + '</strong></td>' +
+                '<td style="color: #b45309; font-weight: 600;">' + info.costPrice.toLocaleString() + t.currency + '</td>' +
+                '<td style="font-weight: 600;">' + info.sellPrice.toLocaleString() + t.currency + '</td>' +
+                '<td style="color: ' + unitProfitColor + '; font-weight: bold;">' + unitProfit.toLocaleString() + t.currency + '</td>' +
+                '<td><span class="badge badge-new">' + info.remainingQty + '</span></td>' +
+                '<td><strong style="color: #9333ea;">' + info.soldQty + t.pieceUnit + '</strong></td>' +
+                '<td style="color: ' + totalProfitColor + '; font-weight: 800; font-size: 1rem;">' + info.totalProfit.toLocaleString() + t.currency + '</td>' +
+            '</tr>';
+    });
+}
+
 // عرض الفئات وتحديث القائمة المنسدلة في نموذج إضافة منتج
 async function renderDashboardCategories() {
     const tableBody = document.getElementById('dashCategoriesTable');
@@ -454,7 +600,6 @@ async function renderDashboardCategories() {
 
     const catList = categories || [];
 
-    // تحديث القائمة المنسدلة في نموذج إضافة منتج لتقرأ الفئات من Supabase
     if (productCatSelect && catList.length > 0) {
         const currentLang = localStorage.getItem('shopLang') || 'ar';
         productCatSelect.innerHTML = '<option value="">' + t.selectCatOption + '</option>';
@@ -489,7 +634,6 @@ async function renderDashboardCategories() {
     });
 }
 
-// تعديل اسم الفئة وتحديث المنتجات المرتبطة بها تلقائياً
 async function editCategory(catId) {
     const t = getDashLang();
     const { data: categories } = await supabaseClient.from('categories').select('*').eq('id', catId);
@@ -542,7 +686,7 @@ async function deleteCategory(catId) {
     }
 }
 
-// عرض المنتجات في لوحة التحكم مع زر التحكم في الظهور بالرئيسية
+// عرض المنتجات في لوحة التحكم مع سعر الشراء وإمكانية تعديله
 async function renderDashboardProducts() {
     const tableBody = document.getElementById('dashProductsTable');
     const productsCount = document.getElementById('productsCount');
@@ -559,25 +703,30 @@ async function renderDashboardProducts() {
     if (productsCount) productsCount.textContent = t.countPrefix + products.length;
 
     if (products.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">' + t.noProds + '</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">' + t.noProds + '</td></tr>';
         return;
     }
 
     tableBody.innerHTML = '';
     products.forEach(function (product) {
         const mainImg = product.image || 'https://via.placeholder.com/45';
-        const isShownOnHome = product.show_on_home !== false; // افتراضياً true
+        const isShownOnHome = product.show_on_home !== false;
         const homeBtnText = isShownOnHome ? t.shownOnHome : t.hiddenFromHome;
         const homeBtnStyle = isShownOnHome 
             ? 'background: #dcfce7; color: #166534; border: 1px solid #86efac;' 
             : 'background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;';
+        const costVal = parsePriceNum(product.cost_price);
 
         tableBody.innerHTML += 
             '<tr>' +
                 '<td><img src="' + mainImg + '" alt="' + product.title + '" class="dash-table-img" onerror="this.src=\'https://via.placeholder.com/45\'"></td>' +
                 '<td><strong>' + product.title + '</strong></td>' +
                 '<td>' + product.category + '</td>' +
-                '<td>' + product.price + t.currency + '</td>' +
+                '<td>' +
+                    '<span style="color: #b45309; font-weight: bold;">' + costVal.toLocaleString() + t.currency + '</span> ' +
+                    '<button onclick="editProductCost(\'' + product.id + '\', ' + costVal + ')" title="تعديل سعر الشراء" style="background:none; border:none; cursor:pointer; font-size:0.85rem;">✏️</button>' +
+                '</td>' +
+                '<td style="color: #15803d; font-weight: bold;">' + product.price + t.currency + '</td>' +
                 '<td><span class="badge badge-new">' + (product.quantity !== undefined ? product.quantity : 1) + '</span></td>' +
                 '<td>' +
                     '<button onclick="toggleProductHome(\'' + product.id + '\', ' + isShownOnHome + ')" style="padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: bold; cursor: pointer; ' + homeBtnStyle + '">' +
@@ -589,7 +738,26 @@ async function renderDashboardProducts() {
     });
 }
 
-// تبديل حالة ظهور المنتج في الواجهة الرئيسية بضغطة زر
+// إمكانية تعديل سعر الشراء لأي منتج بضغطة زر
+async function editProductCost(productId, currentCost) {
+    const newCostStr = prompt('أدخل سعر الشراء (التكلفة) الجديد لهذا المنتج (د.ج):', currentCost);
+    if (newCostStr === null || newCostStr.trim() === '') return;
+
+    const newCost = parsePriceNum(newCostStr);
+    const { error } = await supabaseClient
+        .from('products')
+        .update({ cost_price: newCost })
+        .eq('id', productId);
+
+    if (error) {
+        alert('حدث خطأ أثناء تحديث سعر الشراء. تأكد من إضافة عمود cost_price في جدول products.');
+        return;
+    }
+
+    await renderDashboardProducts();
+    await renderDashboardStats();
+}
+
 async function toggleProductHome(productId, currentState) {
     const newState = !currentState;
     const { error } = await supabaseClient
@@ -598,7 +766,7 @@ async function toggleProductHome(productId, currentState) {
         .eq('id', productId);
 
     if (error) {
-        alert('حدث خطأ أثناء تحديث حالة ظهور المنتج. تأكد من إضافة عمود show_on_home في جدول products.');
+        alert('حدث خطأ أثناء تحديث حالة ظهور المنتج.');
         return;
     }
     await renderDashboardProducts();
@@ -672,6 +840,7 @@ async function renderDashboardOrders() {
     });
 }
 
+// تأكيد الطلب، خصم الكمية من المخزون، وتسجيل وقت التأكيد لحساب الأرباح
 async function confirmOrder(orderId) {
     const t = getDashLang();
     const { data: orders } = await supabaseClient.from('orders').select('*');
@@ -701,14 +870,27 @@ async function confirmOrder(orderId) {
             }
         }
 
-        await supabaseClient
+        // تحديث حالة الطلب مع حفظ وقت التأكيد
+        const { error: confErr } = await supabaseClient
             .from('orders')
-            .update({ status: 'مؤكد' })
+            .update({ 
+                status: 'مؤكد',
+                confirmed_at: new Date().toISOString()
+            })
             .eq('order_id', orderId);
+
+        // في حال لم يضف المستخدم عمود confirmed_at بعد، نحدث الحالة فقط حتى لا يتوقف النظام
+        if (confErr) {
+            await supabaseClient
+                .from('orders')
+                .update({ status: 'مؤكد' })
+                .eq('order_id', orderId);
+        }
 
         alert(t.orderConfirmedAlert);
         await renderDashboardOrders();
         await renderDashboardProducts();
+        await renderDashboardStats();
     }
 }
 
@@ -717,6 +899,7 @@ async function clearAllOrders() {
     if (confirm(t.confirmClearAllOrders)) {
         await supabaseClient.from('orders').delete().neq('order_id', '');
         await renderDashboardOrders();
+        await renderDashboardStats();
     }
 }
 
@@ -892,6 +1075,7 @@ async function deleteProduct(productId) {
     if (confirm(t.confirmDeleteProd)) {
         await supabaseClient.from('products').delete().eq('id', productId);
         await renderDashboardProducts();
+        await renderDashboardStats();
     }
 }
 
@@ -900,6 +1084,7 @@ async function deleteOrder(orderId) {
     if (confirm(t.confirmDeleteOrder)) {
         await supabaseClient.from('orders').delete().eq('order_id', orderId);
         await renderDashboardOrders();
+        await renderDashboardStats();
     }
 }
 

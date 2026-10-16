@@ -11,6 +11,59 @@
     <!-- مكتبة Supabase وسكريبت الاتصال السحابي -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabaseClient.js"></script>
+    <style>
+        /* تنسيقات بطاقات الإحصائيات والأرباح */
+        .stats-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+        .stat-box {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 5px;
+            height: 100%;
+            background: #2563eb;
+        }
+        .stat-box.green::before { background: #16a34a; }
+        .stat-box.purple::before { background: #9333ea; }
+        .stat-box.orange::before { background: #ea580c; }
+        .stat-box.gold::before { background: #ca8a04; }
+        .stat-box-title {
+            font-size: 0.92rem;
+            color: #64748b;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .stat-box-value {
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .stat-box.green .stat-box-value { color: #15803d; }
+        .stat-box.gold .stat-box-value { color: #b45309; }
+        .stat-box-sub {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+    </style>
 </head>
 <body>
 
@@ -38,6 +91,7 @@
             <!-- أزرار التنقل بين تبويبات لوحة التحكم -->
             <div class="dash-tabs" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px;">
                 <button class="dash-tab-btn active" id="tabProductsBtn" onclick="switchDashTab('products')" data-i18n="tabProducts">📦 إدارة المنتجات</button>
+                <button class="dash-tab-btn" id="tabStatsBtn" onclick="switchDashTab('stats')">📊 الإحصائيات والأرباح</button>
                 <button class="dash-tab-btn" id="tabCategoriesBtn" onclick="switchDashTab('categories')">📁 إدارة الفئات</button>
                 <button class="dash-tab-btn" id="tabOrdersBtn" onclick="switchDashTab('orders')">
                     <span data-i18n="tabOrders">📋 طلبات الزبائن</span> 
@@ -83,21 +137,29 @@
                                 </div>
                             </div>
 
+                            <!-- صف الأسعار: سعر الشراء + سعر البيع -->
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="productPrice" data-i18n="prodPriceLabel">السعر الحالي (د.ج) *</label>
-                                    <input type="number" id="productPrice" placeholder="45000" min="0" required>
+                                    <label for="productCostPrice" style="color: #b45309; font-weight: 700;">سعر الشراء / التكلفة (د.ج) *</label>
+                                    <input type="number" id="productCostPrice" placeholder="مثال: 38000" min="0" required style="border-color: #fcd34d; background: #fffbeb;">
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="productOldPrice" data-i18n="prodOldPriceLabel">السعر القديم (اختياري)</label>
-                                    <input type="number" id="productOldPrice" placeholder="52000" min="0">
+                                    <label for="productPrice" data-i18n="prodPriceLabel" style="color: #15803d; font-weight: 700;">سعر البيع للزبون (د.ج) *</label>
+                                    <input type="number" id="productPrice" placeholder="مثال: 45000" min="0" required style="border-color: #86efac; background: #f0fdf4;">
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="productQuantity" data-i18n="prodQtyLabel">الكمية المتوفرة (المخزون) *</label>
-                                <input type="number" id="productQuantity" placeholder="10" min="1" value="1" required>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="productOldPrice" data-i18n="prodOldPriceLabel">السعر القديم قبل الخصم (اختياري)</label>
+                                    <input type="number" id="productOldPrice" placeholder="52000" min="0">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="productQuantity" data-i18n="prodQtyLabel">الكمية المشتراة (المخزون) *</label>
+                                    <input type="number" id="productQuantity" placeholder="10" min="1" value="1" required>
+                                </div>
                             </div>
 
                             <!-- خيار التحكم في ظهور المنتج في الصفحة الرئيسية -->
@@ -140,8 +202,9 @@
                                         <th data-i18n="thImage">الصورة</th>
                                         <th data-i18n="thProdName">اسم المنتج</th>
                                         <th data-i18n="thCategory">القسم</th>
-                                        <th data-i18n="thPrice">السعر</th>
-                                        <th data-i18n="thQuantity">الكمية</th>
+                                        <th>سعر الشراء</th>
+                                        <th data-i18n="thPrice">سعر البيع</th>
+                                        <th data-i18n="thQuantity">المخزون</th>
                                         <th>في الرئيسية؟</th>
                                         <th data-i18n="thActions">الإجراءات</th>
                                     </tr>
@@ -155,7 +218,79 @@
                 </div>
             </div>
 
-            <!-- 2. قسم إدارة فئات المنتجات (Categories) -->
+            <!-- 2. قسم الإحصائيات والأرباح (جديد) -->
+            <div id="statsTabSection" style="display: none;">
+                <div style="margin-bottom: 20px;">
+                    <h2 style="margin: 0 0 5px 0; color: #0f172a;">📊 ملخص الإحصائيات والأرباح الصافية</h2>
+                    <p style="margin: 0; color: #64748b; font-size: 0.9rem;">يتم احتساب المبيعات والأرباح تلقائياً بناءً على الطلبات المؤكدة فقط (سعر البيع ناقص سعر الشراء).</p>
+                </div>
+
+                <!-- بطاقات الإحصائيات الـ 6 -->
+                <div class="stats-cards-grid">
+                    <div class="stat-box">
+                        <div class="stat-box-title"><span>📦 إجمالي القطع المشتراة</span></div>
+                        <div class="stat-box-value" id="statTotalPurchased">0</div>
+                        <div class="stat-box-sub">مجموع المخزون الحالي + القطع المباعة</div>
+                    </div>
+
+                    <div class="stat-box purple">
+                        <div class="stat-box-title"><span>🤝 القطع المباعة (المؤكدة)</span></div>
+                        <div class="stat-box-value" id="statTotalSold">0</div>
+                        <div class="stat-box-sub">إجمالي المنتجات المباعة بعد التأكيد</div>
+                    </div>
+
+                    <div class="stat-box green">
+                        <div class="stat-box-title"><span>📅 صافي ربح اليوم</span></div>
+                        <div class="stat-box-value" id="statProfitToday">0 د.ج</div>
+                        <div class="stat-box-sub">أرباح الطلبات المؤكدة اليوم</div>
+                    </div>
+
+                    <div class="stat-box green">
+                        <div class="stat-box-title"><span>📆 صافي ربح الأسبوع</span></div>
+                        <div class="stat-box-value" id="statProfitWeek">0 د.ج</div>
+                        <div class="stat-box-sub">أرباح آخر 7 أيام</div>
+                    </div>
+
+                    <div class="stat-box orange">
+                        <div class="stat-box-title"><span>🗓️ صافي ربح الشهر</span></div>
+                        <div class="stat-box-value" id="statProfitMonth">0 د.ج</div>
+                        <div class="stat-box-sub">أرباح هذا الشهر الحالي</div>
+                    </div>
+
+                    <div class="stat-box gold">
+                        <div class="stat-box-title"><span>💰 صافي الربح الكامل</span></div>
+                        <div class="stat-box-value" id="statProfitTotal">0 د.ج</div>
+                        <div class="stat-box-sub">إجمالي الأرباح الصافية الكلية للمتجر</div>
+                    </div>
+                </div>
+
+                <!-- جدول تفصيل الأرباح والمخزون لكل منتج -->
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h2 class="dash-card-title">📈 تفصيل المبيعات والأرباح حسب كل منتج</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    <th>المنتج</th>
+                                    <th>سعر الشراء</th>
+                                    <th>سعر البيع</th>
+                                    <th>ربح القطعة الواحدة</th>
+                                    <th>الكمية المتبقية</th>
+                                    <th>الكمية المباعة (المؤكدة)</th>
+                                    <th>إجمالي صافي ربح المنتج</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashStatsProductsTable">
+                                <!-- يتم ملؤه تلقائياً -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. قسم إدارة فئات المنتجات (Categories) -->
             <div id="categoriesTabSection" style="display: none;">
                 <div class="dashboard-grid">
                     <div class="dash-card">
@@ -205,7 +340,7 @@
                 </div>
             </div>
 
-            <!-- 3. قسم إدارة الطلبات الواردة -->
+            <!-- 4. قسم إدارة الطلبات الواردة -->
             <div id="ordersTabSection" style="display: none;">
                 <div class="dash-card">
                     <div class="dash-card-header">
@@ -235,7 +370,7 @@
                 </div>
             </div>
 
-            <!-- 4. قسم إدارة المسؤولين -->
+            <!-- 5. قسم إدارة المسؤولين -->
             <div id="adminsTabSection" style="display: none;">
                 <div class="dashboard-grid">
                     <div class="dash-card" id="addAdminCardContainer">
@@ -278,7 +413,7 @@
                 </div>
             </div>
 
-            <!-- 5. قسم إدارة أسعار التوصيل -->
+            <!-- 6. قسم إدارة أسعار التوصيل -->
             <div id="shippingTabSection" style="display: none;">
                 <div class="dashboard-grid">
                     <div class="dash-card">

@@ -50,3 +50,59 @@ function updatePageTexts(lang) {
         }
     });
 }
+// =========================================================
+// ميزة إظهار وإخفاء كلمة المرور (تعمل تلقائياً في كل الصفحات)
+// =========================================================
+function initGlobalPasswordToggle() {
+    const passInputs = document.querySelectorAll('input[type="password"]');
+    
+    passInputs.forEach(function (input) {
+        // إذا تم إضافة الزر مسبقاً لهذا الحقل، نتخطاه
+        if (input.dataset.hasEyeToggle === 'true') return;
+        input.dataset.hasEyeToggle = 'true';
+
+        // إنشاء حاوية تحيط بحقل كلمة المرور
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = 'position: relative; display: flex; align-items: center; width: 100%;';
+
+        // وضع الحاوية مكان الحقل، ثم نقل الحقل بداخلها
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+
+        // ضبط مساحة داخل الحقل لكي لا يغطي النص على رمز العين
+        input.style.paddingRight = '40px';
+        input.style.paddingLeft = '40px';
+        input.style.width = '100%';
+        input.style.boxSizing = 'border-box';
+
+        // إنشاء زر العين
+        const eyeBtn = document.createElement('button');
+        eyeBtn.type = 'button';
+        eyeBtn.innerHTML = '👁️';
+        eyeBtn.title = 'إظهار / إخفاء كلمة المرور';
+        eyeBtn.style.cssText = 'position: absolute; right: 10px; background: transparent; border: none; cursor: pointer; font-size: 1.15rem; padding: 0; line-height: 1; z-index: 99; display: flex; align-items: center; justify-content: center; user-select: none;';
+
+        // عند الضغط على العين يتم تبديل النوع بين password و text
+        eyeBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeBtn.innerHTML = '🙈'; // رمز إخفاء كلمة المرور
+            } else {
+                input.type = 'password';
+                eyeBtn.innerHTML = '👁️'; // رمز إظهار كلمة المرور
+            }
+        });
+
+        wrapper.appendChild(eyeBtn);
+    });
+}
+
+// تشغيل الدالة فور فتح أي صفحة + فحص مستمر لأي حقل يظهر لاحقاً
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGlobalPasswordToggle);
+} else {
+    initGlobalPasswordToggle();
+}
+setInterval(initGlobalPasswordToggle, 500);

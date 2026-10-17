@@ -11,8 +11,8 @@
     <!-- ملف التنسيقات -->
     <link rel="stylesheet" href="style.css">
     <!-- مكتبة Supabase وسكريبت الاتصال السحابي -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabaseClient.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
 </head>
 <body>
 
@@ -22,7 +22,7 @@
             <!-- الشعار -->
             <a href="index.html" class="logo">Shop<span>Dz</span></a>
 
-            <!-- شريط البحث -->
+            <!-- شريط البحث الفوري -->
             <div class="search-box">
                 <input type="text" id="searchInput" data-i18n="searchPlaceholder" placeholder="ابحث عن منتج، ماركة، أو فئة...">
                 <button type="submit" id="searchBtn" data-i18n="searchBtn">بحث</button>
@@ -138,6 +138,19 @@
             </div>
         </div>
     </section>
+
+    <!-- الفوتر -->
+    <footer class="main-footer">
+        <div class="container text-center" style="padding: 25px 0;">
+            <a href="index.html" class="logo footer-logo">Shop<span>Dz</span></a>
+            <p data-i18n="footerDesc" style="margin-top: 10px; color: #64748b; font-size: 0.9rem;">
+                وجهتك الأولى لتسوق أحدث الأجهزة الإلكترونية والهواتف الذكية بأفضل الأسعار في الجزائر.
+            </p>
+            <div data-i18n="footerRights" style="margin-top: 15px; border-top: 1px solid var(--gray-border); padding-top: 15px; color: var(--text-muted); font-size: 0.85rem;">
+                جميع الحقوق محفوظة &copy; 2026 - ShopDz
+            </div>
+        </div>
+    </footer>
 
     <!-- ملفات الجافاسكريبت للترجمة والمنطق -->
     <script src="translations.js"></script>

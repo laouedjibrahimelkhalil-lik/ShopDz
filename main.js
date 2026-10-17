@@ -30,9 +30,7 @@ const mainLangTexts = {
             'الهواتف الذكية': 'الهواتف الذكية',
             'الحواسيب والملحقات': 'الحواسيب والملحقات',
             'إلكترونيات العامة': 'إلكترونيات عامة',
-            'إلكترونيات عامة': 'إلكترونيات عامة',
             'العروض الخاصة': 'العروض الخاصة',
-            'عروض خاصة': 'عروض خاصة',
             'عام': 'عام'
         },
         badges: {
@@ -59,9 +57,7 @@ const mainLangTexts = {
             'الهواتف الذكية': 'Smartphones',
             'الحواسيب والملحقات': 'Laptops & Accessories',
             'إلكترونيات العامة': 'General Electronics',
-            'إلكترونيات عامة': 'General Electronics',
             'العروض الخاصة': 'Special Offers',
-            'عروض خاصة': 'Special Offers',
             'عام': 'General'
         },
         badges: {
@@ -88,9 +84,7 @@ const mainLangTexts = {
             'الهواتف الذكية': 'Smartphones',
             'الحواسيب والملحقات': 'Ordinateurs & Accessoires',
             'إلكترونيات العامة': 'Électronique générale',
-            'إلكترونيات عامة': 'Électronique générale',
             'العروض الخاصة': 'Offres spéciales',
-            'عروض خاصة': 'Offres spéciales',
             'عام': 'Général'
         },
         badges: {
@@ -279,6 +273,7 @@ async function renderHomeProducts(filterText) {
         });
     }
 
+    // تصفية بحثية ذكية وفورية (تدعم الأحرف المشابهة وجزء من الكلمة)
     if (filterText && filterText.trim() !== '') {
         const q = filterText.trim().toLowerCase();
         products = products.filter(function (p) {
@@ -299,7 +294,13 @@ async function renderHomeProducts(filterText) {
     productsGrid.innerHTML = '';
 
     products.forEach(function (product) {
-        const mainImg = product.image || 'https://via.placeholder.com/300';
+        let mainImg = 'https://via.placeholder.com/300';
+        if (product.image) {
+            let matches = product.image.trim().match(/https?:\/\/[^\s]+/g);
+            if (matches && matches.length > 0) mainImg = matches[0];
+            else mainImg = product.image.trim().split(/[\n,]+/)[0];
+        }
+
         const rawCat = product.category || 'عام';
         const translatedCat = getTranslatedCategoryName(rawCat);
 

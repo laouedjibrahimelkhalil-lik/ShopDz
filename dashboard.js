@@ -800,7 +800,6 @@ async function renderDashboardStats() {
     let profitTotal = 0;
 
     ordList.forEach(function (order) {
-        // لا تُحسب الأرباح إلا إذا تم التوصيل والاستلام النهائي
         const isDelivered = order.status === 'مؤكد' || order.status === 'تم الاستلام' || order.status === 'Confirmed' || order.status === 'Confirmée';
         if (!isDelivered) return;
 
@@ -1013,6 +1012,7 @@ async function deleteCategory(catId) {
     }
 }
 
+// عرض جدول المنتجات مع أزرار التعديل السريع (السعر، الكمية، والتعديل الشامل)
 async function renderDashboardProducts() {
     const tableBody = document.getElementById('dashProductsTable');
     const productsCount = document.getElementById('productsCount');
@@ -1031,7 +1031,6 @@ async function renderDashboardProducts() {
 
     tableBody.innerHTML = '';
     products.forEach(function (product) {
-        // استخراج الصورة الأولى بذكاء إذا كان المنتج يحتوي على عدة روابط
         let mainImg = 'https://via.placeholder.com/45';
         if (product.image) {
             let matches = product.image.trim().match(/https?:\/\/[^\s]+/g);
@@ -1044,7 +1043,10 @@ async function renderDashboardProducts() {
         const homeBtnStyle = isShownOnHome 
             ? 'background: #dcfce7; color: #166534; border: 1px solid #86efac;' 
             : 'background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;';
+        
         const costVal = parsePriceNum(product.cost_price);
+        const sellVal = parsePriceNum(product.price);
+        const qtyVal = product.quantity !== undefined ? parseInt(product.quantity) : 1;
 
         tableBody.innerHTML += 
             '<tr>' +
@@ -1055,18 +1057,30 @@ async function renderDashboardProducts() {
                     '<span style="color: #b45309; font-weight: bold;">' + costVal.toLocaleString() + t.currency + '</span> ' +
                     '<button onclick="editProductCost(\'' + product.id + '\', ' + costVal + ')" title="تعديل سعر الشراء" style="background:none; border:none; cursor:pointer; font-size:0.85rem;">✏️</button>' +
                 '</td>' +
-                '<td style="color: #15803d; font-weight: bold;">' + product.price + t.currency + '</td>' +
-                '<td><span class="badge badge-new">' + (product.quantity !== undefined ? product.quantity : 1) + '</span></td>' +
+                '<td>' +
+                    '<span style="color: #15803d; font-weight: bold;">' + sellVal.toLocaleString() + t.currency + '</span> ' +
+                    '<button onclick="editProductPrice(\'' + product.id + '\', ' + sellVal + ')" title="تعديل سعر البيع" style="background:none; border:none; cursor:pointer; font-size:0.85rem;">✏️</button>' +
+                '</td>' +
+                '<td>' +
+                    '<span class="badge badge-new" style="font-size:0.85rem;">' + qtyVal + '</span> ' +
+                    '<button onclick="editProductQuantity(\'' + product.id + '\', ' + qtyVal + ')" title="تعديل الكمية المتوفرة" style="background:none; border:none; cursor:pointer; font-size:0.85rem;">✏️</button>' +
+                '</td>' +
                 '<td>' +
                     '<button onclick="toggleProductHome(\'' + product.id + '\', ' + isShownOnHome + ')" style="padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: bold; cursor: pointer; ' + homeBtnStyle + '">' +
                         homeBtnText +
                     '</button>' +
                 '</td>' +
-                '<td><button class="btn-delete" onclick="deleteProduct(\'' + product.id + '\')">' + t.deleteBtn + '</button></td>' +
+                '<td>' +
+                    '<div style="display:flex; gap:5px; align-items:center;">' +
+                        '<button class="btn btn-primary btn-sm" onclick="editFullProduct(\'' + product.id + '\')" style="padding: 5px 10px; font-size: 0.78rem;">' + t.editBtn + '</button>' +
+                        '<button class="btn-delete" onclick="deleteProduct(\'' + product.id + '\')">' + t.deleteBtn + '</button>' +
+                    '</div>' +
+                '</td>' +
             '</tr>';
     });
 }
 
+// 1. تعديل سعر الشراء (التكلفة)
 async function editProductCost(productId, currentCost) {
     const newCostStr = prompt('أدخل سعر الشراء (التكلفة) الجديد لهذا المنتج (د.ج):', currentCost);
     if (newCostStr === null || newCostStr.trim() === '') return;
@@ -1078,10 +1092,101 @@ async function editProductCost(productId, currentCost) {
         .eq('id', productId);
 
     if (error) {
-        alert('حدث خطأ أثناء تحديث سعر الشراء.');
+        alert('حدث خطأ أثناء تحديث سعر الشراء: ' + error.message);
         return;
     }
 
+    await renderDashboardProducts();
+    await renderDashboardStats();
+}
+
+// 2. تعديل سعر البيع للزبون
+async function editProductPrice(productId, currentPrice) {
+    const newPriceStr = prompt('أدخل سعر البيع الجديد لهذا المنتج (د.ج):', currentPrice);
+    if (newPriceStr === null || newPriceStr.trim() === '') return;
+
+    const newPriceNum = parsePriceNum(newPriceStr);
+    const formattedPrice = newPriceNum.toLocaleString();
+
+    const { error } = await supabaseClient
+        .from('products')
+        .update({ price: formattedPrice })
+        .eq('id', productId);
+
+    if (error) {
+        alert('حدث خطأ أثناء تحديث سعر البيع: ' + error.message);
+        return;
+    }
+
+    await renderDashboardProducts();
+    await renderDashboardStats();
+}
+
+// 3. تعديل الكمية المتوفرة في المخزون
+async function editProductQuantity(productId, currentQty) {
+    const newQtyStr = prompt('أدخل الكمية الجديدة المتوفرة في المخزون:', currentQty);
+    if (newQtyStr === null || newQtyStr.trim() === '') return;
+
+    const newQty = Math.max(0, parseInt(newQtyStr) || 0);
+
+    const { error } = await supabaseClient
+        .from('products')
+        .update({ quantity: newQty })
+        .eq('id', productId);
+
+    if (error) {
+        alert('حدث خطأ أثناء تحديث الكمية: ' + error.message);
+        return;
+    }
+
+    await renderDashboardProducts();
+    await renderDashboardStats();
+}
+
+// 4. تعديل شامل للمنتج (الاسم، السعر، الكمية، التكلفة)
+async function editFullProduct(productId) {
+    const { data: products, error: fetchErr } = await supabaseClient
+        .from('products')
+        .select('*')
+        .eq('id', productId);
+
+    if (fetchErr || !products || products.length === 0) return;
+    const prod = products[0];
+
+    const newTitle = prompt('تعديل اسم المنتج:', prod.title);
+    if (newTitle === null || newTitle.trim() === '') return;
+
+    const currentSell = parsePriceNum(prod.price);
+    const newPriceStr = prompt('تعديل سعر البيع (د.ج):', currentSell);
+    if (newPriceStr === null) return;
+    const newPriceFormatted = parsePriceNum(newPriceStr).toLocaleString();
+
+    const currentCost = parsePriceNum(prod.cost_price);
+    const newCostStr = prompt('تعديل سعر الشراء / التكلفة (د.ج):', currentCost);
+    if (newCostStr === null) return;
+    const newCostNum = parsePriceNum(newCostStr);
+
+    const currentQty = prod.quantity !== undefined ? prod.quantity : 1;
+    const newQtyStr = prompt('تعديل الكمية المتوفرة في المخزون:', currentQty);
+    if (newQtyStr === null) return;
+    const newQtyNum = Math.max(0, parseInt(newQtyStr) || 0);
+
+    const { error: updateErr } = await supabaseClient
+        .from('products')
+        .update({
+            title: newTitle.trim(),
+            price: newPriceFormatted,
+            cost_price: newCostNum,
+            quantity: newQtyNum
+        })
+        .eq('id', productId);
+
+    if (updateErr) {
+        alert('حدث خطأ أثناء تحديث بيانات المنتج: ' + updateErr.message);
+        return;
+    }
+
+    alert('تم تحديث بيانات المنتج بنجاح! ✅');
     await renderDashboardProducts();
     await renderDashboardStats();
 }
@@ -1097,7 +1202,7 @@ async function toggleProductHome(productId, currentState) {
     await renderDashboardProducts();
 }
 
-// عرض جدول طلبات الزبائن بنظام المراحل (قيد التجهيز -> قيد التوصيل -> تم الاستلام أو ملغاة)
+// عرض جدول طلبات الزبائن بنظام المراحل الأربع (قيد التجهيز -> قيد التوصيل -> تم الاستلام أو ملغاة)
 async function renderDashboardOrders() {
     const tableBody = document.getElementById('dashOrdersTable');
     const ordersBadge = document.getElementById('ordersBadge');
@@ -1145,26 +1250,21 @@ async function renderDashboardOrders() {
         let actionButtons = '';
 
         if (isDelivered) {
-            // المرحلة النهائية 1: تم التوصيل والاستلام (الأرباح محسوبة)
             statusBadgeHTML = '<span class="status-badge status-completed" style="background:#dcfce7; color:#15803d; padding:4px 10px; border-radius:6px; font-weight:bold;">' + t.statusConfirmed + '</span>';
             actionButtons += '<span style="color: #16a34a; font-weight: bold; font-size: 0.85rem; margin: 0 6px;">' + t.confirmedText + '</span>';
         } else if (isCancelled) {
-            // المرحلة النهائية 2: الطلبية ملغاة (لا تحسب أرباح)
             statusBadgeHTML = '<span class="status-badge" style="background:#fee2e2; color:#dc2626; padding:4px 10px; border-radius:6px; font-weight:bold;">' + t.statusCancelled + '</span>';
             actionButtons += '<span style="color: #dc2626; font-weight: bold; font-size: 0.85rem; margin: 0 6px;">' + t.cancelledText + '</span>';
         } else if (isShipping) {
-            // المرحلة 2: الطلبية مؤكدة مبدئياً وهي في الطريق للزبون (تنتظر الاستلام أو الإلغاء)
             statusBadgeHTML = '<span class="status-badge" style="background:#dbeafe; color:#1d4ed8; padding:4px 10px; border-radius:6px; font-weight:bold;">' + t.statusShipping + '</span>';
             actionButtons += '<button class="btn btn-sm" onclick="deliverOrderFinal(\'' + order.order_id + '\')" style="background: #16a34a; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.78rem;">' + t.deliverBtn + '</button>';
             actionButtons += '<button class="btn btn-sm" onclick="cancelCustomerOrder(\'' + order.order_id + '\')" style="background: #f59e0b; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.78rem;">' + t.cancelOrderBtn + '</button>';
         } else {
-            // المرحلة 1: طلبية جديدة قيد التجهيز
             statusBadgeHTML = '<span class="status-badge status-pending" style="background:#fef3c7; color:#d97706; padding:4px 10px; border-radius:6px; font-weight:bold;">' + t.statusPending + '</span>';
             actionButtons += '<button class="btn btn-sm" onclick="shipOrderInitial(\'' + order.order_id + '\')" style="background: #2563eb; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.78rem;">' + t.confirmBtn + '</button>';
             actionButtons += '<button class="btn btn-sm" onclick="cancelCustomerOrder(\'' + order.order_id + '\')" style="background: #ef4444; color: #fff; border: none; padding: 5px 8px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.78rem;">✖</button>';
         }
 
-        // زر حذف السجل متاح دائماً لتنظيف الجدول عند الرغبة
         actionButtons += '<button class="btn-delete" onclick="deleteOrder(\'' + order.order_id + '\')" title="حذف السجل">' + t.deleteBtn + '</button>';
 
         let orderDateTimeStr = order.full_date_time || '';
@@ -1189,7 +1289,7 @@ async function renderDashboardOrders() {
     });
 }
 
-// المرحلة 1 -> 2: تأكيد مبدئي وإرسال الطلبية للتوصيل (بدون احتساب أرباح بعد)
+// المرحلة 1 -> 2: إرسال الطلبية للتوصيل (بدون احتساب أرباح بعد)
 async function shipOrderInitial(orderId) {
     const t = getDashLang();
     if (!confirm(t.confirmShippingPrompt)) return;
@@ -1209,7 +1309,7 @@ async function shipOrderInitial(orderId) {
     await renderDashboardStats();
 }
 
-// المرحلة 2 -> 3: تأكيد نهائي بعد وصول الطلبية للزبون (هنا تُخصم الكمية وتُحسب الأرباح)
+// المرحلة 2 -> 3: تأكيد الاستلام النهائي (هنا تُخصم الكمية وتُحسب الأرباح)
 async function deliverOrderFinal(orderId) {
     const t = getDashLang();
     const { data: orders } = await supabaseClient.from('orders').select('*');
@@ -1266,7 +1366,7 @@ async function deliverOrderFinal(orderId) {
     }
 }
 
-// إلغاء الطلبية في حال عدم وصولها للزبون (Retour)
+// إلغاء الطلبية (Retour)
 async function cancelCustomerOrder(orderId) {
     const t = getDashLang();
     if (!confirm(t.confirmCancelOrderPrompt)) return;

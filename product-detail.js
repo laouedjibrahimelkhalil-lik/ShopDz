@@ -88,7 +88,6 @@ async function loadProductDetailsFromCloud(id) {
     const breadcrumbCat = document.getElementById('breadcrumbCategory');
     const t = getCurrentLangObj();
 
-    // جلب المنتج مباشرة من جدول products في Supabase سحابياً
     const { data: products, error } = await supabaseClient
         .from('products')
         .select('*')
@@ -106,15 +105,23 @@ async function loadProductDetailsFromCloud(id) {
     if (breadcrumb) breadcrumb.textContent = product.title;
     if (breadcrumbCat) breadcrumbCat.textContent = product.category || t.defaultCat;
 
-    const mainImg = product.image || 'https://via.placeholder.com/400';
-    const images = [mainImg]; // يمكن تعديلها لاحقاً إذا كانت هناك صور متعددة
+    // معالجة الصور المتعددة (سواء كانت مخزنة كنص يحتوي على روابط مفصولة بأسطر أو رابط منفرد)
+    let images = [];
+    if (product.image) {
+        images = product.image.split('\n').map(function (url) { return url.trim(); }).filter(function (url) { return url.length > 0; });
+    }
+    if (images.length === 0) {
+        images = ['https://via.placeholder.com/400'];
+    }
+
+    const mainImg = images[0];
     const maxStock = product.quantity !== undefined ? parseInt(product.quantity) : 1;
 
     let thumbnailsHTML = '';
     if (images.length > 1) {
         images.forEach(function (imgUrl, index) {
             const activeClass = index === 0 ? ' active' : '';
-            thumbnailsHTML += '<img src="' + imgUrl + '" alt="' + t.imageAlt + (index + 1) + '" class="thumb-img' + activeClass + '" onclick="changeMainImage(\'' + imgUrl + '\', this)" onerror="this.src=\'https://via.placeholder.com/80\'">';
+            thumbnailsHTML += '<img src="' + imgUrl + '" alt="' + t.imageAlt + (index + 1) + '" class="thumb-img' + activeClass + '" onclick="changeMainImage(\'' + imgUrl + '\', this)" onerror="this.src=\'https://via.placeholder.com/80\'" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid ' + (index === 0 ? 'var(--primary-color, #2563eb)' : '#e2e8f0') + '; transition: 0.2s;">';
         });
     }
 
@@ -122,12 +129,12 @@ async function loadProductDetailsFromCloud(id) {
     const oldPriceHTML = product.old_price ? '<span class="old-price">' + product.old_price + t.currency + '</span>' : '';
     const category = product.category || t.defaultCat;
     const description = product.description || t.defaultDesc;
-    const galleryThumbnailsBox = images.length > 1 ? '<div class="thumbnails-grid">' + thumbnailsHTML + '</div>' : '';
+    const galleryThumbnailsBox = images.length > 1 ? '<div class="thumbnails-grid" style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">' + thumbnailsHTML + '</div>' : '';
 
     container.innerHTML = 
         '<div class="product-gallery">' +
-            '<div class="main-image-box">' +
-                '<img id="mainProductImg" src="' + mainImg + '" alt="' + product.title + '" onerror="this.src=\'https://via.placeholder.com/400\'">' +
+            '<div class="main-image-box" style="border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #fff; padding: 10px; display: flex; justify-content: center; align-items: center;">' +
+                '<img id="mainProductImg" src="' + mainImg + '" alt="' + product.title + '" onerror="this.src=\'https://via.placeholder.com/400\'" style="max-height: 400px; width: 100%; object-fit: contain;">' +
             '</div>' +
             galleryThumbnailsBox +
         '</div>' +
@@ -167,8 +174,10 @@ function changeMainImage(imgUrl, element) {
 
     document.querySelectorAll('.thumb-img').forEach(function (thumb) {
         thumb.classList.remove('active');
+        thumb.style.borderColor = '#e2e8f0';
     });
     element.classList.add('active');
+    element.style.borderColor = 'var(--primary-color, #2563eb)';
 }
 
 function stepQuantity(change, maxStock) {

@@ -84,7 +84,7 @@ const translations = {
         backToCart: "العودة للسلة",
         checkoutBreadcrumb: "إتمام الشراء",
         checkoutMainTitle: "إتمام الطلب وتحديد التوصيل",
-        step1ContactInfo: "1. معلومات التواصل",
+        step1ContactInfo: "معلومات التواصل",
         fullNameLabel: "الاسم واللقب *",
         fullNamePlaceholder: "مثال: محمد بن علي",
         phoneLabel: "رقم الهاتف *",

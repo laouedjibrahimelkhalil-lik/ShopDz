@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     await loadProductDetailsFromCloud(productId);
 });
 
-// قاموس النصوص الديناميكية لصفحة تفاصيل المنتج
+// قاموس النصوص الديناميكية لصفحة تفاصيل المنتج باللغات الثلاث
 const detailLangTexts = {
     ar: {
         notFound: 'عذراً، المنتج غير موجود أو تم حذفه!',
@@ -105,7 +105,7 @@ async function loadProductDetailsFromCloud(id) {
     if (breadcrumb) breadcrumb.textContent = product.title;
     if (breadcrumbCat) breadcrumbCat.textContent = product.category || t.defaultCat;
 
-    // معالجة الصور المتعددة (تقسيم الروابط بأسطر جديدة أو بفاصلة)
+    // معالجة الصور المتعددة بدقة تامة (تقسيم الروابط بأسطر جديدة أو بفاصلة)
     let images = [];
     if (product.image) {
         images = product.image
@@ -124,7 +124,7 @@ async function loadProductDetailsFromCloud(id) {
     if (images.length > 1) {
         images.forEach(function (imgUrl, index) {
             const activeClass = index === 0 ? ' active' : '';
-            thumbnailsHTML += '<img src="' + imgUrl + '" alt="' + t.imageAlt + (index + 1) + '" class="thumb-img' + activeClass + '" onclick="changeMainImage(\'' + imgUrl + '\', this)" onerror="this.src=\'https://via.placeholder.com/80\'" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid ' + (index === 0 ? 'var(--primary-color, #2563eb)' : '#e2e8f0') + '; transition: 0.2s;">';
+            thumbnailsHTML += '<img src="' + imgUrl + '" alt="' + t.imageAlt + (index + 1) + '" class="thumb-img' + activeClass + '" onclick="changeMainImage(\'' + imgUrl + '\', this)" onerror="this.src=\'https://via.placeholder.com/80\'" style="width: 75px; height: 75px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid ' + (index === 0 ? '#2563eb' : '#e2e8f0') + '; transition: 0.2s;">';
         });
     }
 
@@ -180,7 +180,7 @@ function changeMainImage(imgUrl, element) {
         thumb.style.borderColor = '#e2e8f0';
     });
     element.classList.add('active');
-    element.style.borderColor = 'var(--primary-color, #2563eb)';
+    element.style.borderColor = '#2563eb';
 }
 
 function stepQuantity(change, maxStock) {

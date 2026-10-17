@@ -132,20 +132,28 @@ async function loadProductDetailsDirect(id) {
     currentImageIndex = 0;
     renderGallery();
 
-    // تفعيل أزرار التحكم والكمية
     setupQuantityAndCart(product.id, maxStock);
-
-    // تفعيل التنقل عبر أسهم لوحة المفاتيح
     setupKeyboardNavigation();
 }
 
 function renderGallery() {
     const detailImage = document.getElementById('detailImage');
     const detailThumbnails = document.getElementById('detailThumbnails');
+    const prevBtn = document.getElementById('prevImageBtn');
+    const nextBtn = document.getElementById('nextImageBtn');
 
     if (detailImage && productImagesList.length > 0) {
         detailImage.src = productImagesList[currentImageIndex];
         detailImage.onerror = function () { this.src = 'https://via.placeholder.com/500'; };
+    }
+
+    // إخفاء أو إظهار أزرار الأسهم بناءً على عدد الصور
+    if (productImagesList.length <= 1) {
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+    } else {
+        if (prevBtn) prevBtn.style.display = 'flex';
+        if (nextBtn) nextBtn.style.display = 'flex';
     }
 
     if (detailThumbnails) {
@@ -169,20 +177,27 @@ function renderGallery() {
     }
 }
 
+function nextImage() {
+    if (productImagesList.length <= 1) return;
+    currentImageIndex = (currentImageIndex + 1) % productImagesList.length;
+    renderGallery();
+}
+
+function prevImage() {
+    if (productImagesList.length <= 1) return;
+    currentImageIndex = (currentImageIndex - 1 + productImagesList.length) % productImagesList.length;
+    renderGallery();
+}
+
 function setupKeyboardNavigation() {
-    // إزالة المستمع السابق إن وجد لعدم تكرار الأحداث
     document.onkeydown = function(e) {
         if (productImagesList.length <= 1) return;
 
         if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-            // الانتقال للصورة التالية بالسهم الأيمن أو الأسفل
-            currentImageIndex = (currentImageIndex + 1) % productImagesList.length;
-            renderGallery();
+            nextImage();
             e.preventDefault();
         } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-            // الانتقال للصورة السابقة بالسهم الأيسر أو الأعلى
-            currentImageIndex = (currentImageIndex - 1 + productImagesList.length) % productImagesList.length;
-            renderGallery();
+            prevImage();
             e.preventDefault();
         }
     };

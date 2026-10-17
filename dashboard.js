@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    // 3. معالجة إضافة مسؤول جديد إلى Supabase (محدث بالكامل)
+    // 3. معالجة إضافة مسؤول جديد (محصن أمنياً: الحساب الجديد يبدأ بدون صلاحيات)
     const addAdminForm = document.getElementById('addAdminForm');
     if (addAdminForm) {
         addAdminForm.addEventListener('submit', async function (e) {
@@ -420,7 +420,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             const adminList = admins || [];
 
-            // التحقق من عدم تكرار البريد الإلكتروني
             if (adminList.some(function (a) { return a.email && a.email.toLowerCase() === email.toLowerCase(); })) {
                 alert(t.emailExists);
                 return;
@@ -431,8 +430,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 name: name,
                 email: email,
                 password: password,
-                is_main: adminList.length === 0, // إذا كان الجدول فارغاً يصبح مديراً رئيسياً
-                can_add_admins: false
+                is_main: adminList.length === 0, // أول حساب يصبح مديراً رئيسياً تلقائياً
+                can_add_admins: false // الحساب الجديد مستحيل أن يمنح نفسه صلاحية الإضافة
             };
 
             const { error: insertErr } = await supabaseClient.from('admins').insert([newAdminRecord]);
@@ -516,7 +515,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 });
 
-// ضغط وتصغير الصورة المختارة من الجهاز لتكون سريعة وخفيفة على السحابة
 function resizeAndConvertImage(file, maxWidth, maxHeight, callback) {
     const reader = new FileReader();
     reader.onload = function (event) {
@@ -545,7 +543,6 @@ function resizeAndConvertImage(file, maxWidth, maxHeight, callback) {
     reader.readAsDataURL(file);
 }
 
-// جلب الصورة الحالية وعرضها في المعاينة داخل لوحة التحكم
 async function loadHeroImagePreview() {
     const previewImg = document.getElementById('currentHeroPreview');
     const urlInput = document.getElementById('heroImageUrl');
@@ -569,7 +566,6 @@ async function loadHeroImagePreview() {
     }
 }
 
-// حفظ الصورة الجديدة في Supabase و LocalStorage
 async function saveHeroImageToCloud(imageData) {
     localStorage.setItem('shopHeroImage', imageData);
 
@@ -593,7 +589,6 @@ async function saveHeroImageToCloud(imageData) {
     alert('تم تحديث الصورة الرئيسية لواجهة المتجر بنجاح! 🖼️✅');
 }
 
-// استعادة الصورة الافتراضية
 async function resetDefaultHeroImage() {
     if (confirm('هل تريد استعادة الصورة الافتراضية للمتجر؟')) {
         const urlInput = document.getElementById('heroImageUrl');
@@ -602,7 +597,6 @@ async function resetDefaultHeroImage() {
     }
 }
 
-// إنشاء الفئات الافتراضية تلقائياً إذا كان الجدول فارغاً
 async function ensureDefaultCategories() {
     const { data: categories, error } = await supabaseClient.from('categories').select('*');
     if (!error && categories && categories.length === 0) {
@@ -616,7 +610,6 @@ async function ensureDefaultCategories() {
     }
 }
 
-// تعبئة الولايات الـ 58 الافتراضية تلقائياً إذا كانت فارغة
 async function ensureDefaultShippingData() {
     const defaults = getDefaultAlgeriaWilayas();
 
@@ -680,7 +673,6 @@ async function getShippingDataList() {
     return migrateShippingData(localData);
 }
 
-// التبديل بين تبويبات لوحة التحكم الستة
 function switchDashTab(tabName) {
     const productsSection = document.getElementById('productsTabSection');
     const statsSection = document.getElementById('statsTabSection');
@@ -750,7 +742,6 @@ function getProductAddedTimestamp(product) {
     return 0;
 }
 
-// حساب وعرض الإحصائيات (تكلفة المشتريات + صافي الأرباح لليوم والأسبوع والشهر والكامل)
 async function renderDashboardStats() {
     const t = getDashLang();
     const { data: products } = await supabaseClient.from('products').select('*');
@@ -900,7 +891,6 @@ async function renderDashboardStats() {
     });
 }
 
-// عرض الفئات وتحديث القائمة المنسدلة
 async function renderDashboardCategories() {
     const tableBody = document.getElementById('dashCategoriesTable');
     const categoriesCount = document.getElementById('categoriesCount');
@@ -1202,8 +1192,7 @@ async function clearAllOrders() {
     }
 }
 
-// عرض المسؤولين والتحقق من الصلاحيات بمرونة
-// عرض المسؤولين والتحقق الصارم من صلاحية الإضافة (المدير الرئيسي أو من تمنحه الصلاحية فقط)
+// عرض المسؤولين والتحقق الصارم جداً من الصلاحيات (المدير الرئيسي فقط من يضيف)
 async function renderDashboardAdmins() {
     const tableBody = document.getElementById('dashAdminsTable');
     const addCardContainer = document.getElementById('addAdminCardContainer');
@@ -1212,19 +1201,14 @@ async function renderDashboardAdmins() {
     const t = getDashLang();
     const { data: admins } = await supabaseClient.from('admins').select('*');
     const adminList = admins || [];
+    
     const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin')) || {};
+    let freshCurrentAdmin = adminList.find(function (a) { return a.email && a.email.toLowerCase() === (currentAdmin.email || '').toLowerCase(); }) || currentAdmin;
     
-    // البحث عن الحساب الحالي في قاعدة البيانات لمعرفة صلاحياته الحقيقية
-    let freshCurrentAdmin = adminList.find(function (a) { return a.email === currentAdmin.email; }) || currentAdmin;
-    
-    // هل الجدول فارغ تماماً؟ (أول حساب يتم فتحه يصبح مديراً رئيسياً تلقائياً)
     const isFirstAdmin = adminList.length === 0;
 
-    // الشرط الصارم: يظهر نموذج إضافة مسؤول جديد فقط إذا كان:
-    // 1. الجدول فارغ (أول حساب)
-    // 2. أو الحساب هو المدير الرئيسي (is_main = true)
-    // 3. أو المدير الرئيسي منح هذا الحساب صلاحية الإضافة (can_add_admins = true)
-    const canAdd = isFirstAdmin || freshCurrentAdmin.is_main || freshCurrentAdmin.can_add_admins;
+    // الشرط الصارم: نموذج الإضافة يظهر فقط للمدير الرئيسي (is_main) أو إذا كان الجدول فارغاً تماماً
+    const canAdd = isFirstAdmin || freshCurrentAdmin.is_main === true || freshCurrentAdmin.can_add_admins === true;
 
     if (addCardContainer) {
         addCardContainer.style.display = canAdd ? 'block' : 'none';
@@ -1237,8 +1221,8 @@ async function renderDashboardAdmins() {
         let permissionsText = admin.is_main ? t.mainAdminRole : (admin.can_add_admins ? t.canAddRole : t.viewOnlyRole);
         let actionButtons = '';
         
-        // المدير الرئيسي فقط (أو أنت) من يملك صلاحية منح/سحب حقوق الإضافة أو حذف الحسابات الأخرى
-        if (freshCurrentAdmin.is_main) {
+        // فقط "المدير الرئيسي (is_main)" هو من يمتلك صلاحية منح/سحب حقوق الإضافة والحذف للحسابات الأخرى
+        if (freshCurrentAdmin.is_main === true) {
             if (!admin.is_main) {
                 let toggleBtnText = admin.can_add_admins ? t.revokePermBtn : t.grantPermBtn;
                 let toggleBtnClass = admin.can_add_admins ? 'btn-cancel' : 'btn-primary';

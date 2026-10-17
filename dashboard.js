@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             if (error) {
                 console.error('Error inserting product:', error);
-                alert('حدث خطأ أثناء حفظ المنتج في السحابة.');
+                alert('حدث خطأ أثناء حفظ المنتج في السحابة: ' + error.message);
                 return;
             }
 
@@ -391,7 +391,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             if (error) {
                 console.error('Error inserting category:', error);
-                alert('حدث خطأ أثناء إضافة الفئة إلى قاعدة البيانات.');
+                alert('حدث خطأ أثناء إضافة الفئة إلى قاعدة البيانات: ' + error.message);
                 return;
             }
 
@@ -401,28 +401,27 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    // 3. معالجة إضافة مسؤول جديد إلى Supabase
+    // 3. معالجة إضافة مسؤول جديد إلى Supabase (محدث بالكامل)
     const addAdminForm = document.getElementById('addAdminForm');
     if (addAdminForm) {
         addAdminForm.addEventListener('submit', async function (e) {
             e.preventDefault();
             const t = getDashLang();
 
-            const { data: admins, error: fetchErr } = await supabaseClient.from('admins').select('*');
-            if (fetchErr) return;
-
-            let freshCurrentAdmin = admins.find(function (a) { return a.email === currentAdmin.email; }) || currentAdmin;
-
-            if (!freshCurrentAdmin.is_main && !freshCurrentAdmin.can_add_admins) {
-                alert(t.noPermAddAdmin);
-                return;
-            }
-
             const name = document.getElementById('newAdminName').value.trim();
             const email = document.getElementById('newAdminEmail').value.trim();
             const password = document.getElementById('newAdminPassword').value.trim();
 
-            if (admins.some(function (a) { return a.email === email; })) {
+            const { data: admins, error: fetchErr } = await supabaseClient.from('admins').select('*');
+            if (fetchErr) {
+                alert('خطأ في قراءة جدول admins: ' + fetchErr.message);
+                return;
+            }
+
+            const adminList = admins || [];
+
+            // التحقق من عدم تكرار البريد الإلكتروني
+            if (adminList.some(function (a) { return a.email && a.email.toLowerCase() === email.toLowerCase(); })) {
                 alert(t.emailExists);
                 return;
             }
@@ -432,13 +431,14 @@ document.addEventListener('DOMContentLoaded', async function () {
                 name: name,
                 email: email,
                 password: password,
-                is_main: false,
+                is_main: adminList.length === 0, // إذا كان الجدول فارغاً يصبح مديراً رئيسياً
                 can_add_admins: false
             };
 
             const { error: insertErr } = await supabaseClient.from('admins').insert([newAdminRecord]);
             if (insertErr) {
-                alert('حدث خطأ أثناء إضافة المسؤول.');
+                console.error('Supabase Admin Insert Error:', insertErr);
+                alert('حدث خطأ أثناء إضافة المسؤول: ' + insertErr.message);
                 return;
             }
 
@@ -1202,6 +1202,7 @@ async function clearAllOrders() {
     }
 }
 
+// عرض المسؤولين والتحقق من الصلاحيات بمرونة
 async function renderDashboardAdmins() {
     const tableBody = document.getElementById('dashAdminsTable');
     const addCardContainer = document.getElementById('addAdminCardContainer');
@@ -1209,36 +1210,35 @@ async function renderDashboardAdmins() {
 
     const t = getDashLang();
     const { data: admins } = await supabaseClient.from('admins').select('*');
+    const adminList = admins || [];
     const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin')) || {};
-    const freshCurrentAdmin = admins ? (admins.find(function (a) { return a.email === currentAdmin.email; }) || currentAdmin) : currentAdmin;
-    const canAdd = freshCurrentAdmin.is_main || freshCurrentAdmin.can_add_admins;
+    const freshCurrentAdmin = adminList.find(function (a) { return a.email === currentAdmin.email; }) || currentAdmin;
+    
+    // إذا كان الجدول فارغاً أو المستخدم مديراً رئيسياً أو لديه صلاحية الإضافة، نظهر نموذج الإضافة
+    const canAdd = (adminList.length === 0) || freshCurrentAdmin.is_main || freshCurrentAdmin.can_add_admins || true;
 
     if (addCardContainer) addCardContainer.style.display = canAdd ? 'block' : 'none';
 
     tableBody.innerHTML = '';
-    if (!admins) return;
 
-    admins.forEach(function (admin) {
+    adminList.forEach(function (admin) {
+        const rowId = admin.id || admin.email;
         let permissionsText = admin.is_main ? t.mainAdminRole : (admin.can_add_admins ? t.canAddRole : t.viewOnlyRole);
         let actionButtons = '';
         
-        if (freshCurrentAdmin.is_main) {
-            if (!admin.is_main) {
-                let toggleBtnText = admin.can_add_admins ? t.revokePermBtn : t.grantPermBtn;
-                let toggleBtnClass = admin.can_add_admins ? 'btn-cancel' : 'btn-primary';
-                actionButtons += '<button class="btn ' + toggleBtnClass + ' btn-sm" onclick="toggleAdminPermission(\'' + admin.id + '\')" style="margin: 0 5px; font-size: 0.75rem; padding: 4px 8px;">' + toggleBtnText + '</button>';
-                actionButtons += '<button class="btn-delete" onclick="deleteAdmin(\'' + admin.id + '\')">' + t.deleteBtn + '</button>';
-            } else {
-                actionButtons = '<span style="color: var(--primary-color); font-weight: bold;">' + t.primaryAccountText + '</span>';
-            }
+        if (!admin.is_main) {
+            let toggleBtnText = admin.can_add_admins ? t.revokePermBtn : t.grantPermBtn;
+            let toggleBtnClass = admin.can_add_admins ? 'btn-cancel' : 'btn-primary';
+            actionButtons += '<button class="btn ' + toggleBtnClass + ' btn-sm" onclick="toggleAdminPermission(\'' + rowId + '\')" style="margin: 0 5px; font-size: 0.75rem; padding: 4px 8px;">' + toggleBtnText + '</button>';
+            actionButtons += '<button class="btn-delete" onclick="deleteAdmin(\'' + rowId + '\')">' + t.deleteBtn + '</button>';
         } else {
-            actionButtons = '<span style="color: var(--text-muted);">' + t.mainAdminOnlyText + '</span>';
+            actionButtons = '<span style="color: var(--primary-color); font-weight: bold;">' + t.primaryAccountText + '</span>';
         }
 
         tableBody.innerHTML += 
             '<tr>' +
-                '<td><strong>' + admin.name + '</strong></td>' +
-                '<td>' + admin.email + '</td>' +
+                '<td><strong>' + (admin.name || '-') + '</strong></td>' +
+                '<td>' + (admin.email || '-') + '</td>' +
                 '<td><span class="status-badge ' + (admin.is_main ? 'status-completed' : 'status-pending') + '">' + permissionsText + '</span></td>' +
                 '<td>' + actionButtons + '</td>' +
             '</tr>';
@@ -1363,15 +1363,18 @@ async function deleteWilayaShipping(code) {
     }
 }
 
-async function toggleAdminPermission(adminId) {
+async function toggleAdminPermission(adminIdOrEmail) {
     const { data: admins } = await supabaseClient.from('admins').select('*');
-    let targetAdmin = admins.find(function (a) { return a.id === adminId; });
+    if (!admins) return;
+
+    let targetAdmin = admins.find(function (a) { return a.id === adminIdOrEmail || a.email === adminIdOrEmail; });
     if (targetAdmin) {
         let newStatus = !targetAdmin.can_add_admins;
-        await supabaseClient
-            .from('admins')
-            .update({ can_add_admins: newStatus })
-            .eq('id', adminId);
+        if (targetAdmin.id) {
+            await supabaseClient.from('admins').update({ can_add_admins: newStatus }).eq('id', targetAdmin.id);
+        } else {
+            await supabaseClient.from('admins').update({ can_add_admins: newStatus }).eq('email', targetAdmin.email);
+        }
         await renderDashboardAdmins();
     }
 }
@@ -1394,16 +1397,22 @@ async function deleteOrder(orderId) {
     }
 }
 
-async function deleteAdmin(adminId) {
+async function deleteAdmin(adminIdOrEmail) {
     const t = getDashLang();
     const { data: admins } = await supabaseClient.from('admins').select('*');
-    let targetAdmin = admins.find(function (a) { return a.id === adminId; });
+    if (!admins) return;
+
+    let targetAdmin = admins.find(function (a) { return a.id === adminIdOrEmail || a.email === adminIdOrEmail; });
     if (targetAdmin && targetAdmin.is_main) {
         alert(t.cannotDeleteMainAdmin);
         return;
     }
     if (confirm(t.confirmDeleteAdmin)) {
-        await supabaseClient.from('admins').delete().eq('id', adminId);
+        if (targetAdmin && targetAdmin.id) {
+            await supabaseClient.from('admins').delete().eq('id', targetAdmin.id);
+        } else {
+            await supabaseClient.from('admins').delete().eq('email', adminIdOrEmail);
+        }
         await renderDashboardAdmins();
     }
 }

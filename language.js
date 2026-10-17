@@ -51,58 +51,51 @@ function updatePageTexts(lang) {
     });
 }
 // =========================================================
-// ميزة إظهار وإخفاء كلمة المرور (تعمل تلقائياً في كل الصفحات)
+// ميزة إظهار وإخفاء كلمة المرور (عين واحدة فقط ولا تؤثر على تسجيل الدخول)
 // =========================================================
-function initGlobalPasswordToggle() {
-    const passInputs = document.querySelectorAll('input[type="password"]');
-    
-    passInputs.forEach(function (input) {
-        // إذا تم إضافة الزر مسبقاً لهذا الحقل، نتخطاه
-        if (input.dataset.hasEyeToggle === 'true') return;
-        input.dataset.hasEyeToggle = 'true';
+const hideBrowserEyeStyle = document.createElement('style');
+hideBrowserEyeStyle.innerHTML = `
+    input[type="password"]::-ms-reveal,
+    input[type="password"]::-ms-clear {
+        display: none !important;
+    }
+`;
+document.head.appendChild(hideBrowserEyeStyle);
 
-        // إنشاء حاوية تحيط بحقل كلمة المرور
-        const wrapper = document.createElement('div');
-        wrapper.style.cssText = 'position: relative; display: flex; align-items: center; width: 100%;';
+function initSafePasswordToggle() {
+    const passwordInputs = document.querySelectorAll('input[type="password"]');
 
-        // وضع الحاوية مكان الحقل، ثم نقل الحقل بداخلها
-        input.parentNode.insertBefore(wrapper, input);
-        wrapper.appendChild(input);
+    passwordInputs.forEach(function (input) {
+        if (input.dataset.eyeAttached === 'true') return;
+        input.dataset.eyeAttached = 'true';
 
-        // ضبط مساحة داخل الحقل لكي لا يغطي النص على رمز العين
+        const parent = input.parentElement;
+        if (!parent) return;
+        parent.style.position = 'relative';
+
         input.style.paddingRight = '40px';
-        input.style.paddingLeft = '40px';
-        input.style.width = '100%';
-        input.style.boxSizing = 'border-box';
 
-        // إنشاء زر العين
-        const eyeBtn = document.createElement('button');
-        eyeBtn.type = 'button';
-        eyeBtn.innerHTML = '👁️';
-        eyeBtn.title = 'إظهار / إخفاء كلمة المرور';
-        eyeBtn.style.cssText = 'position: absolute; right: 10px; background: transparent; border: none; cursor: pointer; font-size: 1.15rem; padding: 0; line-height: 1; z-index: 99; display: flex; align-items: center; justify-content: center; user-select: none;';
+        const eyeIcon = document.createElement('span');
+        eyeIcon.innerHTML = '👁️';
+        eyeIcon.title = 'إظهار / إخفاء كلمة المرور';
+        eyeIcon.style.cssText = 'position: absolute; right: 12px; bottom: 10px; cursor: pointer; font-size: 1.15rem; user-select: none; z-index: 20; line-height: 1;';
 
-        // عند الضغط على العين يتم تبديل النوع بين password و text
-        eyeBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
+        eyeIcon.addEventListener('click', function () {
             if (input.type === 'password') {
                 input.type = 'text';
-                eyeBtn.innerHTML = '🙈'; // رمز إخفاء كلمة المرور
+                eyeIcon.innerHTML = '🙈';
             } else {
                 input.type = 'password';
-                eyeBtn.innerHTML = '👁️'; // رمز إظهار كلمة المرور
+                eyeIcon.innerHTML = '👁️';
             }
         });
 
-        wrapper.appendChild(eyeBtn);
+        parent.appendChild(eyeIcon);
     });
 }
 
-// تشغيل الدالة فور فتح أي صفحة + فحص مستمر لأي حقل يظهر لاحقاً
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initGlobalPasswordToggle);
+    document.addEventListener('DOMContentLoaded', initSafePasswordToggle);
 } else {
-    initGlobalPasswordToggle();
+    initSafePasswordToggle();
 }
-setInterval(initGlobalPasswordToggle, 500);

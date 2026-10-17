@@ -105,10 +105,13 @@ async function loadProductDetailsFromCloud(id) {
     if (breadcrumb) breadcrumb.textContent = product.title;
     if (breadcrumbCat) breadcrumbCat.textContent = product.category || t.defaultCat;
 
-    // معالجة الصور المتعددة (سواء كانت مخزنة كنص يحتوي على روابط مفصولة بأسطر أو رابط منفرد)
+    // معالجة الصور المتعددة (تقسيم الروابط بأسطر جديدة أو بفاصلة)
     let images = [];
     if (product.image) {
-        images = product.image.split('\n').map(function (url) { return url.trim(); }).filter(function (url) { return url.length > 0; });
+        images = product.image
+            .split(/[\n,]+/)
+            .map(function (url) { return url.trim(); })
+            .filter(function (url) { return url.length > 0; });
     }
     if (images.length === 0) {
         images = ['https://via.placeholder.com/400'];

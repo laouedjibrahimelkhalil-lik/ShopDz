@@ -166,7 +166,6 @@ const dashLangTexts = {
 
 const DEFAULT_HERO_IMAGE = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop';
 
-// القائمة الافتراضية الكاملة للولايات الـ 58 الجزائرية مع بلدياتها وأسعارها
 function getDefaultAlgeriaWilayas() {
     const rawWilayas = [
         { code: "01", name: "01. أدرار", desk: 600, home: 900, cities: ["أدرار", "رقان", "تيميمون", "أولف", "زاوية كنتة", "فنوغيل"] },
@@ -273,7 +272,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     await renderDashboardAdmins();
     await renderDashboardShipping();
 
-    // إعداد معاينة ورفع الصورة الرئيسية للمتجر (Hero Banner)
     const heroFileInput = document.getElementById('heroImageFile');
     const heroPreview = document.getElementById('currentHeroPreview');
 
@@ -308,7 +306,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    // 1. معالجة إضافة منتج جديد إلى Supabase
     const addProductForm = document.getElementById('addProductForm');
     if (addProductForm) {
         addProductForm.addEventListener('submit', async function (e) {
@@ -362,7 +359,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    // 2. معالجة إضافة فئة جديدة (Category) إلى Supabase
     const addCategoryForm = document.getElementById('addCategoryForm');
     if (addCategoryForm) {
         addCategoryForm.addEventListener('submit', async function (e) {
@@ -401,7 +397,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    // 3. معالجة إضافة مسؤول جديد (محصن أمنياً: الحساب الجديد يبدأ بدون صلاحيات)
     const addAdminForm = document.getElementById('addAdminForm');
     if (addAdminForm) {
         addAdminForm.addEventListener('submit', async function (e) {
@@ -430,8 +425,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 name: name,
                 email: email,
                 password: password,
-                is_main: adminList.length === 0, // أول حساب يصبح مديراً رئيسياً تلقائياً
-                can_add_admins: false // الحساب الجديد مستحيل أن يمنح نفسه صلاحية الإضافة
+                is_main: adminList.length === 0,
+                can_add_admins: false
             };
 
             const { error: insertErr } = await supabaseClient.from('admins').insert([newAdminRecord]);
@@ -447,7 +442,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    // 4. معالجة حفظ أو تعديل ولاية وتوصيل البلديات
     const addWilayaForm = document.getElementById('addWilayaForm');
     if (addWilayaForm) {
         addWilayaForm.addEventListener('submit', async function (e) {
@@ -1192,22 +1186,19 @@ async function clearAllOrders() {
     }
 }
 
-// عرض المسؤولين والتحقق الصارم جداً من الصلاحيات (المدير الرئيسي فقط من يضيف)
 async function renderDashboardAdmins() {
     const tableBody = document.getElementById('dashAdminsTable');
     const addCardContainer = document.getElementById('addAdminCardContainer');
     if (!tableBody) return;
 
     const t = getDashLang();
-    const { data: admins } = await supabaseClient.from('admins').select('*');
+    const { data: admins } = await supabaseClient.clear().from('admins').select('*').catch(() => supabaseClient.from('admins').select('*'));
     const adminList = admins || [];
     
     const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin')) || {};
     let freshCurrentAdmin = adminList.find(function (a) { return a.email && a.email.toLowerCase() === (currentAdmin.email || '').toLowerCase(); }) || currentAdmin;
     
     const isFirstAdmin = adminList.length === 0;
-
-    // الشرط الصارم: نموذج الإضافة يظهر فقط للمدير الرئيسي (is_main) أو إذا كان الجدول فارغاً تماماً
     const canAdd = isFirstAdmin || freshCurrentAdmin.is_main === true || freshCurrentAdmin.can_add_admins === true;
 
     if (addCardContainer) {
@@ -1221,7 +1212,6 @@ async function renderDashboardAdmins() {
         let permissionsText = admin.is_main ? t.mainAdminRole : (admin.can_add_admins ? t.canAddRole : t.viewOnlyRole);
         let actionButtons = '';
         
-        // فقط "المدير الرئيسي (is_main)" هو من يمتلك صلاحية منح/سحب حقوق الإضافة والحذف للحسابات الأخرى
         if (freshCurrentAdmin.is_main === true) {
             if (!admin.is_main) {
                 let toggleBtnText = admin.can_add_admins ? t.revokePermBtn : t.grantPermBtn;

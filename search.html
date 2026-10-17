@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopDz - نتائج البحث</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="container header-container">
+            <a href="index.html" class="logo">Shop<span>Dz</span></a>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="ابحث عن منتج، ماركة، أو فئة...">
+                <button type="submit" id="searchBtn">بحث</button>
+            </div>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
+                <a href="cart.html" class="action-btn cart-btn">
+                    <span class="icon">🛒</span>
+                    <span class="badge" id="cartBadge">0</span>
+                    <span class="text">السلة</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="section" style="padding: 40px 0;">
+        <div class="container">
+            <h1 id="searchQueryResultTitle" style="font-size: 1.6rem; font-weight: 800; color: #0f172a; margin-bottom: 25px;">نتائج البحث عن: "<span id="queryKeyword"></span>"</h1>
+            
+            <div class="products-grid" id="searchResultsGrid">
+                <!-- المنتجات المطابقة -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer" style="padding: 25px 0; text-align: center; border-top: 1px solid #e2e8f0; margin-top: 50px;">
+        <p style="color: #64748b; font-size: 0.85rem; margin: 0;">جميع الحقوق محفوظة &copy; 2026 - ShopDz</p>
+    </footer>
+
+    <script src="translations.js"></script>
+    <script src="language.js"></script>
+    <script src="main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            const params = new URLSearchParams(window.location.search);
+            const query = params.get('q') || '';
+            document.getElementById('queryKeyword').textContent = query;
+            
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.value = query;
+
+            await renderSearchResults(query);
+        });
+
+        async function renderSearchResults(query) {
+            const grid = document.getElementById('searchResultsGrid');
+            if (!grid) return;
+
+            const { data: products } = await supabaseClient.from('products').select('*');
+            const allProducts = products || [];
+
+            const q = query.trim().toLowerCase();
+            const matched = allProducts.filter(p => 
+                (p.title && p.title.toLowerCase().includes(q)) || 
+                (p.category && p.category.toLowerCase().includes(q))
+            );
+
+            if (matched.length === 0) {
+                grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1; text-align: center; padding: 40px;"><p>لا توجد منتجات مطابقة لبحثك.</p></div>';
+                return;
+            }
+
+            grid.innerHTML = '';
+            matched.forEach(product => {
+                let mainImg = 'https://via.placeholder.com/300';
+                if (product.image) {
+                    let matches = product.image.trim().match(/https?:\/\/[^\s]+/g);
+                    if (matches && matches.length > 0) mainImg = matches[0];
+                    else mainImg = product.image.trim().split(/[\n,]+/)[0];
+                }
+
+                grid.innerHTML += `
+                    <div class="product-card">
+                        <div class="product-img-wrapper" style="cursor: pointer;" onclick="window.location.href='product-detail.html?id=${product.id}'">
+                            <img src="${mainImg}" alt="${product.title}" onerror="this.src='https://via.placeholder.com/300'">
+                        </div>
+                        <div class="product-info">
+                            <span class="product-cat">${product.category || 'عام'}</span>
+                            <h3 class="product-title" style="cursor: pointer;" onclick="window.location.href='product-detail.html?id=${product.id}'">${product.title}</h3>
+                            <div class="product-price">
+                                <span class="current-price">${product.price} د.ج</span>
+                            </div>
+                            <div class="product-actions" style="display: flex; gap: 8px; margin-top: 12px;">
+                                <a href="product-detail.html?id=${product.id}" style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px; font-size: 0.9rem; font-weight: 700; color: #1e293b; background-color: #fff; border: 1.5px solid #334155; border-radius: 8px; text-decoration: none;">رؤية المنتوج 👁️</a>
+                                <button type="button" class="btn btn-primary" onclick="addToCart('${product.id}')" style="flex: 1; padding: 10px; border-radius: 8px; cursor: pointer;">إضافة للسلة 🛒</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>

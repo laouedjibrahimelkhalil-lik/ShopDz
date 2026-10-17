@@ -273,7 +273,6 @@ async function renderHomeProducts(filterText) {
         });
     }
 
-    // تصفية بحثية ذكية وفورية (تدعم الأحرف المشابهة وجزء من الكلمة)
     if (filterText && filterText.trim() !== '') {
         const q = filterText.trim().toLowerCase();
         products = products.filter(function (p) {
@@ -387,22 +386,95 @@ async function addToCart(productId) {
     alert(t.alertAdded);
 }
 
+// دالة البحث الفوري (أبرز 5 نتائج كحد أقصى) والبحث الشامل عند Enter
 function initSearchFilter() {
     const searchInput = document.getElementById('searchInput');
     const searchBtn = document.getElementById('searchBtn');
 
-    if (searchInput) {
-        searchInput.addEventListener('input', function () {
-            renderHomeProducts(this.value);
+    if (!searchInput) return;
+
+    let dropdown = document.getElementById('searchDropdownResults');
+    if (!dropdown) {
+        dropdown = document.createElement('div');
+        dropdown.id = 'searchDropdownResults';
+        dropdown.className = 'search-dropdown-results';
+        searchInput.parentElement.appendChild(dropdown);
+    }
+
+    searchInput.addEventListener('input', async function () {
+        const query = this.value.trim().toLowerCase();
+        if (query.length === 0) {
+            dropdown.style.display = 'none';
+            return;
+        }
+
+        const { data: products } = await supabaseClient.from('products').select('*');
+        const allProducts = products || [];
+
+        const matched = allProducts.filter(p => 
+            (p.title && p.title.toLowerCase().includes(query)) || 
+            (p.category && p.category.toLowerCase().includes(query))
+        ).slice(0, 5); // عرض أبرز 5 نتائج فقط كحد أقصى
+
+        if (matched.length === 0) {
+            dropdown.innerHTML = '<div style="padding: 12px; text-align: center; color: #64748b; font-size: 0.85rem;">لا توجد نتائج مطابقة</div>';
+            dropdown.style.display = 'block';
+            return;
+        }
+
+        dropdown.innerHTML = '';
+        matched.forEach(product => {
+            let mainImg = 'https://via.placeholder.com/40';
+            if (product.image) {
+                let matches = product.image.trim().match(/https?:\/\/[^\s]+/g);
+                if (matches && matches.length > 0) mainImg = matches[0];
+                else mainImg = product.image.trim().split(/[\n,]+/)[0];
+            }
+
+            const item = document.createElement('a');
+            item.href = 'product-detail.html?id=' + product.id;
+            item.className = 'search-dropdown-item';
+            item.innerHTML = `
+                <img src="${mainImg}" alt="${product.title}" onerror="this.src='https://via.placeholder.com/40'">
+                <div class="search-dropdown-item-info">
+                    <h4>${product.title}</h4>
+                    <span>${product.price} د.ج</span>
+                </div>
+            `;
+            dropdown.appendChild(item);
+        });
+
+        dropdown.style.display = 'block';
+    });
+
+    function performFullSearch() {
+        const query = searchInput.value.trim();
+        if (query) {
+            window.location.href = 'search.html?q=' + encodeURIComponent(query);
+        }
+    }
+
+    searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            dropdown.style.display = 'none';
+            performFullSearch();
+        }
+    });
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            dropdown.style.display = 'none';
+            performFullSearch();
         });
     }
 
-    if (searchBtn && searchInput) {
-        searchBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            renderHomeProducts(searchInput.value);
-        });
-    }
+    document.addEventListener('click', function (e) {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
 }
 
 function initMobileMenu() {

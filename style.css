@@ -1650,3 +1650,62 @@ html[dir="rtl"] .product-detail-info {
         position: static;
     }
 }
+/* --- تنسيقات قائمة البحث الفوري المنسدلة --- */
+.search-box {
+    position: relative;
+}
+
+.search-dropdown-results {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 350px;
+    overflow-y: auto;
+    display: none;
+}
+
+.search-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #1e293b;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.15s ease;
+}
+
+.search-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.search-dropdown-item:hover {
+    background: #f8fafc;
+}
+
+.search-dropdown-item img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+}
+
+.search-dropdown-item-info h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin: 0 0 2px 0;
+    color: #0f172a;
+}
+
+.search-dropdown-item-info span {
+    font-size: 0.8rem;
+    color: #16a34a;
+    font-weight: 700;
+}

@@ -55,10 +55,12 @@ function getDetailLang() {
     return detailLangTexts[lang] || detailLangTexts['ar'];
 }
 
+let currentImageIndex = 0;
+let productImagesList = [];
+
 async function loadProductDetailsDirect(id) {
     const t = getDetailLang();
 
-    // جلب المنتج مباشرة من سحابة Supabase
     const { data: products, error } = await supabaseClient
         .from('products')
         .select('*')
@@ -74,7 +76,6 @@ async function loadProductDetailsDirect(id) {
 
     const product = products[0];
 
-    // تعبئة البيانات في عناصر الـ HTML الثابتة لديك
     const breadcrumbTitle = document.getElementById('breadcrumbTitle');
     const breadcrumbCategory = document.getElementById('breadcrumbCategory');
     const detailCategory = document.getElementById('detailCategory');
@@ -83,8 +84,6 @@ async function loadProductDetailsDirect(id) {
     const detailOldPrice = document.getElementById('detailOldPrice');
     const detailDescription = document.getElementById('detailDescription');
     const detailStock = document.getElementById('detailStock');
-    const detailImage = document.getElementById('detailImage');
-    const detailThumbnails = document.getElementById('detailThumbnails');
     const detailBadge = document.getElementById('detailBadge');
 
     if (breadcrumbTitle) breadcrumbTitle.textContent = product.title;
@@ -115,58 +114,78 @@ async function loadProductDetailsDirect(id) {
         }
     }
 
-    // معالجة الصور المتعددة (عبر الأسطر أو الفواصل) بدقة متناهية
-    // معالجة الصور المتعددة (تقسيم الروابط بأسطر جديدة، فواصل، أو مسافات فارغة وتنظيفها)
-    // معالجة الصور الذكية: التقسيم التلقائي بناءً على وجود رابط جديد يبدأ بـ https://
-    let images = [];
+    // معالجة الصور الذكية
+    productImagesList = [];
     if (product.image) {
         let rawImgText = product.image.trim();
-        // إذا كانت الروابط ملتصقة ببعضها أو بأسطر، نقوم بفصلها عند كل ظهور لـ https://
         let matches = rawImgText.match(/https?:\/\/[^\s]+/g);
         if (matches && matches.length > 0) {
-            images = matches;
+            productImagesList = matches;
         } else {
-            images = rawImgText.split(/[\n,]+/).map(function(u) { return u.trim(); }).filter(function(u) { return u.length > 0; });
+            productImagesList = rawImgText.split(/[\n,]+/).map(function(u) { return u.trim(); }).filter(function(u) { return u.length > 0; });
         }
     }
-    if (images.length === 0) {
-        images = ['https://via.placeholder.com/500'];
+    if (productImagesList.length === 0) {
+        productImagesList = ['https://via.placeholder.com/500'];
     }
 
-    // تعبئة الصورة الرئيسية الأولى
-    if (detailImage) {
-        detailImage.src = images[0];
+    currentImageIndex = 0;
+    renderGallery();
+
+    // تفعيل أزرار التحكم والكمية
+    setupQuantityAndCart(product.id, maxStock);
+
+    // تفعيل التنقل عبر أسهم لوحة المفاتيح
+    setupKeyboardNavigation();
+}
+
+function renderGallery() {
+    const detailImage = document.getElementById('detailImage');
+    const detailThumbnails = document.getElementById('detailThumbnails');
+
+    if (detailImage && productImagesList.length > 0) {
+        detailImage.src = productImagesList[currentImageIndex];
         detailImage.onerror = function () { this.src = 'https://via.placeholder.com/500'; };
     }
 
-    // بناء وعرض الصور المصغرة المتعددة تحت الصورة الرئيسية
     if (detailThumbnails) {
         detailThumbnails.innerHTML = '';
-        if (images.length > 1) {
-            images.forEach(function (imgUrl, index) {
+        if (productImagesList.length > 1) {
+            productImagesList.forEach(function (imgUrl, index) {
                 const thumb = document.createElement('img');
                 thumb.src = imgUrl;
                 thumb.alt = 'صورة مصغرة ' + (index + 1);
-                thumb.className = 'thumb-img' + (index === 0 ? ' active' : '');
-                thumb.style.cssText = 'width: 70px; height: 70px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid ' + (index === 0 ? '#2563eb' : '#e2e8f0') + '; transition: 0.2s;';
+                thumb.className = 'thumb-img' + (index === currentImageIndex ? ' active' : '');
+                thumb.style.cssText = 'width: 70px; height: 70px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid ' + (index === currentImageIndex ? '#2563eb' : '#e2e8f0') + '; transition: 0.2s;';
                 
                 thumb.onclick = function () {
-                    if (detailImage) detailImage.src = imgUrl;
-                    document.querySelectorAll('.thumb-img').forEach(function (t) {
-                        t.style.borderColor = '#e2e8f0';
-                        t.classList.remove('active');
-                    });
-                    thumb.style.borderColor = '#2563eb';
-                    thumb.classList.add('active');
+                    currentImageIndex = index;
+                    renderGallery();
                 };
 
                 detailThumbnails.appendChild(thumb);
             });
         }
     }
+}
 
-    // تفعيل أزرار التحكم بالكمية وإضافة للسلة
-    setupQuantityAndCart(product.id, maxStock);
+function setupKeyboardNavigation() {
+    // إزالة المستمع السابق إن وجد لعدم تكرار الأحداث
+    document.onkeydown = function(e) {
+        if (productImagesList.length <= 1) return;
+
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            // الانتقال للصورة التالية بالسهم الأيمن أو الأسفل
+            currentImageIndex = (currentImageIndex + 1) % productImagesList.length;
+            renderGallery();
+            e.preventDefault();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            // الانتقال للصورة السابقة بالسهم الأيسر أو الأعلى
+            currentImageIndex = (currentImageIndex - 1 + productImagesList.length) % productImagesList.length;
+            renderGallery();
+            e.preventDefault();
+        }
+    };
 }
 
 function setupQuantityAndCart(productId, maxStock) {
@@ -208,7 +227,6 @@ function setupQuantityAndCart(productId, maxStock) {
 
             let cart = JSON.parse(localStorage.getItem('cartItems')) || [];
             
-            // توحيد نمط تخزين السلة
             if (cart.length > 0 && typeof cart[0] === 'string') {
                 let counts = {};
                 cart.forEach(function (id) { counts[id] = (counts[id] || 0) + 1; });

@@ -414,18 +414,27 @@ function initMobileMenu() {
         });
     }
 }
-// دالة عامة لتفعيل زر إظهار وإخفاء كلمة المرور لأي حقل
+// دالة شاملة ومضمونة لإضافة زر إظهار/إخفاء كلمة المرور حتى للعناصر المضافة ديناميكياً
 function setupPasswordToggles() {
     const passwordInputs = document.querySelectorAll('input[type="password"]');
     passwordInputs.forEach(function (input) {
-        // تجنب تكرار إضافة الزر إذا كان مضافاً مسبقاً
-        if (input.parentElement.classList.contains('password-field-wrapper')) return;
+        // التحقق مما إذا كان الحقل مغلفاً مسبقاً
+        if (input.parentElement && input.parentElement.classList.contains('password-field-wrapper')) {
+            return;
+        }
 
-        // إنشاء حاوية حول حقل الإدخال
+        // إنشاء حاوية لتنسيق الحقل مع الزر
         const wrapper = document.createElement('div');
         wrapper.className = 'password-field-wrapper';
-        input.parentNode.insertBefore(wrapper, input);
-        wrapper.appendChild(input);
+        wrapper.style.cssText = 'position: relative; display: flex; align-items: center; width: 100%;';
+        
+        if (input.parentNode) {
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+        }
+
+        // تعديل تنسيق الحقل لترك مساحة لزر العين
+        input.style.paddingLeft = '42px';
 
         // إنشاء زر العين
         const toggleBtn = document.createElement('button');
@@ -433,11 +442,13 @@ function setupPasswordToggles() {
         toggleBtn.className = 'toggle-password-btn';
         toggleBtn.innerHTML = '👁️';
         toggleBtn.title = 'إظهار / إخفاء كلمة المرور';
+        toggleBtn.style.cssText = 'position: absolute; left: 10px; background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 0; color: #64748b; z-index: 10;';
 
-        toggleBtn.addEventListener('click', function () {
+        toggleBtn.addEventListener('click', function (e) {
+            e.preventDefault();
             if (input.type === 'password') {
                 input.type = 'text';
-                toggleBtn.innerHTML = '👁️‍🗨️'; // رمز العين المفتوحة أو المخفية
+                toggleBtn.innerHTML = '👁️‍🗨️';
             } else {
                 input.type = 'password';
                 toggleBtn.innerHTML = '👁️';
@@ -448,7 +459,18 @@ function setupPasswordToggles() {
     });
 }
 
-// تشغيل الدالة تلقائياً بمجرد تحميل أي صفحة
+// تفعيل الدالة فور تحميل الصفحة، وأيضاً مراقبة أي تغييرات في حال ظهور حقول جديدة ديناميكياً
 document.addEventListener('DOMContentLoaded', function () {
     setupPasswordToggles();
+
+    // مراقب العناصر الديناميكية (يلتقط أي حقل كلمة مرور يظهر لاحقاً في لوحة التحكم)
+    const observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+            if (mutation.addedNodes.length > 0) {
+                setupPasswordToggles();
+            }
+        });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
 });

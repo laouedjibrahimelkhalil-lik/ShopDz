@@ -53,7 +53,7 @@ function updatePageTexts(lang) {
 }
 
 // =========================================================
-// ميزة إظهار وإخفاء كلمة المرور (عين واحدة آمنة وسريعة)
+// ميزة إظهار وإخفاء كلمة المرور (تتمركز في اليمين بدقة ودون تأثير على الدخول)
 // =========================================================
 const hideBrowserEyeStyle = document.createElement('style');
 hideBrowserEyeStyle.innerHTML = `
@@ -69,20 +69,29 @@ function initSafePasswordToggle() {
 
     passwordInputs.forEach(function (input) {
         if (input.dataset.eyeAttached === 'true') return;
+        if (input.parentElement && input.parentElement.classList.contains('password-input-wrapper')) return;
+        
         input.dataset.eyeAttached = 'true';
 
-        const parent = input.parentElement;
-        if (!parent) return;
-        parent.style.position = 'relative';
+        // إنشاء حاوية تحيط بحقل الإدخال وحده لضمان تمركز العين داخله تماماً
+        const wrapper = document.createElement('div');
+        wrapper.className = 'password-input-wrapper';
+        wrapper.style.cssText = 'position: relative; display: flex; align-items: center; width: 100%;';
 
-        // ترك مساحة في الجهة اليسرى أو اليمنى حسب اتجاه الحقل
-        input.style.paddingLeft = '42px';
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+
+        // ضبط المساحة الداخلية للأنبوت لكي لا يختفي النص تحت العين
+        input.style.paddingRight = '42px';
+        input.style.paddingLeft = '12px';
+        input.style.width = '100%';
+        input.style.boxSizing = 'border-box';
 
         const eyeIcon = document.createElement('span');
         eyeIcon.innerHTML = '👁️';
         eyeIcon.title = 'إظهار / إخفاء كلمة المرور';
-        // وضع أيقونة العين في الجانب الأيسر داخل الحقل (لأن الحقول ltr)
-        eyeIcon.style.cssText = 'position: absolute; left: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.1rem; user-select: none; z-index: 20; line-height: 1;';
+        // وضع العين في الجهة اليمنى (right) لتناسب الواجهة العربية RTL
+        eyeIcon.style.cssText = 'position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.15rem; user-select: none; z-index: 20; line-height: 1;';
 
         eyeIcon.addEventListener('click', function (e) {
             e.preventDefault();
@@ -95,20 +104,12 @@ function initSafePasswordToggle() {
             }
         });
 
-        parent.appendChild(eyeIcon);
+        wrapper.appendChild(eyeIcon);
     });
 }
 
-// دالة مساعدة في حال تم استدعاؤها يوماً من الـ HTML مباشرة
-function togglePasswordVisibility(fieldId, btnElement) {
-    const passwordInput = document.getElementById(fieldId);
-    if (!passwordInput) return;
-
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        btnElement.innerHTML = '🙈';
-    } else {
-        passwordInput.type = 'password';
-        btnElement.innerHTML = '👁️';
-    }
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSafePasswordToggle);
+} else {
+    initSafePasswordToggle();
 }

@@ -1192,9 +1192,13 @@ async function renderDashboardAdmins() {
     if (!tableBody) return;
 
     const t = getDashLang();
-    const { data: admins } = await supabaseClient.clear().from('admins').select('*').catch(() => supabaseClient.from('admins').select('*'));
+    const { data: admins, error } = await supabaseClient.from('admins').select('*');
+    if (error) {
+        console.error('Error loading admins:', error);
+        return;
+    }
+
     const adminList = admins || [];
-    
     const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin')) || {};
     let freshCurrentAdmin = adminList.find(function (a) { return a.email && a.email.toLowerCase() === (currentAdmin.email || '').toLowerCase(); }) || currentAdmin;
     
@@ -1215,7 +1219,7 @@ async function renderDashboardAdmins() {
         if (freshCurrentAdmin.is_main === true) {
             if (!admin.is_main) {
                 let toggleBtnText = admin.can_add_admins ? t.revokePermBtn : t.grantPermBtn;
-                let toggleBtnClass = admin.can_add_admins ? 'btn-cancel' : 'btn-primary';
+                let toggleBtnClass = admin.can_add_admins ? t.btn-cancel : 'btn-primary';
                 actionButtons += '<button class="btn ' + toggleBtnClass + ' btn-sm" onclick="toggleAdminPermission(\'' + rowId + '\')" style="margin: 0 5px; font-size: 0.75rem; padding: 4px 8px;">' + toggleBtnText + '</button>';
                 actionButtons += '<button class="btn-delete" onclick="deleteAdmin(\'' + rowId + '\')">' + t.deleteBtn + '</button>';
             } else {

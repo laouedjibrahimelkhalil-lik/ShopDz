@@ -117,12 +117,17 @@ async function loadProductDetailsDirect(id) {
 
     // معالجة الصور المتعددة (عبر الأسطر أو الفواصل) بدقة متناهية
     // معالجة الصور المتعددة (تقسيم الروابط بأسطر جديدة، فواصل، أو مسافات فارغة وتنظيفها)
+    // معالجة الصور الذكية: التقسيم التلقائي بناءً على وجود رابط جديد يبدأ بـ https://
     let images = [];
     if (product.image) {
-        images = product.image
-            .split(/[\n,]+/) // التقسيم عبر الأسطر والفواصل
-            .map(function (url) { return url.trim(); })
-            .filter(function (url) { return url.length > 5 && url.startsWith('http'); }); // التأكد من أنه رابط صالح ويبدأ بـ http
+        let rawImgText = product.image.trim();
+        // إذا كانت الروابط ملتصقة ببعضها أو بأسطر، نقوم بفصلها عند كل ظهور لـ https://
+        let matches = rawImgText.match(/https?:\/\/[^\s]+/g);
+        if (matches && matches.length > 0) {
+            images = matches;
+        } else {
+            images = rawImgText.split(/[\n,]+/).map(function(u) { return u.trim(); }).filter(function(u) { return u.length > 0; });
+        }
     }
     if (images.length === 0) {
         images = ['https://via.placeholder.com/500'];

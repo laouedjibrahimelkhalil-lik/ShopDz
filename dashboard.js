@@ -307,57 +307,57 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     const addProductForm = document.getElementById('addProductForm');
-    if (addProductForm) {
-        addProductForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const t = getDashLang();
+if (addProductForm) {
+    addProductForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const t = getDashLang();
 
-            const title = document.getElementById('productTitle').value.trim();
-            const category = document.getElementById('productCategory').value;
-            const badgeValue = document.getElementById('productBadge').value;
-            const costPriceInput = document.getElementById('productCostPrice');
-            const costPrice = costPriceInput ? Number(costPriceInput.value) : 0;
-            const price = document.getElementById('productPrice').value;
-            const oldPrice = document.getElementById('productOldPrice').value;
-            const quantity = document.getElementById('productQuantity').value;
-            const showOnHomeCheckbox = document.getElementById('productShowOnHome');
-            const showOnHome = showOnHomeCheckbox ? showOnHomeCheckbox.checked : true;
-            const imagesRaw = document.getElementById('productImage').value.trim();
-            const description = document.getElementById('productDescription').value.trim();
+        const title = document.getElementById('productTitle').value.trim();
+        const category = document.getElementById('productCategory').value;
+        const badgeValue = document.getElementById('productBadge').value;
+        const costPriceInput = document.getElementById('productCostPrice');
+        const costPrice = costPriceInput ? Number(costPriceInput.value) : 0;
+        const price = document.getElementById('productPrice').value;
+        const oldPrice = document.getElementById('productOldPrice').value;
+        const quantity = document.getElementById('productQuantity').value;
+        const showOnHomeCheckbox = document.getElementById('productShowOnHome');
+        const showOnHome = showOnHomeCheckbox ? showOnHomeCheckbox.checked : true;
+        
+        // هنا يتم جلب الروابط كاملة من الـ textarea كما كتبتها بالأسطر
+        const imagesRaw = document.getElementById('productImage').value.trim();
+        const description = document.getElementById('productDescription').value.trim();
 
-            const imagesList = imagesRaw.split('\n').map(function (url) { return url.trim(); }).filter(function (url) { return url.length > 0; });
+        const newProduct = {
+            id: 'prod_' + Date.now(),
+            title: title,
+            category: category,
+            badge: badgeValue || null,
+            cost_price: costPrice,
+            price: Number(price).toLocaleString(),
+            old_price: oldPrice ? Number(oldPrice).toLocaleString() : null,
+            quantity: Number(quantity) || 1,
+            image: imagesRaw, // تخزين الروابط متعددة الأسطر كما أدخلتها في لوحة التحكم
+            description: description,
+            show_on_home: showOnHome
+        };
 
-            const newProduct = {
-                id: 'prod_' + Date.now(),
-                title: title,
-                category: category,
-                badge: badgeValue || null,
-                cost_price: costPrice,
-                price: Number(price).toLocaleString(),
-                old_price: oldPrice ? Number(oldPrice).toLocaleString() : null,
-                quantity: Number(quantity),
-                image: imagesList[0] || 'https://via.placeholder.com/300',
-                description: description,
-                show_on_home: showOnHome
-            };
+        const { data, error } = await supabaseClient
+            .from('products')
+            .insert([newProduct]);
 
-            const { error } = await supabaseClient
-                .from('products')
-                .insert([newProduct]);
+        if (error) {
+            console.error('Error inserting product:', error);
+            alert('حدث خطأ أثناء حفظ المنتج: ' + error.message);
+            return;
+        }
 
-            if (error) {
-                console.error('Error inserting product:', error);
-                alert('حدث خطأ أثناء حفظ المنتج في السحابة: ' + error.message);
-                return;
-            }
-
-            addProductForm.reset();
-            if (showOnHomeCheckbox) showOnHomeCheckbox.checked = true;
-            await renderDashboardProducts();
-            await renderDashboardStats();
-            alert(t.prodAdded);
-        });
-    }
+        addProductForm.reset();
+        if (showOnHomeCheckbox) showOnHomeCheckbox.checked = true;
+        await renderDashboardProducts();
+        await renderDashboardStats();
+        alert(t.prodAdded || 'تمت إضافة المنتج بنجاح!');
+    });
+}
 
     const addCategoryForm = document.getElementById('addCategoryForm');
     if (addCategoryForm) {

@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
 
@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    loadProductDetails(productId);
+    await loadProductDetailsFromCloud(productId);
 });
 
 // قاموس النصوص الديناميكية لصفحة تفاصيل المنتج
@@ -82,28 +82,33 @@ function getCurrentLangObj() {
     return detailLangTexts[lang] || detailLangTexts['ar'];
 }
 
-function loadProductDetails(id) {
+async function loadProductDetailsFromCloud(id) {
     const container = document.getElementById('productDetailContainer');
     const breadcrumb = document.getElementById('detailBreadcrumb') || document.getElementById('breadcrumbTitle');
     const breadcrumbCat = document.getElementById('breadcrumbCategory');
-    const products = JSON.parse(localStorage.getItem('products')) || [];
     const t = getCurrentLangObj();
 
-    const product = products.find(function (p) { return p.id === id; });
+    // جلب المنتج مباشرة من جدول products في Supabase سحابياً
+    const { data: products, error } = await supabaseClient
+        .from('products')
+        .select('*')
+        .eq('id', id);
 
-    if (!product || !container) {
+    if (error || !products || products.length === 0 || !container) {
         if (container) {
             container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 50px;"><h2>' + t.notFound + '</h2><a href="index.html" class="btn btn-primary" style="margin-top: 15px; display: inline-block;">' + t.backHome + '</a></div>';
         }
         return;
     }
 
+    const product = products[0];
+
     if (breadcrumb) breadcrumb.textContent = product.title;
     if (breadcrumbCat) breadcrumbCat.textContent = product.category || t.defaultCat;
 
-    const images = (product.images && product.images.length > 0) ? product.images : [product.image || 'https://via.placeholder.com/400'];
-    const mainImg = images[0];
-    const maxStock = parseInt(product.quantity) || 1;
+    const mainImg = product.image || 'https://via.placeholder.com/400';
+    const images = [mainImg]; // يمكن تعديلها لاحقاً إذا كانت هناك صور متعددة
+    const maxStock = product.quantity !== undefined ? parseInt(product.quantity) : 1;
 
     let thumbnailsHTML = '';
     if (images.length > 1) {
@@ -113,9 +118,8 @@ function loadProductDetails(id) {
         });
     }
 
-    const badgeClass = product.badgeClass || 'badge-new';
-    const badgeHTML = product.badge ? '<span class="badge ' + badgeClass + '">' + product.badge + '</span>' : '';
-    const oldPriceHTML = product.oldPrice ? '<span class="old-price">' + product.oldPrice + t.currency + '</span>' : '';
+    const badgeHTML = product.badge ? '<span class="badge badge-new">' + product.badge + '</span>' : '';
+    const oldPriceHTML = product.old_price ? '<span class="old-price">' + product.old_price + t.currency + '</span>' : '';
     const category = product.category || t.defaultCat;
     const description = product.description || t.defaultDesc;
     const galleryThumbnailsBox = images.length > 1 ? '<div class="thumbnails-grid">' + thumbnailsHTML + '</div>' : '';

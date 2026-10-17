@@ -17,17 +17,26 @@ const dashLangTexts = {
         pieceUnit: ' قطعة',
         deleteBtn: 'حذف 🗑️',
         editBtn: 'تعديل ✏️',
-        confirmBtn: 'تأكيد ✅',
-        confirmedText: 'مؤكد ✓',
-        statusConfirmed: 'مؤكد',
-        statusPending: 'قيد التجهيز',
+        confirmBtn: '📞 تأكيد وإرسال',
+        deliverBtn: '💰 تم التوصيل (حساب الربح)',
+        cancelOrderBtn: '↩ إلغاء الطلبية',
+        confirmedText: 'تم الاستلام ✓',
+        cancelledText: 'ملغاة ✕',
+        statusConfirmed: 'تم الاستلام (مؤكد)',
+        statusShipping: 'قيد التوصيل 🚚',
+        statusCancelled: 'ملغاة ❌',
+        statusPending: 'قيد التجهيز ⏳',
         deletedProd: 'منتج محذوف أو غير معروف',
         qtyWord: 'الكمية: ',
         itemsCountWord: 'عدد القطع: ',
         newOrderWord: 'طلب جديد',
-        alreadyConfirmed: 'هذا الطلب تم تأكيده مسبقاً!',
-        confirmOrderPrompt: 'هل أنت متأكد من تأكيد الطلب؟ سيتم خصم الكميات من المخزون وإضافة صافي الربح إلى الإحصائيات.',
-        orderConfirmedAlert: 'تم تأكيد الطلب بنجاح، خصم الكميات، واحتساب الربح الصافي! ✅',
+        alreadyConfirmed: 'هذا الطلب تم تأكيده واستلامه مسبقاً!',
+        confirmShippingPrompt: 'هل تود تأكيد الطلبية مبدئياً وإرسالها للتوصيل؟ (لن تُحسب الأرباح حتى تضغط على "تم التوصيل" بعد استلام الزبون).',
+        orderShippingAlert: 'تم تحويل الطلبية إلى "قيد التوصيل" 🚚. عند استلام الزبون للطرد اضغط على "تم التوصيل" لاحتساب الأرباح.',
+        confirmDeliverPrompt: 'هل استلم الزبون الطلبية؟ سيتم الآن التأكيد النهائي، خصم الكميات من المخزون، وإضافة صافي الربح إلى الإحصائيات.',
+        orderConfirmedAlert: 'تم التأكيد النهائي للطلب، خصم الكميات، واحتساب الربح الصافي بنجاح! 💰✅',
+        confirmCancelOrderPrompt: 'هل أنت متأكد من إلغاء هذه الطلبية (عدم استلام / روتور)؟ لن يتم احتساب أي أرباح لها.',
+        orderCancelledAlert: 'تم إلغاء الطلبية بنجاح ❌',
         mainAdminRole: 'المدير الرئيسي',
         canAddRole: 'مسؤول (يستطيع الإضافة)',
         viewOnlyRole: 'مسؤول (عرض فقط)',
@@ -44,7 +53,7 @@ const dashLangTexts = {
         confirmDeleteWilaya: 'هل أنت متأكد من حذف هذه الولاية من نظام التوصيل؟',
         confirmDeleteProd: 'هل أنت متأكد من حذف هذا المنتج؟',
         confirmDeleteCat: 'هل أنت متأكد من حذف هذه الفئة؟',
-        confirmDeleteOrder: 'هل أنت متأكد من حذف هذا الطلب؟',
+        confirmDeleteOrder: 'هل أنت متأكد من حذف سجل هذا الطلب نهائياً؟',
         confirmClearAllOrders: 'هل أنت متأكد من تفريغ وحذف جميع الطلبات بالكامل؟',
         cannotDeleteMainAdmin: 'لا يمكن حذف المدير الرئيسي!',
         confirmDeleteAdmin: 'هل أنت متأكد من حذف هذا المسؤول؟',
@@ -71,17 +80,26 @@ const dashLangTexts = {
         pieceUnit: ' pcs',
         deleteBtn: 'Delete 🗑️',
         editBtn: 'Edit ✏️',
-        confirmBtn: 'Confirm ✅',
-        confirmedText: 'Confirmed ✓',
-        statusConfirmed: 'Confirmed',
-        statusPending: 'Pending',
+        confirmBtn: '📞 Confirm & Ship',
+        deliverBtn: '💰 Delivered (Count Profit)',
+        cancelOrderBtn: '↩ Cancel Order',
+        confirmedText: 'Delivered ✓',
+        cancelledText: 'Cancelled ✕',
+        statusConfirmed: 'Delivered (Confirmed)',
+        statusShipping: 'Out for Delivery 🚚',
+        statusCancelled: 'Cancelled ❌',
+        statusPending: 'Pending ⏳',
         deletedProd: 'Deleted or unknown product',
         qtyWord: 'Qty: ',
         itemsCountWord: 'Items count: ',
         newOrderWord: 'New Order',
-        alreadyConfirmed: 'This order is already confirmed!',
-        confirmOrderPrompt: 'Are you sure you want to confirm this order? Stock will be deducted and net profit recorded.',
-        orderConfirmedAlert: 'Order confirmed, stock deducted, and net profit calculated! ✅',
+        alreadyConfirmed: 'This order is already delivered and confirmed!',
+        confirmShippingPrompt: 'Confirm this order and send it for delivery? (Profits will only be counted after final delivery).',
+        orderShippingAlert: 'Order marked as "Out for Delivery" 🚚.',
+        confirmDeliverPrompt: 'Did the customer receive the order? Stock will now be deducted and net profit recorded.',
+        orderConfirmedAlert: 'Order delivered, stock deducted, and net profit calculated! 💰✅',
+        confirmCancelOrderPrompt: 'Are you sure you want to cancel this order? No profits will be counted.',
+        orderCancelledAlert: 'Order has been cancelled ❌',
         mainAdminRole: 'Main Admin',
         canAddRole: 'Admin (Can Add)',
         viewOnlyRole: 'Admin (View Only)',
@@ -98,7 +116,7 @@ const dashLangTexts = {
         confirmDeleteWilaya: 'Are you sure you want to delete this Wilaya from shipping?',
         confirmDeleteProd: 'Are you sure you want to delete this product?',
         confirmDeleteCat: 'Are you sure you want to delete this category?',
-        confirmDeleteOrder: 'Are you sure you want to delete this order?',
+        confirmDeleteOrder: 'Are you sure you want to delete this order record?',
         confirmClearAllOrders: 'Are you sure you want to clear all orders?',
         cannotDeleteMainAdmin: 'Cannot delete the Main Admin!',
         confirmDeleteAdmin: 'Are you sure you want to delete this admin?',
@@ -125,17 +143,26 @@ const dashLangTexts = {
         pieceUnit: ' pcs',
         deleteBtn: 'Supprimer 🗑️',
         editBtn: 'Modifier ✏️',
-        confirmBtn: 'Confirmer ✅',
-        confirmedText: 'Confirmée ✓',
-        statusConfirmed: 'Confirmée',
-        statusPending: 'En préparation',
+        confirmBtn: '📞 Confirmer l\'envoi',
+        deliverBtn: '💰 Livrée (Calculer gain)',
+        cancelOrderBtn: '↩ Annuler',
+        confirmedText: 'Livrée ✓',
+        cancelledText: 'Annulée ✕',
+        statusConfirmed: 'Livrée (Confirmée)',
+        statusShipping: 'En livraison 🚚',
+        statusCancelled: 'Annulée ❌',
+        statusPending: 'En préparation ⏳',
         deletedProd: 'Produit supprimé ou inconnu',
         qtyWord: 'Qté : ',
         itemsCountWord: 'Nombre d\'articles : ',
         newOrderWord: 'Nouvelle commande',
-        alreadyConfirmed: 'Cette commande est déjà confirmée !',
-        confirmOrderPrompt: 'Confirmer cette commande ? Les quantités seront déduites et le bénéfice net calculé.',
-        orderConfirmedAlert: 'Commande confirmée, stock déduit et bénéfice calculé ! ✅',
+        alreadyConfirmed: 'Cette commande est déjà livrée et confirmée !',
+        confirmShippingPrompt: 'Confirmer l\'envoi de cette commande ? (Le bénéfice ne sera calculé qu\'après la livraison finale).',
+        orderShippingAlert: 'Commande marquée "En livraison" 🚚.',
+        confirmDeliverPrompt: 'Le client a-t-il reçu la commande ? Le stock sera déduit et le bénéfice net calculé.',
+        orderConfirmedAlert: 'Commande livrée, stock déduit et bénéfice calculé ! 💰✅',
+        confirmCancelOrderPrompt: 'Voulez-vous vraiment annuler cette commande ? Aucun bénéfice ne sera compté.',
+        orderCancelledAlert: 'Commande annulée ❌',
         mainAdminRole: 'Administrateur Principal',
         canAddRole: 'Admin (Peut ajouter)',
         viewOnlyRole: 'Admin (Lecture seule)',
@@ -307,57 +334,56 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     const addProductForm = document.getElementById('addProductForm');
-if (addProductForm) {
-    addProductForm.addEventListener('submit', async function (e) {
-        e.preventDefault();
-        const t = getDashLang();
+    if (addProductForm) {
+        addProductForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const t = getDashLang();
 
-        const title = document.getElementById('productTitle').value.trim();
-        const category = document.getElementById('productCategory').value;
-        const badgeValue = document.getElementById('productBadge').value;
-        const costPriceInput = document.getElementById('productCostPrice');
-        const costPrice = costPriceInput ? Number(costPriceInput.value) : 0;
-        const price = document.getElementById('productPrice').value;
-        const oldPrice = document.getElementById('productOldPrice').value;
-        const quantity = document.getElementById('productQuantity').value;
-        const showOnHomeCheckbox = document.getElementById('productShowOnHome');
-        const showOnHome = showOnHomeCheckbox ? showOnHomeCheckbox.checked : true;
-        
-        // هنا يتم جلب الروابط كاملة من الـ textarea كما كتبتها بالأسطر
-        const imagesRaw = document.getElementById('productImage').value.trim();
-        const description = document.getElementById('productDescription').value.trim();
+            const title = document.getElementById('productTitle').value.trim();
+            const category = document.getElementById('productCategory').value;
+            const badgeValue = document.getElementById('productBadge').value;
+            const costPriceInput = document.getElementById('productCostPrice');
+            const costPrice = costPriceInput ? Number(costPriceInput.value) : 0;
+            const price = document.getElementById('productPrice').value;
+            const oldPrice = document.getElementById('productOldPrice').value;
+            const quantity = document.getElementById('productQuantity').value;
+            const showOnHomeCheckbox = document.getElementById('productShowOnHome');
+            const showOnHome = showOnHomeCheckbox ? showOnHomeCheckbox.checked : true;
+            
+            const imagesRaw = document.getElementById('productImage').value.trim();
+            const description = document.getElementById('productDescription').value.trim();
 
-        const newProduct = {
-            id: 'prod_' + Date.now(),
-            title: title,
-            category: category,
-            badge: badgeValue || null,
-            cost_price: costPrice,
-            price: Number(price).toLocaleString(),
-            old_price: oldPrice ? Number(oldPrice).toLocaleString() : null,
-            quantity: Number(quantity) || 1,
-            image: imagesRaw, // تخزين الروابط متعددة الأسطر كما أدخلتها في لوحة التحكم
-            description: description,
-            show_on_home: showOnHome
-        };
+            const newProduct = {
+                id: 'prod_' + Date.now(),
+                title: title,
+                category: category,
+                badge: badgeValue || null,
+                cost_price: costPrice,
+                price: Number(price).toLocaleString(),
+                old_price: oldPrice ? Number(oldPrice).toLocaleString() : null,
+                quantity: Number(quantity) || 1,
+                image: imagesRaw,
+                description: description,
+                show_on_home: showOnHome
+            };
 
-        const { data, error } = await supabaseClient
-            .from('products')
-            .insert([newProduct]);
+            const { data, error } = await supabaseClient
+                .from('products')
+                .insert([newProduct]);
 
-        if (error) {
-            console.error('Error inserting product:', error);
-            alert('حدث خطأ أثناء حفظ المنتج: ' + error.message);
-            return;
-        }
+            if (error) {
+                console.error('Error inserting product:', error);
+                alert('حدث خطأ أثناء حفظ المنتج: ' + error.message);
+                return;
+            }
 
-        addProductForm.reset();
-        if (showOnHomeCheckbox) showOnHomeCheckbox.checked = true;
-        await renderDashboardProducts();
-        await renderDashboardStats();
-        alert(t.prodAdded || 'تمت إضافة المنتج بنجاح!');
-    });
-}
+            addProductForm.reset();
+            if (showOnHomeCheckbox) showOnHomeCheckbox.checked = true;
+            await renderDashboardProducts();
+            await renderDashboardStats();
+            alert(t.prodAdded || 'تمت إضافة المنتج بنجاح!');
+        });
+    }
 
     const addCategoryForm = document.getElementById('addCategoryForm');
     if (addCategoryForm) {
@@ -736,6 +762,7 @@ function getProductAddedTimestamp(product) {
     return 0;
 }
 
+// دالة الإحصائيات: تحسب الأرباح فقط للطلبيات التي وصلت للزبون (حالة: مؤكد / تم الاستلام)
 async function renderDashboardStats() {
     const t = getDashLang();
     const { data: products } = await supabaseClient.from('products').select('*');
@@ -773,21 +800,25 @@ async function renderDashboardStats() {
     let profitTotal = 0;
 
     ordList.forEach(function (order) {
-        const isConfirmed = order.status === 'مؤكد' || order.status === 'Confirmed' || order.status === 'Confirmée';
-        if (!isConfirmed) return;
+        // لا تُحسب الأرباح إلا إذا تم التوصيل والاستلام النهائي
+        const isDelivered = order.status === 'مؤكد' || order.status === 'تم الاستلام' || order.status === 'Confirmed' || order.status === 'Confirmée';
+        if (!isDelivered) return;
 
         let orderTime = now.getTime();
         if (order.confirmed_at) {
             orderTime = new Date(order.confirmed_at).getTime();
         } else if (order.created_at) {
             orderTime = new Date(order.created_at).getTime();
-        } else if (order.order_id && order.order_id.indexOf('ORD-') === 0) {
-            const ts = parseInt(order.order_id.replace('ORD-', ''));
+        } else if (order.order_id && (order.order_id.indexOf('ORD-') === 0 || order.order_id.indexOf('ORD_') === 0)) {
+            const ts = parseInt(order.order_id.replace(/ORD[-_]/, ''));
             if (!isNaN(ts) && ts > 1000000000000) orderTime = ts;
         }
 
         let orderNetProfit = 0;
-        const items = order.items || [];
+        let items = order.items || [];
+        if (typeof items === 'string') {
+            try { items = JSON.parse(items); } catch (e) { items = []; }
+        }
 
         items.forEach(function (item) {
             const qty = parseInt(item.qty) || 1;
@@ -1000,7 +1031,14 @@ async function renderDashboardProducts() {
 
     tableBody.innerHTML = '';
     products.forEach(function (product) {
-        const mainImg = product.image || 'https://via.placeholder.com/45';
+        // استخراج الصورة الأولى بذكاء إذا كان المنتج يحتوي على عدة روابط
+        let mainImg = 'https://via.placeholder.com/45';
+        if (product.image) {
+            let matches = product.image.trim().match(/https?:\/\/[^\s]+/g);
+            if (matches && matches.length > 0) mainImg = matches[0];
+            else mainImg = product.image.trim().split(/[\n,]+/)[0];
+        }
+
         const isShownOnHome = product.show_on_home !== false;
         const homeBtnText = isShownOnHome ? t.shownOnHome : t.hiddenFromHome;
         const homeBtnStyle = isShownOnHome 
@@ -1059,13 +1097,17 @@ async function toggleProductHome(productId, currentState) {
     await renderDashboardProducts();
 }
 
+// عرض جدول طلبات الزبائن بنظام المراحل (قيد التجهيز -> قيد التوصيل -> تم الاستلام أو ملغاة)
 async function renderDashboardOrders() {
     const tableBody = document.getElementById('dashOrdersTable');
     const ordersBadge = document.getElementById('ordersBadge');
     if (!tableBody) return;
 
     const t = getDashLang();
-    const { data: orders, error: ordErr } = await supabaseClient.from('orders').select('*');
+    const { data: orders, error: ordErr } = await supabaseClient
+        .from('orders')
+        .select('*')
+        .order('order_id', { ascending: false });
     const { data: products } = await supabaseClient.from('products').select('*');
 
     if (ordErr) return;
@@ -1080,7 +1122,10 @@ async function renderDashboardOrders() {
     tableBody.innerHTML = '';
     orders.forEach(function (order) {
         let itemsDetailsHTML = '';
-        const itemsList = order.items || [];
+        let itemsList = order.items || [];
+        if (typeof itemsList === 'string') {
+            try { itemsList = JSON.parse(itemsList); } catch (e) { itemsList = []; }
+        }
         
         if (itemsList.length > 0) {
             itemsList.forEach(function (orderItem) {
@@ -1092,17 +1137,35 @@ async function renderDashboardOrders() {
             itemsDetailsHTML = '<span style="color: #64748b;">' + t.itemsCountWord + '1</span>';
         }
 
-        const isConfirmed = order.status === 'مؤكد' || order.status === 'Confirmed' || order.status === 'Confirmée';
-        let statusBadgeClass = isConfirmed ? 'status-completed' : 'status-pending';
-        let displayStatus = isConfirmed ? t.statusConfirmed : t.statusPending;
+        const isDelivered = order.status === 'مؤكد' || order.status === 'تم الاستلام' || order.status === 'Confirmed' || order.status === 'Confirmée';
+        const isShipping = order.status === 'قيد التوصيل';
+        const isCancelled = order.status === 'ملغاة';
+
+        let statusBadgeHTML = '';
         let actionButtons = '';
-        
-        if (!isConfirmed) {
-            actionButtons += '<button class="btn btn-sm" onclick="confirmOrder(\'' + order.order_id + '\')" style="background: #16a34a; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; margin: 0 4px; font-size: 0.8rem;">' + t.confirmBtn + '</button>';
+
+        if (isDelivered) {
+            // المرحلة النهائية 1: تم التوصيل والاستلام (الأرباح محسوبة)
+            statusBadgeHTML = '<span class="status-badge status-completed" style="background:#dcfce7; color:#15803d; padding:4px 10px; border-radius:6px; font-weight:bold;">' + t.statusConfirmed + '</span>';
+            actionButtons += '<span style="color: #16a34a; font-weight: bold; font-size: 0.85rem; margin: 0 6px;">' + t.confirmedText + '</span>';
+        } else if (isCancelled) {
+            // المرحلة النهائية 2: الطلبية ملغاة (لا تحسب أرباح)
+            statusBadgeHTML = '<span class="status-badge" style="background:#fee2e2; color:#dc2626; padding:4px 10px; border-radius:6px; font-weight:bold;">' + t.statusCancelled + '</span>';
+            actionButtons += '<span style="color: #dc2626; font-weight: bold; font-size: 0.85rem; margin: 0 6px;">' + t.cancelledText + '</span>';
+        } else if (isShipping) {
+            // المرحلة 2: الطلبية مؤكدة مبدئياً وهي في الطريق للزبون (تنتظر الاستلام أو الإلغاء)
+            statusBadgeHTML = '<span class="status-badge" style="background:#dbeafe; color:#1d4ed8; padding:4px 10px; border-radius:6px; font-weight:bold;">' + t.statusShipping + '</span>';
+            actionButtons += '<button class="btn btn-sm" onclick="deliverOrderFinal(\'' + order.order_id + '\')" style="background: #16a34a; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.78rem;">' + t.deliverBtn + '</button>';
+            actionButtons += '<button class="btn btn-sm" onclick="cancelCustomerOrder(\'' + order.order_id + '\')" style="background: #f59e0b; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.78rem;">' + t.cancelOrderBtn + '</button>';
         } else {
-            actionButtons += '<span style="color: #16a34a; font-weight: bold; font-size: 0.85rem; margin: 0 4px;">' + t.confirmedText + '</span>';
+            // المرحلة 1: طلبية جديدة قيد التجهيز
+            statusBadgeHTML = '<span class="status-badge status-pending" style="background:#fef3c7; color:#d97706; padding:4px 10px; border-radius:6px; font-weight:bold;">' + t.statusPending + '</span>';
+            actionButtons += '<button class="btn btn-sm" onclick="shipOrderInitial(\'' + order.order_id + '\')" style="background: #2563eb; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.78rem;">' + t.confirmBtn + '</button>';
+            actionButtons += '<button class="btn btn-sm" onclick="cancelCustomerOrder(\'' + order.order_id + '\')" style="background: #ef4444; color: #fff; border: none; padding: 5px 8px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.78rem;">✖</button>';
         }
-        actionButtons += '<button class="btn-delete" onclick="deleteOrder(\'' + order.order_id + '\')">' + t.deleteBtn + '</button>';
+
+        // زر حذف السجل متاح دائماً لتنظيف الجدول عند الرغبة
+        actionButtons += '<button class="btn-delete" onclick="deleteOrder(\'' + order.order_id + '\')" title="حذف السجل">' + t.deleteBtn + '</button>';
 
         let orderDateTimeStr = order.full_date_time || '';
         let orderTitleDisplay = order.order_title || t.newOrderWord;
@@ -1115,18 +1178,39 @@ async function renderDashboardOrders() {
                     '<span style="font-size: 0.85rem; color: #2563eb; font-weight: 600;">🏷️ ' + orderTitleDisplay + '</span><br>' +
                     '<small style="color: #64748b; font-size: 0.78rem;">🕒 ' + orderDateTimeStr + '</small>' +
                 '</td>' +
-                '<td>' + (client.name || '-') + '</td>' +
-                '<td><a href="tel:' + (client.phone || '') + '">' + (client.phone || '-') + '</a></td>' +
-                '<td>' + (client.state || '') + ' - ' + (client.baladiya || '') + ' (' + (client.address || '') + ')</td>' +
+                '<td><strong>' + (client.name || '-') + '</strong></td>' +
+                '<td><a href="tel:' + (client.phone || '') + '" style="font-weight:bold; color:#0f172a;">' + (client.phone || '-') + '</a></td>' +
+                '<td>' + (client.state || '') + ' - ' + (client.baladiya || '') + '<br><small style="color:#64748b;">' + (client.address || '') + ' (' + (client.deliveryType || '') + ')</small></td>' +
                 '<td>' + itemsDetailsHTML + '</td>' +
                 '<td><strong>' + order.total_amount + t.currency + '</strong></td>' +
-                '<td><span class="status-badge ' + statusBadgeClass + '">' + displayStatus + '</span></td>' +
-                '<td><div style="display: flex; align-items: center; gap: 4px;">' + actionButtons + '</div></td>' +
+                '<td>' + statusBadgeHTML + '</td>' +
+                '<td><div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">' + actionButtons + '</div></td>' +
             '</tr>';
     });
 }
 
-async function confirmOrder(orderId) {
+// المرحلة 1 -> 2: تأكيد مبدئي وإرسال الطلبية للتوصيل (بدون احتساب أرباح بعد)
+async function shipOrderInitial(orderId) {
+    const t = getDashLang();
+    if (!confirm(t.confirmShippingPrompt)) return;
+
+    const { error } = await supabaseClient
+        .from('orders')
+        .update({ status: 'قيد التوصيل' })
+        .eq('order_id', orderId);
+
+    if (error) {
+        alert('حدث خطأ أثناء تحديث الحالة: ' + error.message);
+        return;
+    }
+
+    alert(t.orderShippingAlert);
+    await renderDashboardOrders();
+    await renderDashboardStats();
+}
+
+// المرحلة 2 -> 3: تأكيد نهائي بعد وصول الطلبية للزبون (هنا تُخصم الكمية وتُحسب الأرباح)
+async function deliverOrderFinal(orderId) {
     const t = getDashLang();
     const { data: orders } = await supabaseClient.from('orders').select('*');
     const { data: products } = await supabaseClient.from('products').select('*');
@@ -1134,14 +1218,19 @@ async function confirmOrder(orderId) {
     let order = orders.find(function (o) { return o.order_id === orderId; });
     if (!order) return;
 
-    if (order.status === 'مؤكد') {
+    if (order.status === 'مؤكد' || order.status === 'تم الاستلام') {
         alert(t.alreadyConfirmed);
         return;
     }
 
-    if (confirm(t.confirmOrderPrompt)) {
-        if (order.items && Array.isArray(order.items)) {
-            for (let orderItem of order.items) {
+    if (confirm(t.confirmDeliverPrompt)) {
+        let itemsList = order.items || [];
+        if (typeof itemsList === 'string') {
+            try { itemsList = JSON.parse(itemsList); } catch (e) { itemsList = []; }
+        }
+
+        if (Array.isArray(itemsList)) {
+            for (let orderItem of itemsList) {
                 let product = products.find(function (p) { return p.id === orderItem.id; });
                 if (product) {
                     let currentQuantity = parseInt(product.quantity) || 0;
@@ -1175,6 +1264,26 @@ async function confirmOrder(orderId) {
         await renderDashboardProducts();
         await renderDashboardStats();
     }
+}
+
+// إلغاء الطلبية في حال عدم وصولها للزبون (Retour)
+async function cancelCustomerOrder(orderId) {
+    const t = getDashLang();
+    if (!confirm(t.confirmCancelOrderPrompt)) return;
+
+    const { error } = await supabaseClient
+        .from('orders')
+        .update({ status: 'ملغاة' })
+        .eq('order_id', orderId);
+
+    if (error) {
+        alert('حدث خطأ أثناء إلغاء الطلبية: ' + error.message);
+        return;
+    }
+
+    alert(t.orderCancelledAlert);
+    await renderDashboardOrders();
+    await renderDashboardStats();
 }
 
 async function clearAllOrders() {
@@ -1219,7 +1328,7 @@ async function renderDashboardAdmins() {
         if (freshCurrentAdmin.is_main === true) {
             if (!admin.is_main) {
                 let toggleBtnText = admin.can_add_admins ? t.revokePermBtn : t.grantPermBtn;
-                let toggleBtnClass = admin.can_add_admins ? t.btn-cancel : 'btn-primary';
+                let toggleBtnClass = admin.can_add_admins ? 'btn-cancel' : 'btn-primary';
                 actionButtons += '<button class="btn ' + toggleBtnClass + ' btn-sm" onclick="toggleAdminPermission(\'' + rowId + '\')" style="margin: 0 5px; font-size: 0.75rem; padding: 4px 8px;">' + toggleBtnText + '</button>';
                 actionButtons += '<button class="btn-delete" onclick="deleteAdmin(\'' + rowId + '\')">' + t.deleteBtn + '</button>';
             } else {

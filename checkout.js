@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return;
             }
 
-            // جلب المنتجات من Supabase عند إتمام الطلب
+            // جلب المنتجات من Supabase
             const { data: products } = await supabaseClient.from('products').select('*');
             const allProducts = products || [];
 
@@ -172,10 +172,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 if (p) orderTitles.push(p.title);
             });
             const orderTitleName = orderTitles.length > 0 ? orderTitles.join(' + ') : t.defaultOrderTitle;
-
-            const now = new Date();
-            const formattedDate = now.toLocaleDateString('ar-DZ', { year: 'numeric', month: 'long', day: 'numeric' });
-            const formattedTime = now.toLocaleTimeString('ar-DZ', { hour: '2-digit', minute: '2-digit', hour12: true });
 
             const name = document.getElementById('clientName').value.trim();
             const phone = document.getElementById('clientPhone').value.trim();
@@ -191,32 +187,57 @@ document.addEventListener('DOMContentLoaded', async function () {
             const shippingCost = calculateShippingCost();
             const subtotal = await calculateSubtotalFromSupabase();
             const grandTotal = subtotal + shippingCost;
-
             const totalItemsCount = cart.reduce(function (sum, item) { return sum + item.qty; }, 0);
 
-            const newOrder = {
-                orderId: 'ORD_' + Date.now(),
+            const orderIdVal = 'ORD_' + Date.now();
+
+            // تجهيز كائن الطلب ليرسل مباشرة إلى جدول orders في Supabase
+            const newOrderRecord = {
+                order_id: orderIdVal,
+                order_title: orderTitleName,
+                client_name: name,
+                client_phone: phone,
+                client_state: stateName,
+                client_baladiya: baladiya,
+                client_address: address,
+                delivery_type: deliveryTypeStr,
+                items: JSON.stringify(cart),
+                items_count: totalItemsCount,
+                total_amount: grandTotal,
+                status: 'قيد التجهيز',
+                created_at: new Date().toISOString()
+            };
+
+            // إرسال الطلب إلى Supabase
+            const { error: insertError } = await supabaseClient
+                .from('orders')
+                .insert([newOrderRecord]);
+
+            if (insertError) {
+                console.error('Error saving order to Supabase:', insertError);
+                alert('حدث خطأ أثناء حفظ الطلب في السحابة: ' + insertError.message);
+                return;
+            }
+
+            // حفظ نسخة احتياطية محلياً أيضاً
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('ar-DZ', { year: 'numeric', month: 'long', day: 'numeric' });
+            const formattedTime = now.toLocaleTimeString('ar-DZ', { hour: '2-digit', minute: '2-digit', hour12: true });
+            
+            saveOrder({
+                orderId: orderIdVal,
                 orderTitle: orderTitleName,
                 date: formattedDate,
                 time: formattedTime,
-                fullDateTime: formattedDate + ' - ' + formattedTime,
-                client: { 
-                    name: name, 
-                    phone: phone, 
-                    state: stateName, 
-                    baladiya: baladiya, 
-                    address: address, 
-                    deliveryType: deliveryTypeStr 
-                },
+                client: { name, phone, state: stateName, baladiya, address, deliveryType: deliveryTypeStr },
                 items: cart,
                 itemsCount: totalItemsCount,
                 totalAmount: grandTotal.toLocaleString(),
                 status: 'قيد التجهيز'
-            };
+            });
 
-            saveOrder(newOrder);
             localStorage.removeItem('cartItems');
-            alert(t.thankYouPrefix + name + t.thankYouMid + orderTitleName + t.thankYouId + newOrder.orderId + t.thankYouSuffix);
+            alert(t.thankYouPrefix + name + t.thankYouMid + orderTitleName + t.thankYouId + orderIdVal + t.thankYouSuffix);
             window.location.href = 'index.html';
         });
     }
@@ -298,7 +319,6 @@ async function calculateSubtotalFromSupabase() {
     cart.forEach(function (item) {
         let product = products.find(function (p) { return p.id === item.id; });
         if (product && product.price) {
-            // تنظيف السعر من الفواصل أو الرموز وحسابه كرقم حقيقي دقيق
             let priceNum = parseInt(product.price.toString().replace(/[^0-9]/g, '')) || 0;
             subtotal += priceNum * item.qty;
         }
@@ -346,7 +366,6 @@ async function loadCheckoutSummary() {
         return;
     }
 
-    // جلب المنتجات من Supabase
     const { data: products, error } = await supabaseClient.from('products').select('*');
     const allProducts = products || [];
 

@@ -116,12 +116,13 @@ async function loadProductDetailsDirect(id) {
     }
 
     // معالجة الصور المتعددة (عبر الأسطر أو الفواصل) بدقة متناهية
+    // معالجة الصور المتعددة (تقسيم الروابط بأسطر جديدة، فواصل، أو مسافات فارغة وتنظيفها)
     let images = [];
     if (product.image) {
         images = product.image
-            .split(/[\n,]+/)
+            .split(/[\n,]+/) // التقسيم عبر الأسطر والفواصل
             .map(function (url) { return url.trim(); })
-            .filter(function (url) { return url.length > 0; });
+            .filter(function (url) { return url.length > 5 && url.startsWith('http'); }); // التأكد من أنه رابط صالح ويبدأ بـ http
     }
     if (images.length === 0) {
         images = ['https://via.placeholder.com/500'];

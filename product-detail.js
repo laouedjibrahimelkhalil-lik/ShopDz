@@ -240,15 +240,22 @@ function setupQuantityAndCart(productId, maxStock) {
                 return;
             }
 
-            let cart = JSON.parse(localStorage.getItem('cartItems')) || [];
-            
-            if (cart.length > 0 && typeof cart[0] === 'string') {
-                let counts = {};
-                cart.forEach(function (id) { counts[id] = (counts[id] || 0) + 1; });
-                cart = Object.keys(counts).map(function (id) { return { id: id, qty: counts[id] }; });
+            // قراءة السلة بالطريقة العامة (سواء كانت مصفوفة نصوص أو كائنات)
+            let rawCart = JSON.parse(localStorage.getItem('cartItems')) || [];
+            let cartObjects = [];
+
+            if (rawCart.length > 0) {
+                if (typeof rawCart[0] === 'string') {
+                    // تحويل مصفوفة المعرفات النصية إلى كائنات مع حساب الكميات
+                    let counts = {};
+                    rawCart.forEach(function (id) { counts[id] = (counts[id] || 0) + 1; });
+                    cartObjects = Object.keys(counts).map(function (id) { return { id: id, qty: counts[id] }; });
+                } else {
+                    cartObjects = rawCart;
+                }
             }
 
-            let existingItem = cart.find(function (i) { return i.id === productId; });
+            let existingItem = cartObjects.find(function (i) { return i.id === productId; });
             let currentQty = existingItem ? existingItem.qty : 0;
 
             if (currentQty + qtyToAdd > maxStock) {
@@ -259,11 +266,21 @@ function setupQuantityAndCart(productId, maxStock) {
             if (existingItem) {
                 existingItem.qty += qtyToAdd;
             } else {
-                cart.push({ id: productId, qty: qtyToAdd });
+                cartObjects.push({ id: productId, qty: qtyToAdd });
             }
 
-            localStorage.setItem('cartItems', JSON.stringify(cart));
+            // حفظ السلة بالشكل القياسي الذي تقرؤه صفحة cart.html
+            localStorage.setItem('cartItems', JSON.stringify(cartObjects));
             
+            // تحديث نافذة المعرفات البسيطة أيضاً إن وجد سكربت يعتمد عليها في المتجر
+            let simpleCartArray = [];
+            cartObjects.forEach(function(item) {
+                for(let i = 0; i < item.qty; i++) {
+                    simpleCartArray.push(item.id);
+                }
+            });
+            localStorage.setItem('cart', JSON.stringify(simpleCartArray));
+
             if (typeof updateCartBadge === 'function') {
                 updateCartBadge();
             }

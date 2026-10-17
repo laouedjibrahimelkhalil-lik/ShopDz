@@ -1,5 +1,5 @@
-document.addEventListener('DOMContentLoaded', function () {
-    loadCartPage();
+document.addEventListener('DOMContentLoaded', async function () {
+    await loadCartPage();
 });
 
 // قاموس النصوص الديناميكية لصفحة السلة باللغات الثلاث
@@ -38,7 +38,6 @@ function getCartLangObj() {
     return cartLangTexts[lang] || cartLangTexts['ar'];
 }
 
-// دالة جلب السلة وتوحيد بنيتها (تتحول من مصفوفة نصوص إلى كائنات بها id و qty)
 function getDetailedCart() {
     let rawCart = JSON.parse(localStorage.getItem('cartItems')) || [];
     if (rawCart.length > 0 && typeof rawCart[0] === 'string') {
@@ -72,8 +71,8 @@ function updateCartBadge() {
     cartBadge.textContent = totalCount;
 }
 
-// دالة تحميل وعرض محتوى السلة داخل الصفحة الحالية
-function loadCartPage() {
+// دالة تحميل وعرض محتوى السلة من سحابة Supabase
+async function loadCartPage() {
     const cartLayout = document.getElementById('cartLayout');
     const emptyCartState = document.getElementById('emptyCartState');
     const cartTableBody = document.getElementById('cartTableBody');
@@ -85,13 +84,23 @@ function loadCartPage() {
 
     const t = getCartLangObj();
     let cart = getDetailedCart();
-    let products = JSON.parse(localStorage.getItem('products')) || [];
+
+    updateCartBadge();
 
     // إذا كانت السلة فارغة
     if (cart.length === 0) {
         if (cartLayout) cartLayout.style.display = 'none';
         if (emptyCartState) emptyCartState.style.display = 'block';
-        updateCartBadge();
+        return;
+    }
+
+    // جلب المنتجات مباشرة من سحابة Supabase
+    const { data: products, error } = await supabaseClient
+        .from('products')
+        .select('*');
+
+    if (error || !products) {
+        console.error('Error fetching products for cart:', error);
         return;
     }
 
@@ -119,7 +128,19 @@ function loadCartPage() {
         let itemTotal = priceNum * cartItem.qty;
         subtotal += itemTotal;
 
-        const mainImg = (product.images && product.images.length > 0) ? product.images[0] : (product.image || 'https://via.placeholder.com/60');
+        // دعم الصور المتعددة الذكية في السلة أيضاً
+        let images = [];
+        if (product.image) {
+            let rawImgText = product.image.trim();
+            let matches = rawImgText.match(/https?:\/\/[^\s]+/g);
+            if (matches && matches.length > 0) {
+                images = matches;
+            } else {
+                images = rawImgText.split(/[\n,]+/).map(function(u) { return u.trim(); }).filter(function(u) { return u.length > 0; });
+            }
+        }
+        const mainImg = (images.length > 0) ? images[0] : 'https://via.placeholder.com/60';
+
         const minusQty = cartItem.qty - 1;
         const plusQty = cartItem.qty + 1;
 
@@ -167,7 +188,7 @@ function loadCartPage() {
 }
 
 // تحديث كمية منتج معين مع تقييد المخزون
-function updateItemQuantity(productId, newQty, maxStock) {
+async function updateItemQuantity(productId, newQty, maxStock) {
     const t = getCartLangObj();
     let cart = getDetailedCart();
     let item = cart.find(function (i) {
@@ -182,21 +203,21 @@ function updateItemQuantity(productId, newQty, maxStock) {
     }
 
     if (newQty <= 0 || isNaN(newQty)) {
-        removeFromCart(productId);
+        await removeFromCart(productId);
         return;
     }
 
     item.qty = newQty;
     saveDetailedCart(cart);
-    loadCartPage();
+    await loadCartPage();
 }
 
 // حذف منتج مفرد من السلة
-function removeFromCart(productId) {
+async function removeFromCart(productId) {
     let cart = getDetailedCart();
     cart = cart.filter(function (i) {
         return i.id !== productId;
     });
     saveDetailedCart(cart);
-    loadCartPage();
+    await loadCartPage();
 }

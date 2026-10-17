@@ -474,3 +474,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     observer.observe(document.body, { childList: true, subtree: true });
 });
+// دالة مباشرة ومضمونة لإظهار وإخفاء كلمة المرور
+function togglePasswordVisibility(fieldId, btnElement) {
+    const passwordInput = document.getElementById(fieldId);
+    if (!passwordInput) return;
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        btnElement.innerHTML = '👁️‍🗨️'; // شكل العين المفتوحة
+    } else {
+        passwordInput.type = 'password';
+        btnElement.innerHTML = '👁️'; // شكل العين المغلقة
+    }
+}

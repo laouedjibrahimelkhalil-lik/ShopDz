@@ -36,9 +36,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="loginPassword" data-i18n="passwordLabel">كلمة المرور *</label>
-                    <input type="password" id="loginPassword" placeholder="********" required style="direction: ltr; text-align: left;">
-                </div>
+    <label for="password">كلمة المرور</label>
+    <div class="password-container">
+        <input type="password" id="password" placeholder="********" required>
+        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password', this)">👁️</button>
+    </div>
+</div>
 
                 <button type="submit" class="btn btn-primary btn-block" data-i18n="loginSubmitBtn">دخول لوحة التحكم</button>
             </form>

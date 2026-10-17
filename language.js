@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     initLanguage();
+    initSafePasswordToggle();
 });
 
 function initLanguage() {
@@ -50,8 +51,9 @@ function updatePageTexts(lang) {
         }
     });
 }
+
 // =========================================================
-// ميزة إظهار وإخفاء كلمة المرور (عين واحدة فقط ولا تؤثر على تسجيل الدخول)
+// ميزة إظهار وإخفاء كلمة المرور (عين واحدة آمنة وسريعة)
 // =========================================================
 const hideBrowserEyeStyle = document.createElement('style');
 hideBrowserEyeStyle.innerHTML = `
@@ -73,14 +75,17 @@ function initSafePasswordToggle() {
         if (!parent) return;
         parent.style.position = 'relative';
 
-        input.style.paddingRight = '40px';
+        // ترك مساحة في الجهة اليسرى أو اليمنى حسب اتجاه الحقل
+        input.style.paddingLeft = '42px';
 
         const eyeIcon = document.createElement('span');
         eyeIcon.innerHTML = '👁️';
         eyeIcon.title = 'إظهار / إخفاء كلمة المرور';
-        eyeIcon.style.cssText = 'position: absolute; right: 12px; bottom: 10px; cursor: pointer; font-size: 1.15rem; user-select: none; z-index: 20; line-height: 1;';
+        // وضع أيقونة العين في الجانب الأيسر داخل الحقل (لأن الحقول ltr)
+        eyeIcon.style.cssText = 'position: absolute; left: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.1rem; user-select: none; z-index: 20; line-height: 1;';
 
-        eyeIcon.addEventListener('click', function () {
+        eyeIcon.addEventListener('click', function (e) {
+            e.preventDefault();
             if (input.type === 'password') {
                 input.type = 'text';
                 eyeIcon.innerHTML = '🙈';
@@ -94,8 +99,16 @@ function initSafePasswordToggle() {
     });
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initSafePasswordToggle);
-} else {
-    initSafePasswordToggle();
+// دالة مساعدة في حال تم استدعاؤها يوماً من الـ HTML مباشرة
+function togglePasswordVisibility(fieldId, btnElement) {
+    const passwordInput = document.getElementById(fieldId);
+    if (!passwordInput) return;
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        btnElement.innerHTML = '🙈';
+    } else {
+        passwordInput.type = 'password';
+        btnElement.innerHTML = '👁️';
+    }
 }

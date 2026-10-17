@@ -173,6 +173,11 @@ document.addEventListener('DOMContentLoaded', async function () {
             });
             const orderTitleName = orderTitles.length > 0 ? orderTitles.join(' + ') : t.defaultOrderTitle;
 
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('ar-DZ', { year: 'numeric', month: 'long', day: 'numeric' });
+            const formattedTime = now.toLocaleTimeString('ar-DZ', { hour: '2-digit', minute: '2-digit', hour12: true });
+            const fullDateTimeStr = formattedDate + ' - ' + formattedTime;
+
             const name = document.getElementById('clientName').value.trim();
             const phone = document.getElementById('clientPhone').value.trim();
             const stateCode = clientStateSelect.value;
@@ -191,24 +196,29 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             const orderIdVal = 'ORD_' + Date.now();
 
-            // تجهيز كائن الطلب ليرسل مباشرة إلى جدول orders في Supabase
+            // كائن معلومات الزبون (يُحفظ داخل عمود client_data)
+            const clientInfoObj = {
+                name: name,
+                phone: phone,
+                state: stateName,
+                baladiya: baladiya,
+                address: address,
+                deliveryType: deliveryTypeStr
+            };
+
+            // تجهيز كائن الطلب مطابقاً 100% لأعمدة جدول orders في Supabase لديك
             const newOrderRecord = {
                 order_id: orderIdVal,
                 order_title: orderTitleName,
-                client_name: name,
-                client_phone: phone,
-                client_state: stateName,
-                client_baladiya: baladiya,
-                client_address: address,
-                delivery_type: deliveryTypeStr,
-                items: JSON.stringify(cart),
+                full_date_time: fullDateTimeStr,
+                client_data: clientInfoObj,
+                items: cart,
                 items_count: totalItemsCount,
-                total_amount: grandTotal,
-                status: 'قيد التجهيز',
-                created_at: new Date().toISOString()
+                total_amount: grandTotal.toLocaleString(),
+                status: 'قيد التجهيز'
             };
 
-            // إرسال الطلب إلى Supabase
+            // إرسال الطلب إلى جدول orders في Supabase
             const { error: insertError } = await supabaseClient
                 .from('orders')
                 .insert([newOrderRecord]);
@@ -219,17 +229,14 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return;
             }
 
-            // حفظ نسخة احتياطية محلياً أيضاً
-            const now = new Date();
-            const formattedDate = now.toLocaleDateString('ar-DZ', { year: 'numeric', month: 'long', day: 'numeric' });
-            const formattedTime = now.toLocaleTimeString('ar-DZ', { hour: '2-digit', minute: '2-digit', hour12: true });
-            
+            // حفظ نسخة محلياً أيضاً
             saveOrder({
                 orderId: orderIdVal,
                 orderTitle: orderTitleName,
                 date: formattedDate,
                 time: formattedTime,
-                client: { name, phone, state: stateName, baladiya, address, deliveryType: deliveryTypeStr },
+                fullDateTime: fullDateTimeStr,
+                client: clientInfoObj,
                 items: cart,
                 itemsCount: totalItemsCount,
                 totalAmount: grandTotal.toLocaleString(),

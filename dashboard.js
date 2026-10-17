@@ -1203,6 +1203,7 @@ async function clearAllOrders() {
 }
 
 // عرض المسؤولين والتحقق من الصلاحيات بمرونة
+// عرض المسؤولين والتحقق الصارم من صلاحية الإضافة (المدير الرئيسي أو من تمنحه الصلاحية فقط)
 async function renderDashboardAdmins() {
     const tableBody = document.getElementById('dashAdminsTable');
     const addCardContainer = document.getElementById('addAdminCardContainer');
@@ -1212,12 +1213,22 @@ async function renderDashboardAdmins() {
     const { data: admins } = await supabaseClient.from('admins').select('*');
     const adminList = admins || [];
     const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin')) || {};
-    const freshCurrentAdmin = adminList.find(function (a) { return a.email === currentAdmin.email; }) || currentAdmin;
     
-    // إذا كان الجدول فارغاً أو المستخدم مديراً رئيسياً أو لديه صلاحية الإضافة، نظهر نموذج الإضافة
-    const canAdd = (adminList.length === 0) || freshCurrentAdmin.is_main || freshCurrentAdmin.can_add_admins || true;
+    // البحث عن الحساب الحالي في قاعدة البيانات لمعرفة صلاحياته الحقيقية
+    let freshCurrentAdmin = adminList.find(function (a) { return a.email === currentAdmin.email; }) || currentAdmin;
+    
+    // هل الجدول فارغ تماماً؟ (أول حساب يتم فتحه يصبح مديراً رئيسياً تلقائياً)
+    const isFirstAdmin = adminList.length === 0;
 
-    if (addCardContainer) addCardContainer.style.display = canAdd ? 'block' : 'none';
+    // الشرط الصارم: يظهر نموذج إضافة مسؤول جديد فقط إذا كان:
+    // 1. الجدول فارغ (أول حساب)
+    // 2. أو الحساب هو المدير الرئيسي (is_main = true)
+    // 3. أو المدير الرئيسي منح هذا الحساب صلاحية الإضافة (can_add_admins = true)
+    const canAdd = isFirstAdmin || freshCurrentAdmin.is_main || freshCurrentAdmin.can_add_admins;
+
+    if (addCardContainer) {
+        addCardContainer.style.display = canAdd ? 'block' : 'none';
+    }
 
     tableBody.innerHTML = '';
 
@@ -1226,13 +1237,18 @@ async function renderDashboardAdmins() {
         let permissionsText = admin.is_main ? t.mainAdminRole : (admin.can_add_admins ? t.canAddRole : t.viewOnlyRole);
         let actionButtons = '';
         
-        if (!admin.is_main) {
-            let toggleBtnText = admin.can_add_admins ? t.revokePermBtn : t.grantPermBtn;
-            let toggleBtnClass = admin.can_add_admins ? 'btn-cancel' : 'btn-primary';
-            actionButtons += '<button class="btn ' + toggleBtnClass + ' btn-sm" onclick="toggleAdminPermission(\'' + rowId + '\')" style="margin: 0 5px; font-size: 0.75rem; padding: 4px 8px;">' + toggleBtnText + '</button>';
-            actionButtons += '<button class="btn-delete" onclick="deleteAdmin(\'' + rowId + '\')">' + t.deleteBtn + '</button>';
+        // المدير الرئيسي فقط (أو أنت) من يملك صلاحية منح/سحب حقوق الإضافة أو حذف الحسابات الأخرى
+        if (freshCurrentAdmin.is_main) {
+            if (!admin.is_main) {
+                let toggleBtnText = admin.can_add_admins ? t.revokePermBtn : t.grantPermBtn;
+                let toggleBtnClass = admin.can_add_admins ? 'btn-cancel' : 'btn-primary';
+                actionButtons += '<button class="btn ' + toggleBtnClass + ' btn-sm" onclick="toggleAdminPermission(\'' + rowId + '\')" style="margin: 0 5px; font-size: 0.75rem; padding: 4px 8px;">' + toggleBtnText + '</button>';
+                actionButtons += '<button class="btn-delete" onclick="deleteAdmin(\'' + rowId + '\')">' + t.deleteBtn + '</button>';
+            } else {
+                actionButtons = '<span style="color: var(--primary-color); font-weight: bold;">' + t.primaryAccountText + '</span>';
+            }
         } else {
-            actionButtons = '<span style="color: var(--primary-color); font-weight: bold;">' + t.primaryAccountText + '</span>';
+            actionButtons = '<span style="color: var(--text-muted);">' + t.mainAdminOnlyText + '</span>';
         }
 
         tableBody.innerHTML += 

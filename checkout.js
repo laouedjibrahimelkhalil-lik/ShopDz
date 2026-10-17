@@ -60,7 +60,6 @@ const defaultWilayasData = [
     { code: "58", name: "58. إن قزام", deskPrice: 1200, homePrice: 1600, baladiyas: [{name:"إن قزام", deskPrice:1200, homePrice:1600}] }
 ];
 
-// قاموس النصوص الديناميكية لصفحة إتمام الشراء
 const checkoutDynamicTexts = {
     ar: {
         currency: ' د.ج',
@@ -78,8 +77,8 @@ const checkoutDynamicTexts = {
     },
     en: {
         currency: ' DZD',
-        selectWilaya: 'Select Wilaya (State)...',
-        selectBaladiya: 'Select Baladiya (City)...',
+        selectWilaya: 'Select Wilaya...',
+        selectBaladiya: 'Select Baladiya...',
         selectWilayaFirst: 'Select Wilaya first',
         homeDelivery: 'Home Delivery',
         deskDelivery: 'Stop-Desk Delivery',
@@ -96,7 +95,7 @@ const checkoutDynamicTexts = {
         selectBaladiya: 'Choisissez la commune...',
         selectWilayaFirst: 'Choisissez d\'abord la wilaya',
         homeDelivery: 'Livraison à domicile',
-        deskDelivery: 'Livraison au bureau (Stop-Desk)',
+        deskDelivery: 'Livraison au bureau',
         emptyCartAlert: 'Votre panier est vide !',
         defaultOrderTitle: 'Commande en ligne',
         thankYouPrefix: 'Merci ',
@@ -111,10 +110,10 @@ function getCheckoutLang() {
     return checkoutDynamicTexts[lang] || checkoutDynamicTexts['ar'];
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     initShippingStorage();
     populateWilayas();
-    loadCheckoutSummary();
+    await loadCheckoutSummary();
 
     const clientStateSelect = document.getElementById('clientState');
     const clientBaladiyaSelect = document.getElementById('clientBaladiya');
@@ -153,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     if (checkoutForm) {
-        checkoutForm.addEventListener('submit', function (e) {
+        checkoutForm.addEventListener('submit', async function (e) {
             e.preventDefault();
 
             const t = getCheckoutLang();
@@ -163,17 +162,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            const products = JSON.parse(localStorage.getItem('products')) || [];
-            
-            // توليد اسم أو عنوان الطلبية بناءً على المنتجات المشتراة
+            // جلب المنتجات من Supabase عند إتمام الطلب
+            const { data: products } = await supabaseClient.from('products').select('*');
+            const allProducts = products || [];
+
             let orderTitles = [];
             cart.forEach(function (item) {
-                let p = products.find(function (prod) { return prod.id === item.id; });
+                let p = allProducts.find(function (prod) { return prod.id === item.id; });
                 if (p) orderTitles.push(p.title);
             });
             const orderTitleName = orderTitles.length > 0 ? orderTitles.join(' + ') : t.defaultOrderTitle;
 
-            // تسجيل التاريخ والوقت بالساعة والدقيقة
             const now = new Date();
             const formattedDate = now.toLocaleDateString('ar-DZ', { year: 'numeric', month: 'long', day: 'numeric' });
             const formattedTime = now.toLocaleTimeString('ar-DZ', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -190,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const deliveryTypeStr = deliveryType === 'home' ? 'توصيل للمنزل' : 'توصيل للمكتب';
 
             const shippingCost = calculateShippingCost();
-            const subtotal = calculateSubtotal();
+            const subtotal = await calculateSubtotalFromSupabase();
             const grandTotal = subtotal + shippingCost;
 
             const totalItemsCount = cart.reduce(function (sum, item) { return sum + item.qty; }, 0);
@@ -287,15 +286,22 @@ function updateBaladiyasList() {
     }
 }
 
-function calculateSubtotal() {
+// حساب المجموع الفرعي للمنتجات بدقة من سحابة Supabase
+async function calculateSubtotalFromSupabase() {
     const cart = getDetailedCart();
-    const products = JSON.parse(localStorage.getItem('products')) || [];
-    let subtotal = 0;
+    if (cart.length === 0) return 0;
 
+    const { data: products, error } = await supabaseClient.from('products').select('*');
+    if (error || !products) return 0;
+
+    let subtotal = 0;
     cart.forEach(function (item) {
         let product = products.find(function (p) { return p.id === item.id; });
-        let price = product ? parseInt(product.price.toString().replace(/[^0-9]/g, '')) || 0 : 2500;
-        subtotal += price * item.qty;
+        if (product && product.price) {
+            // تنظيف السعر من الفواصل أو الرموز وحسابه كرقم حقيقي دقيق
+            let priceNum = parseInt(product.price.toString().replace(/[^0-9]/g, '')) || 0;
+            subtotal += priceNum * item.qty;
+        }
     });
 
     return subtotal;
@@ -328,10 +334,9 @@ function calculateShippingCost() {
     return deliveryType === 'home' ? Number(wilayaObj.homePrice) : Number(wilayaObj.deskPrice);
 }
 
-function loadCheckoutSummary() {
+async function loadCheckoutSummary() {
     const listContainer = document.getElementById('checkoutItemsList');
     const cart = getDetailedCart();
-    const products = JSON.parse(localStorage.getItem('products')) || [];
     const t = getCheckoutLang();
 
     if (!listContainer) return;
@@ -341,26 +346,31 @@ function loadCheckoutSummary() {
         return;
     }
 
+    // جلب المنتجات من Supabase
+    const { data: products, error } = await supabaseClient.from('products').select('*');
+    const allProducts = products || [];
+
     listContainer.innerHTML = '';
     cart.forEach(function (item) {
-        let product = products.find(function (p) { return p.id === item.id; }) || { title: 'منتج محدد', price: '2,500' };
-        let unitPrice = parseInt(product.price.toString().replace(/[^0-9]/g, '')) || 2500;
+        let product = allProducts.find(function (p) { return p.id === item.id; }) || { title: 'منتج محدد', price: '0' };
+        let unitPrice = parseInt(product.price.toString().replace(/[^0-9]/g, '')) || 0;
         let totalItemPrice = unitPrice * item.qty;
 
         const itemRow = document.createElement('div');
         itemRow.className = 'checkout-preview-item';
+        itemRow.style.cssText = 'display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; font-size: 0.95rem;';
         itemRow.innerHTML = 
             '<span>' + product.title + ' (x' + item.qty + ')</span>' +
             '<strong>' + totalItemPrice.toLocaleString() + t.currency + '</strong>';
         listContainer.appendChild(itemRow);
     });
 
-    calculateCheckoutTotal();
+    await calculateCheckoutTotal();
 }
 
-function calculateCheckoutTotal() {
+async function calculateCheckoutTotal() {
     const t = getCheckoutLang();
-    const subtotal = calculateSubtotal();
+    const subtotal = await calculateSubtotalFromSupabase();
     const stateSelect = document.getElementById('clientState');
     
     let shippingCost = 0;

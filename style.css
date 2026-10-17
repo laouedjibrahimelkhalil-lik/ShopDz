@@ -1385,3 +1385,30 @@ html[dir="rtl"] .product-info,
 html[dir="rtl"] .product-detail-info {
     text-align: right;
 }
+/* تنسيق حاوية حقل كلمة المرور مع زر الإظهار والإخفاء */
+.password-field-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.password-field-wrapper input {
+    width: 100%;
+    padding-left: 40px !important; /* مساحة لزر العين في اليسار */
+}
+.toggle-password-btn {
+    position: absolute;
+    left: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+.toggle-password-btn:hover {
+    color: #0f172a;
+}

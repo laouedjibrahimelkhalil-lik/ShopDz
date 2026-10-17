@@ -414,3 +414,41 @@ function initMobileMenu() {
         });
     }
 }
+// دالة عامة لتفعيل زر إظهار وإخفاء كلمة المرور لأي حقل
+function setupPasswordToggles() {
+    const passwordInputs = document.querySelectorAll('input[type="password"]');
+    passwordInputs.forEach(function (input) {
+        // تجنب تكرار إضافة الزر إذا كان مضافاً مسبقاً
+        if (input.parentElement.classList.contains('password-field-wrapper')) return;
+
+        // إنشاء حاوية حول حقل الإدخال
+        const wrapper = document.createElement('div');
+        wrapper.className = 'password-field-wrapper';
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+
+        // إنشاء زر العين
+        const toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.className = 'toggle-password-btn';
+        toggleBtn.innerHTML = '👁️';
+        toggleBtn.title = 'إظهار / إخفاء كلمة المرور';
+
+        toggleBtn.addEventListener('click', function () {
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggleBtn.innerHTML = '👁️‍🗨️'; // رمز العين المفتوحة أو المخفية
+            } else {
+                input.type = 'password';
+                toggleBtn.innerHTML = '👁️';
+            }
+        });
+
+        wrapper.appendChild(toggleBtn);
+    });
+}
+
+// تشغيل الدالة تلقائياً بمجرد تحميل أي صفحة
+document.addEventListener('DOMContentLoaded', function () {
+    setupPasswordToggles();
+});

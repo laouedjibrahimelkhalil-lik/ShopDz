@@ -26,7 +26,7 @@
         }
         .stats-cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 16px;
             margin-bottom: 25px;
         }
@@ -50,6 +50,10 @@
             width: 5px;
             height: 100%;
             background: #2563eb;
+        }
+        html[dir="ltr"] .stat-box::before {
+            right: auto;
+            left: 0;
         }
         .stat-box.green::before { background: #16a34a; }
         .stat-box.purple::before { background: #9333ea; }
@@ -104,10 +108,10 @@
         <div class="container">
             
             <!-- أزرار التنقل بين تبويبات لوحة التحكم -->
-            <div class="dash-tabs" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px;">
+            <div class="dash-tabs">
                 <button class="dash-tab-btn active" id="tabProductsBtn" onclick="switchDashTab('products')" data-i18n="tabProducts">📦 إدارة المنتجات</button>
-                <button class="dash-tab-btn" id="tabStatsBtn" onclick="switchDashTab('stats')">📊 الإحصائيات والأرباح</button>
-                <button class="dash-tab-btn" id="tabCategoriesBtn" onclick="switchDashTab('categories')">📁 إدارة الفئات والواجهة</button>
+                <button class="dash-tab-btn" id="tabStatsBtn" onclick="switchDashTab('stats')" data-i18n="tabStats">📊 الإحصائيات والأرباح</button>
+                <button class="dash-tab-btn" id="tabCategoriesBtn" onclick="switchDashTab('categories')" data-i18n="tabCategoriesNav">📁 إدارة الفئات والواجهة</button>
                 <button class="dash-tab-btn" id="tabOrdersBtn" onclick="switchDashTab('orders')">
                     <span data-i18n="tabOrders">📋 طلبات الزبائن</span> 
                     <span class="badge badge-sale" id="ordersBadge">0</span>
@@ -155,13 +159,13 @@
                             <!-- صف الأسعار: سعر الشراء + سعر البيع -->
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="productCostPrice" style="color: #b45309; font-weight: 700;">سعر الشراء للقطعة (د.ج) *</label>
-                                    <input type="number" id="productCostPrice" placeholder="مثال: 38000" min="0" required style="border-color: #fcd34d; background: #fffbeb;">
+                                    <label for="productCostPrice" data-i18n="prodCostPriceLabel" style="color: #b45309; font-weight: 700;">سعر الشراء للقطعة (د.ج) *</label>
+                                    <input type="number" id="productCostPrice" data-i18n="prodCostPricePlaceholder" placeholder="مثال: 38000" min="0" required style="border-color: #fcd34d; background: #fffbeb;">
                                 </div>
 
                                 <div class="form-group">
                                     <label for="productPrice" data-i18n="prodPriceLabel" style="color: #15803d; font-weight: 700;">سعر البيع للزبون (د.ج) *</label>
-                                    <input type="number" id="productPrice" placeholder="مثال: 45000" min="0" required style="border-color: #86efac; background: #f0fdf4;">
+                                    <input type="number" id="productPrice" data-i18n="prodPricePlaceholder" placeholder="مثال: 45000" min="0" required style="border-color: #86efac; background: #f0fdf4;">
                                 </div>
                             </div>
 
@@ -180,16 +184,16 @@
                             <!-- خيار التحكم في ظهور المنتج في الصفحة الرئيسية -->
                             <div class="form-group" style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px;">
                                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0; font-weight: 700; color: #1e293b;">
-                                    <input type="checkbox" id="productShowOnHome" checked style="width: 18px; height: 18px; cursor: pointer;">
-                                    <span>🏠 عرض هذا المنتج في الواجهة الرئيسية للمتجر</span>
+                                    <input type="checkbox" id="productShowOnHome" checked style="width: 18px; height: 18px; cursor: pointer; flex-shrink: 0;">
+                                    <span data-i18n="showOnHomeLabel">🏠 عرض هذا المنتج في الواجهة الرئيسية للمتجر</span>
                                 </label>
-                                <small style="display: block; color: #64748b; margin-top: 4px; margin-right: 28px;">إذا ألغيت التحديد، سيظهر المنتج فقط داخل صفحة الفئة الخاصة به.</small>
+                                <small style="display: block; color: #64748b; margin-top: 4px;" data-i18n="showOnHomeHint">إذا ألغيت التحديد، سيظهر المنتج فقط داخل صفحة الفئة الخاصة به.</small>
                             </div>
 
                             <div class="form-group">
-    <label for="productImage">روابط صور المنتج (رابط في كل سطر) *</label>
-    <textarea id="productImage" rows="3" placeholder="https://example.com/img1.jpg&#10;https://example.com/img2.jpg" required style="direction: ltr; text-align: left;"></textarea>
-</div>
+                                <label for="productImage" data-i18n="prodImagesLabel">روابط صور المنتج (رابط في كل سطر) *</label>
+                                <textarea id="productImage" rows="3" placeholder="https://example.com/img1.jpg&#10;https://example.com/img2.jpg" required style="direction: ltr; text-align: left;"></textarea>
+                            </div>
 
                             <div class="form-group">
                                 <label for="productDescription" data-i18n="prodDescLabel">وصف المنتج التفصيلي *</label>
@@ -217,10 +221,10 @@
                                         <th data-i18n="thImage">الصورة</th>
                                         <th data-i18n="thProdName">اسم المنتج</th>
                                         <th data-i18n="thCategory">القسم</th>
-                                        <th>سعر الشراء</th>
+                                        <th data-i18n="thCostPrice">سعر الشراء</th>
                                         <th data-i18n="thPrice">سعر البيع</th>
                                         <th data-i18n="thQuantity">المخزون</th>
-                                        <th>في الرئيسية؟</th>
+                                        <th data-i18n="thInHome">في الرئيسية؟</th>
                                         <th data-i18n="thActions">الإجراءات</th>
                                     </tr>
                                 </thead>
@@ -236,100 +240,100 @@
             <!-- 2. قسم الإحصائيات والأرباح وتكلفة المشتريات -->
             <div id="statsTabSection" style="display: none;">
                 <div style="margin-bottom: 15px;">
-                    <h2 style="margin: 0 0 5px 0; color: #0f172a;">📊 التقرير المالي الشامل (المشتريات، المبيعات، وصافي الأرباح)</h2>
-                    <p style="margin: 0; color: #64748b; font-size: 0.9rem;">متابعة دقيقة لتكلفة البضاعة التي اشتريتها وأرباحك الصافية من المبيعات المؤكدة.</p>
+                    <h2 style="margin: 0 0 5px 0; color: #0f172a; font-size: 1.35rem;" data-i18n="statsMainTitle">📊 التقرير المالي الشامل (المشتريات، المبيعات، وصافي الأرباح)</h2>
+                    <p style="margin: 0; color: #64748b; font-size: 0.9rem;" data-i18n="statsMainSubtitle">متابعة دقيقة لتكلفة البضاعة التي اشتريتها وأرباحك الصافية من المبيعات المؤكدة.</p>
                 </div>
 
                 <!-- أولاً: إحصائيات الكميات وتكلفة شراء البضاعة -->
                 <div class="stats-section-heading">
-                    <span>🛒 أولاً: إحصائيات وتكلفة شراء المنتجات (البضاعة الداخلة للمتجر)</span>
+                    <span data-i18n="statsSection1Title">🛒 أولاً: إحصائيات وتكلفة شراء المنتجات (البضاعة الداخلة للمتجر)</span>
                 </div>
                 <div class="stats-cards-grid">
                     <div class="stat-box">
-                        <div class="stat-box-title"><span>📦 إجمالي القطع المشتراة</span></div>
+                        <div class="stat-box-title"><span data-i18n="statTotalPurchasedTitle">📦 إجمالي القطع المشتراة</span></div>
                         <div class="stat-box-value" id="statTotalPurchased">0</div>
-                        <div class="stat-box-sub">مجموع المخزون الحالي + المباع</div>
+                        <div class="stat-box-sub" data-i18n="statTotalPurchasedSub">مجموع المخزون الحالي + المباع</div>
                     </div>
 
                     <div class="stat-box orange">
-                        <div class="stat-box-title"><span>💵 تكلفة مشتريات اليوم</span></div>
+                        <div class="stat-box-title"><span data-i18n="statCostTodayTitle">💵 تكلفة مشتريات اليوم</span></div>
                         <div class="stat-box-value" id="statCostToday">0 د.ج</div>
-                        <div class="stat-box-sub">سعر البضاعة المضافة اليوم</div>
+                        <div class="stat-box-sub" data-i18n="statCostTodaySub">سعر البضاعة المضافة اليوم</div>
                     </div>
 
                     <div class="stat-box orange">
-                        <div class="stat-box-title"><span>📦 تكلفة مشتريات الأسبوع</span></div>
+                        <div class="stat-box-title"><span data-i18n="statCostWeekTitle">📦 تكلفة مشتريات الأسبوع</span></div>
                         <div class="stat-box-value" id="statCostWeek">0 د.ج</div>
-                        <div class="stat-box-sub">سعر البضاعة المضافة آخر 7 أيام</div>
+                        <div class="stat-box-sub" data-i18n="statCostWeekSub">سعر البضاعة المضافة آخر 7 أيام</div>
                     </div>
 
                     <div class="stat-box orange">
-                        <div class="stat-box-title"><span>🗓️ تكلفة مشتريات الشهر</span></div>
+                        <div class="stat-box-title"><span data-i18n="statCostMonthTitle">🗓️ تكلفة مشتريات الشهر</span></div>
                         <div class="stat-box-value" id="statCostMonth">0 د.ج</div>
-                        <div class="stat-box-sub">سعر البضاعة المضافة هذا الشهر</div>
+                        <div class="stat-box-sub" data-i18n="statCostMonthSub">سعر البضاعة المضافة هذا الشهر</div>
                     </div>
 
                     <div class="stat-box red">
-                        <div class="stat-box-title"><span>🏦 إجمالي تكلفة المشتريات</span></div>
+                        <div class="stat-box-title"><span data-i18n="statCostTotalTitle">🏦 إجمالي تكلفة المشتريات</span></div>
                         <div class="stat-box-value" id="statCostTotal">0 د.ج</div>
-                        <div class="stat-box-sub">إجمالي رأس المال المشترى به</div>
+                        <div class="stat-box-sub" data-i18n="statCostTotalSub">إجمالي رأس المال المشترى به</div>
                     </div>
                 </div>
 
                 <!-- ثانياً: إحصائيات المبيعات وصافي الأرباح -->
                 <div class="stats-section-heading">
-                    <span>💰 ثانياً: إحصائيات المبيعات وصافي الأرباح (بعد التأكيد)</span>
+                    <span data-i18n="statsSection2Title">💰 ثانياً: إحصائيات المبيعات وصافي الأرباح (بعد التأكيد)</span>
                 </div>
                 <div class="stats-cards-grid">
                     <div class="stat-box purple">
-                        <div class="stat-box-title"><span>🤝 القطع المباعة (المؤكدة)</span></div>
+                        <div class="stat-box-title"><span data-i18n="statTotalSoldTitle">🤝 القطع المباعة (المؤكدة)</span></div>
                         <div class="stat-box-value" id="statTotalSold">0</div>
-                        <div class="stat-box-sub">إجمالي القطع المباعة بعد التأكيد</div>
+                        <div class="stat-box-sub" data-i18n="statTotalSoldSub">إجمالي القطع المباعة بعد التأكيد</div>
                     </div>
 
                     <div class="stat-box green">
-                        <div class="stat-box-title"><span>📅 صافي ربح اليوم</span></div>
+                        <div class="stat-box-title"><span data-i18n="statProfitTodayTitle">📅 صافي ربح اليوم</span></div>
                         <div class="stat-box-value" id="statProfitToday">0 د.ج</div>
-                        <div class="stat-box-sub">أرباح الطلبات المؤكدة اليوم</div>
+                        <div class="stat-box-sub" data-i18n="statProfitTodaySub">أرباح الطلبات المؤكدة اليوم</div>
                     </div>
 
                     <div class="stat-box green">
-                        <div class="stat-box-title"><span>📆 صافي ربح الأسبوع</span></div>
+                        <div class="stat-box-title"><span data-i18n="statProfitWeekTitle">📆 صافي ربح الأسبوع</span></div>
                         <div class="stat-box-value" id="statProfitWeek">0 د.ج</div>
-                        <div class="stat-box-sub">أرباح آخر 7 أيام</div>
+                        <div class="stat-box-sub" data-i18n="statProfitWeekSub">أرباح آخر 7 أيام</div>
                     </div>
 
                     <div class="stat-box green">
-                        <div class="stat-box-title"><span>🗓️ صافي ربح الشهر</span></div>
+                        <div class="stat-box-title"><span data-i18n="statProfitMonthTitle">🗓️ صافي ربح الشهر</span></div>
                         <div class="stat-box-value" id="statProfitMonth">0 د.ج</div>
-                        <div class="stat-box-sub">أرباح هذا الشهر الحالي</div>
+                        <div class="stat-box-sub" data-i18n="statProfitMonthSub">أرباح هذا الشهر الحالي</div>
                     </div>
 
                     <div class="stat-box gold">
-                        <div class="stat-box-title"><span>🏆 صافي الربح الكامل</span></div>
+                        <div class="stat-box-title"><span data-i18n="statProfitTotalTitle">🏆 صافي الربح الكامل</span></div>
                         <div class="stat-box-value" id="statProfitTotal">0 د.ج</div>
-                        <div class="stat-box-sub">إجمالي الأرباح الصافية الكلية</div>
+                        <div class="stat-box-sub" data-i18n="statProfitTotalSub">إجمالي الأرباح الصافية الكلية</div>
                     </div>
                 </div>
 
                 <!-- جدول تفصيل المشتريات والأرباح والمخزون لكل منتج -->
                 <div class="dash-card" style="margin-top: 25px;">
                     <div class="dash-card-header">
-                        <h2 class="dash-card-title">📈 تفصيل التكلفة والمبيعات والأرباح حسب كل منتج</h2>
+                        <h2 class="dash-card-title" data-i18n="statsTableTitle">📈 تفصيل التكلفة والمبيعات والأرباح حسب كل منتج</h2>
                     </div>
                     <div class="table-responsive">
                         <table class="dash-table">
                             <thead>
                                 <tr>
-                                    <th>المنتج</th>
-                                    <th>سعر الشراء (للقطعة)</th>
-                                    <th>سعر البيع (للقطعة)</th>
-                                    <th>ربح القطعة</th>
-                                    <th>إجمالي المشترى</th>
-                                    <th>إجمالي تكلفة الشراء</th>
-                                    <th>المتبقي بالمخزون</th>
-                                    <th>المباع (المؤكد)</th>
-                                    <th>صافي ربح المنتج</th>
+                                    <th data-i18n="thProduct">المنتج</th>
+                                    <th data-i18n="thUnitCost">سعر الشراء (للقطعة)</th>
+                                    <th data-i18n="thUnitSell">سعر البيع (للقطعة)</th>
+                                    <th data-i18n="thUnitProfit">ربح القطعة</th>
+                                    <th data-i18n="thTotalBought">إجمالي المشترى</th>
+                                    <th data-i18n="thTotalPurchaseCost">إجمالي تكلفة الشراء</th>
+                                    <th data-i18n="thRemainingStock">المتبقي بالمخزون</th>
+                                    <th data-i18n="thConfirmedSold">المباع (المؤكد)</th>
+                                    <th data-i18n="thNetProductProfit">صافي ربح المنتج</th>
                                 </tr>
                             </thead>
                             <tbody id="dashStatsProductsTable">
@@ -346,32 +350,32 @@
                 <!-- بطاقة تعديل الصورة الرئيسية للمتجر (Hero Banner) -->
                 <div class="dash-card" style="margin-bottom: 25px; border: 2px solid #bfdbfe; background: #f8fafc;">
                     <div class="dash-card-header" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                        <h2 class="dash-card-title" style="color: #1e3a8a; margin: 0;">🖼️ إدارة الصورة الرئيسية لواجهة المتجر (Hero Image)</h2>
-                        <span style="background: #dbeafe; color: #1d4ed8; padding: 5px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 700;">📐 المقاس المثالي: 800×600 بكسل (نسبة 4:3)</span>
+                        <h2 class="dash-card-title" style="color: #1e3a8a; margin: 0;" data-i18n="heroCardTitle">🖼️ إدارة الصورة الرئيسية لواجهة المتجر (Hero Image)</h2>
+                        <span style="background: #dbeafe; color: #1d4ed8; padding: 5px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 700;" data-i18n="heroIdealSize">📐 المقاس المثالي: 800×600 بكسل (نسبة 4:3)</span>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; align-items: center;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; align-items: center;">
                         <form id="heroImageForm" class="dash-form">
                             <div class="form-group">
-                                <label for="heroImageFile" style="font-weight: 700; color: #0f172a;">📁 خيار 1: اختيار ملف صورة من جهازك (إدارة الملفات)</label>
+                                <label for="heroImageFile" style="font-weight: 700; color: #0f172a;" data-i18n="heroOption1Label">📁 خيار 1: اختيار ملف صورة من جهازك (إدارة الملفات)</label>
                                 <input type="file" id="heroImageFile" accept="image/*" style="padding: 8px; background: #fff; border: 1.5px dashed #3b82f6; border-radius: 8px; cursor: pointer; width: 100%;">
-                                <small style="color: #64748b; display: block; margin-top: 4px;">يتم ضغط وضبط مقاس الصورة تلقائياً وحفظها في السحابة.</small>
+                                <small style="color: #64748b; display: block; margin-top: 4px;" data-i18n="heroOption1Hint">يتم ضغط وضبط مقاس الصورة تلقائياً وحفظها في السحابة.</small>
                             </div>
 
                             <div class="form-group">
-                                <label for="heroImageUrl" style="font-weight: 700; color: #0f172a;">🔗 خيار 2: أو ضع رابط صورة مباشر (URL)</label>
+                                <label for="heroImageUrl" style="font-weight: 700; color: #0f172a;" data-i18n="heroOption2Label">🔗 خيار 2: أو ضع رابط صورة مباشر (URL)</label>
                                 <input type="url" id="heroImageUrl" placeholder="https://example.com/banner.jpg" style="direction: ltr; text-align: left; background: #fff;">
                             </div>
 
-                            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                                <button type="submit" class="btn btn-primary" style="flex: 2;">💾 حفظ وتحديث الصورة الرئيسية</button>
-                                <button type="button" class="btn btn-cancel" onclick="resetDefaultHeroImage()" style="flex: 1;">استعادة الافتراضية 🔄</button>
+                            <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                                <button type="submit" class="btn btn-primary" style="flex: 2; min-width: 160px;" data-i18n="saveHeroBtn">💾 حفظ وتحديث الصورة الرئيسية</button>
+                                <button type="button" class="btn btn-cancel" onclick="resetDefaultHeroImage()" style="flex: 1; min-width: 120px;" data-i18n="resetHeroBtn">استعادة الافتراضية 🔄</button>
                             </div>
                         </form>
 
                         <!-- معاينة الصورة الحالية -->
                         <div style="text-align: center; background: #1e293b; padding: 15px; border-radius: 12px;">
-                            <span style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 10px; font-weight: 700;">👁️ معاينة الصورة الحالية في المتجر:</span>
+                            <span style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 10px; font-weight: 700;" data-i18n="heroPreviewLabel">👁️ معاينة الصورة الحالية في المتجر:</span>
                             <img id="currentHeroPreview" src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop" alt="معاينة البانر" style="max-width: 100%; height: 190px; object-fit: cover; border-radius: 10px; border: 2px solid #475569;">
                         </div>
                     </div>
@@ -380,41 +384,41 @@
                 <!-- إدارة الفئات -->
                 <div class="dashboard-grid">
                     <div class="dash-card">
-                        <h2 class="dash-card-title">إضافة فئة جديدة</h2>
+                        <h2 class="dash-card-title" data-i18n="addCategoryTitle">إضافة فئة جديدة</h2>
                         <form id="addCategoryForm" class="dash-form">
                             <div class="form-group">
-                                <label for="catNameAr">اسم الفئة بالعربية *</label>
+                                <label for="catNameAr" data-i18n="catNameArLabel">اسم الفئة بالعربية *</label>
                                 <input type="text" id="catNameAr" placeholder="مثال: الهواتف الذكية" required>
                             </div>
                             <div class="form-group">
-                                <label for="catNameEn">اسم الفئة بالإنجليزية (اختياري)</label>
+                                <label for="catNameEn" data-i18n="catNameEnLabel">اسم الفئة بالإنجليزية (اختياري)</label>
                                 <input type="text" id="catNameEn" placeholder="Example: Smartphones" style="direction: ltr; text-align: left;">
                             </div>
                             <div class="form-group">
-                                <label for="catNameFr">اسم الفئة بالفرنسية (اختياري)</label>
+                                <label for="catNameFr" data-i18n="catNameFrLabel">اسم الفئة بالفرنسية (اختياري)</label>
                                 <input type="text" id="catNameFr" placeholder="Exemple: Smartphones" style="direction: ltr; text-align: left;">
                             </div>
                             <div class="form-group">
-                                <label for="catSlug">معرف الفئة بالرابط (Slug) *</label>
+                                <label for="catSlug" data-i18n="catSlugLabel">معرف الفئة بالرابط (Slug) *</label>
                                 <input type="text" id="catSlug" placeholder="مثال: smartphones" required style="direction: ltr; text-align: left;">
                             </div>
-                            <button type="submit" class="btn btn-primary btn-block">إضافة الفئة ➕</button>
+                            <button type="submit" class="btn btn-primary btn-block" data-i18n="addCatBtn">إضافة الفئة ➕</button>
                         </form>
                     </div>
 
                     <div class="dash-card">
                         <div class="dash-card-header">
-                            <h2 class="dash-card-title">الفئات الحالية (اضغط تعديل لتغيير الاسم)</h2>
+                            <h2 class="dash-card-title" data-i18n="currentCategoriesTitle">الفئات الحالية (اضغط تعديل لتغيير الاسم)</h2>
                             <span class="products-count" id="categoriesCount">0</span>
                         </div>
                         <div class="table-responsive">
                             <table class="dash-table">
                                 <thead>
                                     <tr>
-                                        <th>اسم الفئة (عربي)</th>
-                                        <th>الترجمة (EN / FR)</th>
-                                        <th>المعرف (Slug)</th>
-                                        <th>الإجراءات</th>
+                                        <th data-i18n="thCatAr">اسم الفئة (عربي)</th>
+                                        <th data-i18n="thCatTrans">الترجمة (EN / FR)</th>
+                                        <th data-i18n="thCatSlug">المعرف (Slug)</th>
+                                        <th data-i18n="thActions">الإجراءات</th>
                                     </tr>
                                 </thead>
                                 <tbody id="dashCategoriesTable">
@@ -445,7 +449,7 @@
                                     <th data-i18n="thOrderedItems">المنتجات والكمية</th>
                                     <th data-i18n="thTotalAmount">المبلغ الإجمالي</th>
                                     <th data-i18n="thStatus">الحالة</th>
-                                    <th data-i18n="thActions">إجراء</th>
+                                    <th data-i18n="thActions">الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody id="dashOrdersTable">

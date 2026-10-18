@@ -14,15 +14,25 @@
 <body>
 
     <header class="main-header">
-        <div class="container header-container" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0;">
-        <a href="index.html" class="logo">Shop<span>Dz</span></a>
-        <!-- تم إزالة أيقونة السلة بناءً على طلبك -->
-    </div>
+        <div class="container header-container" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; flex-direction: row;">
+            <a href="index.html" class="logo">Shop<span>Dz</span></a>
+            
+            <div class="header-actions" style="display: flex; align-items: center; gap: 10px; width: auto;">
+                <div class="language-switcher">
+                    <select id="languageSelector" style="padding: 6px 10px; border-radius: 6px; border: 1px solid var(--gray-border); background: #fff; font-family: inherit; font-size: 0.9rem; cursor: pointer;">
+                        <option value="ar">العربية 🇩🇿</option>
+                        <option value="en">English 🇬🇧</option>
+                        <option value="fr">Français 🇫🇷</option>
+                    </select>
+                </div>
+                <a href="cart.html" class="btn btn-outline-dark btn-sm" data-i18n="backToCart" style="text-decoration: none; font-size: 0.85rem; padding: 6px 12px; border-radius: 6px; border: 1px solid #cbd5e1; color: #1e293b; font-weight: 700;">العودة للسلة</a>
+            </div>
+        </div>
     </header>
 
     <main class="checkout-section">
         <div class="container">
-            <h1 style="font-size: 1.8rem; font-weight: 800; color: #0f172a; margin-bottom: 25px; text-align: center;">إتمام الطلب وتأكيد الشحن ⚡</h1>
+            <h1 class="checkout-page-heading" data-i18n="checkoutMainTitle">إتمام الطلب وتأكيد الشحن ⚡</h1>
             
             <form id="checkoutForm" class="checkout-grid">
                 
@@ -31,14 +41,14 @@
                     
                     <!-- 1. معلومات التواصل -->
                     <div class="checkout-card">
-                        <h2 class="checkout-card-title">👤 1. معلومات التواصل</h2>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <h2 class="checkout-card-title" data-i18n="step1ContactInfo">👤 1. معلومات التواصل</h2>
+                        <div class="checkout-two-cols">
                             <div class="checkout-form-group">
-                                <label for="clientName">الاسم واللقب *</label>
-                                <input type="text" id="clientName" placeholder="مثال: محمد بن علي" required>
+                                <label for="clientName" data-i18n="fullNameLabel">الاسم واللقب *</label>
+                                <input type="text" id="clientName" data-i18n="fullNamePlaceholder" placeholder="مثال: محمد بن علي" required>
                             </div>
                             <div class="checkout-form-group">
-                                <label for="clientPhone">رقم الهاتف *</label>
+                                <label for="clientPhone" data-i18n="phoneLabel">رقم الهاتف *</label>
                                 <input type="tel" id="clientPhone" placeholder="0550000000" pattern="^(0[567][0-9]{8})$" title="يرجى إدخال رقم هاتف جزائري صحيح يتكون من 10 أرقام ويبدأ بـ 05 أو 06 أو 07" required style="direction: ltr; text-align: right;">
                             </div>
                         </div>
@@ -46,43 +56,43 @@
 
                     <!-- 2. الموقع الجغرافي -->
                     <div class="checkout-card">
-                        <h2 class="checkout-card-title">📍 2. الموقع الجغرافي وعنوان السكن</h2>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <h2 class="checkout-card-title" data-i18n="step3Location">📍 2. الموقع الجغرافي وعنوان السكن</h2>
+                        <div class="checkout-two-cols">
                             <div class="checkout-form-group">
-                                <label for="clientState">الولاية *</label>
+                                <label for="clientState" data-i18n="wilayaLabel">الولاية *</label>
                                 <select id="clientState" required>
-                                    <option value="">اختر الولاية...</option>
+                                    <option value="" data-i18n="selectWilayaOption">اختر الولاية...</option>
                                 </select>
                             </div>
                             <div class="checkout-form-group">
-                                <label for="clientBaladiya">البلدية *</label>
+                                <label for="clientBaladiya" data-i18n="baladiyaLabel">البلدية *</label>
                                 <select id="clientBaladiya" required>
-                                    <option value="">اختر الولاية أولاً...</option>
+                                    <option value="" data-i18n="selectWilayaFirstOption">اختر الولاية أولاً...</option>
                                 </select>
                             </div>
                         </div>
                         <div class="checkout-form-group" style="margin-top: 15px;">
-                            <label for="clientAddress">العنوان التفصيلي *</label>
-                            <input type="text" id="clientAddress" placeholder="رقم الحي، الشارع، أو معلم مميز..." required>
+                            <label for="clientAddress" data-i18n="addressLabel">العنوان التفصيلي *</label>
+                            <input type="text" id="clientAddress" data-i18n="addressPlaceholder" placeholder="رقم الحي، الشارع، أو معلم مميز..." required>
                         </div>
                     </div>
 
                     <!-- 3. طريقة التوصيل -->
                     <div class="checkout-card">
-                        <h2 class="checkout-card-title">🚚 3. طريقة التوصيل المفضلة</h2>
+                        <h2 class="checkout-card-title" data-i18n="step2DeliveryMethod">🚚 3. طريقة التوصيل المفضلة</h2>
                         <div class="delivery-options-grid">
                             <label class="delivery-card active">
                                 <input type="radio" name="deliveryType" value="home" checked>
                                 <div class="delivery-card-info">
-                                    <h4>🏡 توصيل للمنزل (حتى باب البيت)</h4>
-                                    <p>استلام السريع لعنوانك المحدد في الولاية.</p>
+                                    <h4 data-i18n="homeDeliveryTitle">🏡 توصيل للمنزل (حتى باب البيت)</h4>
+                                    <p data-i18n="homeDeliveryDesc">التوصيل السريع لعنوانك المحدد في الولاية.</p>
                                 </div>
                             </label>
                             <label class="delivery-card">
                                 <input type="radio" name="deliveryType" value="desk">
                                 <div class="delivery-card-info">
-                                    <h4>🏢 توصيل للمكتب (Stop-Desk)</h4>
-                                    <p>استلام الطلب من مقر شركة التوصيل (أرخص سعراً).</p>
+                                    <h4 data-i18n="deskDeliveryTitle">🏢 توصيل للمكتب (Stop-Desk)</h4>
+                                    <p data-i18n="deskDeliveryDesc">استلام الطلب من مقر شركة التوصيل (أرخص سعراً).</p>
                                 </div>
                             </label>
                         </div>
@@ -90,12 +100,12 @@
 
                     <!-- 4. طريقة الدفع -->
                     <div class="checkout-card">
-                        <h2 class="checkout-card-title">💳 4. طريقة الدفع</h2>
+                        <h2 class="checkout-card-title" data-i18n="step4PaymentMethod">💳 4. طريقة الدفع</h2>
                         <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px;">
-                            <input type="radio" checked disabled style="accent-color: #2563eb; width: 18px; height: 18px;">
+                            <input type="radio" checked disabled style="accent-color: #2563eb; width: 18px; height: 18px; flex-shrink: 0;">
                             <div>
-                                <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 2px;">💵 الدفع عند الاستلام (Hand-to-Hand)</h4>
-                                <p style="font-size: 0.8rem; color: #64748b; margin: 0;">ادفع نقداً لمندوب التوصيل فور استلام طلبك والتحقق منه.</p>
+                                <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 2px;" data-i18n="codTitle">💵 الدفع عند الاستلام (Hand-to-Hand)</h4>
+                                <p style="font-size: 0.8rem; color: #64748b; margin: 0;" data-i18n="codDesc">ادفع نقداً لمندوب التوصيل فور استلام طلبك والتحقق منه.</p>
                             </div>
                         </div>
                     </div>
@@ -105,32 +115,32 @@
                 <!-- القسم الأيسر: ملخص المشتريات والمبالغ -->
                 <div class="checkout-right-column">
                     <div class="checkout-summary-box">
-                        <h3 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #f1f5f9;">📦 ملخص المشتريات</h3>
+                        <h3 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #f1f5f9;" data-i18n="purchaseSummaryTitle">📦 ملخص المشتريات</h3>
                         
                         <div class="checkout-preview-list" id="checkoutItemsList">
                             <!-- المنتجات ديناميكياً -->
                         </div>
 
                         <div class="checkout-summary-row" style="margin-top: 15px;">
-                            <span>مجموع المنتجات:</span>
+                            <span data-i18n="productsSubtotalLabel">مجموع المنتجات:</span>
                             <strong id="checkoutSubtotal">0 د.ج</strong>
                         </div>
 
                         <div class="checkout-summary-row">
-                            <span>تكلفة التوصيل (<span id="summaryDeliveryType">توصيل للمنزل</span>):</span>
-                            <strong id="checkoutShipping" style="color: #2563eb;">اختر الولاية أولاً</strong>
+                            <span><span data-i18n="shippingCostLabel">تكلفة التوصيل:</span> (<span id="summaryDeliveryType" data-i18n="homeDeliveryShort">توصيل للمنزل</span>)</span>
+                            <strong id="checkoutShipping" style="color: #2563eb;" data-i18n="selectWilayaFirst">اختر الولاية أولاً</strong>
                         </div>
 
                         <div class="checkout-summary-row total">
-                            <span>المبلغ الإجمالي:</span>
+                            <span data-i18n="totalAmountLabel">المبلغ الإجمالي:</span>
                             <strong id="checkoutGrandTotal" style="color: #16a34a;">0 د.ج</strong>
                         </div>
 
-                        <button type="submit" class="btn-checkout-submit">تأكيد الطلب الآن ⚡</button>
+                        <button type="submit" class="btn-checkout-submit" data-i18n="confirmOrderNowBtn">تأكيد الطلب الآن ⚡</button>
 
                         <div style="text-align: center; margin-top: 15px; font-size: 0.8rem; color: #64748b; display: flex; flex-direction: column; gap: 4px;">
-                            <span>🔒 إتمام الطلب آمن 100%</span>
-                            <span>🚚 الدفع عند الاستلام متوفر</span>
+                            <span data-i18n="trustSafe">🔒 إتمام الطلب آمن 100%</span>
+                            <span data-i18n="trustCod">🚚 الدفع عند الاستلام متوفر</span>
                         </div>
                     </div>
                 </div>
@@ -140,7 +150,7 @@
     </main>
 
     <footer class="main-footer" style="padding: 20px 0; background: #fff; border-top: 1px solid #e2e8f0; text-align: center; margin-top: 40px;">
-        <p style="color: #64748b; font-size: 0.85rem; margin: 0;">جميع الحقوق محفوظة &copy; 2026 - ShopDz</p>
+        <p style="color: #64748b; font-size: 0.85rem; margin: 0;" data-i18n="footerRights">جميع الحقوق محفوظة &copy; 2026 - ShopDz</p>
     </footer>
 
     <script src="translations.js"></script>

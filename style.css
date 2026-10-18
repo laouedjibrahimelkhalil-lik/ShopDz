@@ -1709,3 +1709,174 @@ html[dir="rtl"] .product-detail-info {
     color: #16a34a;
     font-weight: 700;
 }
+/* --- شبكة عمودين في صفحة إتمام الطلب --- */
+.checkout-two-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.checkout-page-heading {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.dash-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+/* --- تحسينات شاملة للهواتف الذكية (Responsive Mobile View) --- */
+@media screen and (max-width: 768px) {
+    /* 1. ضبط الهيدر وشريط البحث على الهاتف */
+    .header-container {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 10px 12px;
+    }
+
+    .search-box {
+        order: 3;
+        width: 100%;
+        margin-top: 4px;
+    }
+
+    /* 2. ضبط الصفحة الرئيسية والمنتجات على الهاتف */
+    .hero-container {
+        flex-direction: column-reverse;
+        text-align: center;
+        gap: 15px;
+        padding: 15px 10px;
+    }
+
+    .hero-content h1 {
+        font-size: 1.5rem;
+    }
+
+    .hero-btns {
+        justify-content: center;
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .product-card .product-info {
+        padding: 10px;
+    }
+
+    .product-card .product-title {
+        font-size: 0.9rem;
+    }
+
+    .product-card .product-actions {
+        flex-direction: column;
+        gap: 6px !important;
+    }
+
+    .product-card .product-actions a,
+    .product-card .product-actions button {
+        width: 100%;
+        padding: 8px 6px !important;
+        font-size: 0.82rem !important;
+    }
+
+    /* 3. ضبط صفحة إتمام الشراء (Checkout) على الهاتف */
+    .checkout-page-heading {
+        font-size: 1.35rem;
+        margin-bottom: 18px;
+    }
+
+    .checkout-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    .checkout-two-cols {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .checkout-card,
+    .checkout-summary-box {
+        padding: 15px !important;
+        border-radius: 12px;
+    }
+
+    .delivery-options-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+
+    /* 4. ضبط لوحة التحكم (Dashboard) على الهاتف */
+    .dash-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        gap: 8px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+
+    .dash-tab-btn {
+        flex-shrink: 0;
+        padding: 9px 14px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .stats-cards-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+
+    .stat-box {
+        padding: 12px !important;
+    }
+
+    .stat-box-value {
+        font-size: 1.2rem !important;
+    }
+
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .dash-table {
+        min-width: 650px;
+        font-size: 0.82rem;
+    }
+
+    .baladiya-edit-row {
+        flex-wrap: wrap;
+    }
+
+    .baladiya-edit-row .b-name {
+        flex: 1 1 100% !important;
+    }
+}
+
+@media screen and (max-width: 420px) {
+    .stats-cards-grid {
+        grid-template-columns: 1fr !important;
+    }
+}

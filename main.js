@@ -487,3 +487,157 @@ function initMobileMenu() {
         });
     }
 }
+// =========================================================
+// عرض بيانات "اتصل بنا" (واتساب، هاتف، إنستغرام، فيسبوك) عند فتح قسم اتصل بنا
+// =========================================================
+
+async function checkAndRenderContactSection(categoryNameOrSlug, containerElement) {
+    const cleanVal = String(categoryNameOrSlug || '').trim().toLowerCase();
+    const isContact = cleanVal === 'اتصل بنا' || cleanVal === 'contact us' || cleanVal === 'contactez-nous' || cleanVal === 'contact-us' || cleanVal === 'contact';
+
+    if (!isContact) return false;
+
+    const lang = localStorage.getItem('shopLang') || 'ar';
+    const labels = {
+        ar: {
+            subtitle: 'يسعدنا تواصلكم معنا في أي وقت عبر القنوات الرسمية التالية:',
+            phoneTitle: 'رقم الهاتف المباشر',
+            phoneAction: 'اتصل الآن 📞',
+            waTitle: 'الواتساب (WhatsApp)',
+            waAction: 'مراسلة عبر واتساب 💬',
+            igTitle: 'صفحتنا على إنستغرام',
+            igAction: 'متابعة على Instagram 📸',
+            fbTitle: 'صفحتنا على فيسبوك',
+            fbAction: 'زيارة صفحة Facebook 📘'
+        },
+        en: {
+            subtitle: 'We are happy to hear from you anytime via our official channels:',
+            phoneTitle: 'Direct Phone Number',
+            phoneAction: 'Call Now 📞',
+            waTitle: 'WhatsApp Chat',
+            waAction: 'Chat on WhatsApp 💬',
+            igTitle: 'Instagram Page',
+            igAction: 'Follow on Instagram 📸',
+            fbTitle: 'Facebook Page',
+            fbAction: 'Visit Facebook Page 📘'
+        },
+        fr: {
+            subtitle: 'Nous sommes ravis de vous répondre à tout moment via nos canaux officiels :',
+            phoneTitle: 'Numéro de Téléphone',
+            phoneAction: 'Appeler maintenant 📞',
+            waTitle: 'Discussion WhatsApp',
+            waAction: 'Écrire sur WhatsApp 💬',
+            igTitle: 'Page Instagram',
+            igAction: 'Suivre sur Instagram 📸',
+            fbTitle: 'Page Facebook',
+            fbAction: 'Visiter la page Facebook 📘'
+        }
+    }[lang] || {};
+
+    // جلب الروابط والأرقام من جدول categories في Supabase
+    let phone = '+213550000000';
+    let whatsapp = '+213550000000';
+    let instagram = 'https://instagram.com';
+    let facebook = 'https://facebook.com';
+
+    try {
+        const { data } = await supabaseClient
+            .from('categories')
+            .select('*')
+            .or('slug.eq.contact-us,name_ar.eq.اتصل بنا')
+            .limit(1);
+
+        if (data && data.length > 0) {
+            const row = data[0];
+            if (row.phone) phone = row.phone;
+            if (row.whatsapp) whatsapp = row.whatsapp;
+            if (row.instagram) instagram = row.instagram;
+            if (row.facebook) facebook = row.facebook;
+        }
+    } catch (err) {
+        console.warn('Contact info fallback used:', err);
+    }
+
+    const cleanWaLink = whatsapp.replace(/[^0-9]/g, '');
+
+    const contactHTML = `
+        <div style="grid-column: 1 / -1; width: 100%; max-width: 850px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); text-align: center;">
+            <p style="color: #475569; font-size: 1.05rem; margin-bottom: 25px; font-weight: 600;">${labels.subtitle}</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px;">
+                
+                <!-- بطاقة واتساب -->
+                <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                    <div style="font-size: 2.2rem;">🟢</div>
+                    <h3 style="margin: 0; font-size: 1.05rem; color: #166534;">${labels.waTitle}</h3>
+                    <strong style="direction: ltr; font-size: 1.1rem; color: #0f172a;">${whatsapp}</strong>
+                    <a href="https://wa.me/${cleanWaLink}" target="_blank" style="margin-top: auto; width: 100%; padding: 10px; background: #16a34a; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 0.9rem;">${labels.waAction}</a>
+                </div>
+
+                <!-- بطاقة رقم الهاتف -->
+                <div style="background: #eff6ff; border: 1.5px solid #93c5fd; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                    <div style="font-size: 2.2rem;">📞</div>
+                    <h3 style="margin: 0; font-size: 1.05rem; color: #1e40af;">${labels.phoneTitle}</h3>
+                    <strong style="direction: ltr; font-size: 1.1rem; color: #0f172a;">${phone}</strong>
+                    <a href="tel:${phone}" style="margin-top: auto; width: 100%; padding: 10px; background: #2563eb; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 0.9rem;">${labels.phoneAction}</a>
+                </div>
+
+                <!-- بطاقة إنستغرام -->
+                <div style="background: #fdf2f8; border: 1.5px solid #f9a8d4; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                    <div style="font-size: 2.2rem;">📸</div>
+                    <h3 style="margin: 0; font-size: 1.05rem; color: #9d174d;">${labels.igTitle}</h3>
+                    <span style="font-size: 0.85rem; color: #64748b;">@ShopDz</span>
+                    <a href="${instagram}" target="_blank" style="margin-top: auto; width: 100%; padding: 10px; background: #db2777; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 0.9rem;">${labels.igAction}</a>
+                </div>
+
+                <!-- بطاقة فيسبوك -->
+                <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                    <div style="font-size: 2.2rem;">📘</div>
+                    <h3 style="margin: 0; font-size: 1.05rem; color: #1e3a8a;">${labels.fbTitle}</h3>
+                    <span style="font-size: 0.85rem; color: #64748b;">ShopDz Official</span>
+                    <a href="${facebook}" target="_blank" style="margin-top: auto; width: 100%; padding: 10px; background: #1d4ed8; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 0.9rem;">${labels.fbAction}</a>
+                </div>
+
+            </div>
+        </div>
+    `;
+
+    if (containerElement) {
+        containerElement.innerHTML = contactHTML;
+    }
+    return true;
+}
+
+// مراقب تلقائي يقوم باستبدال رسالة "لا توجد منتجات مضافة في هذه الفئة حالياً" ببطاقات اتصل بنا فور ظهورها
+document.addEventListener('DOMContentLoaded', function () {
+    const observer = new MutationObserver(async function () {
+        const pageText = document.body.innerText || '';
+        const isOnContactView =
+            pageText.includes('قسم الفئات\nاتصل بنا') ||
+            document.querySelector('.nav-links a.active')?.textContent.trim() === 'اتصل بنا' ||
+            window.location.search.includes('contact') ||
+            window.location.hash.includes('contact');
+
+        if (!isOnContactView) return;
+
+        // البحث عن الصندوق الذي يعرض رسالة "لا توجد منتجات مضافة في هذه الفئة حالياً"
+        const allDivs = document.querySelectorAll('div, p');
+        for (let el of allDivs) {
+            if (
+                el.children.length === 0 &&
+                (el.textContent.includes('لا توجد منتجات مضافة في هذه الفئة') ||
+                 el.textContent.includes('No products available') ||
+                 el.textContent.includes('Aucun produit'))
+            ) {
+                const targetBox = el.parentElement || el;
+                if (!targetBox.dataset.contactLoaded) {
+                    targetBox.dataset.contactLoaded = 'true';
+                    await checkAndRenderContactSection('اتصل بنا', targetBox);
+                }
+                break;
+            }
+        }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+});

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="contactUsTitle">اتصل بنا - ShopDz</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
+</head>
+<body>
+    <div class="container" style="padding: 50px 20px; max-width: 600px; margin: auto;">
+        <h1 data-i18n="contactUsTitle" style="text-align: center; margin-bottom: 30px;">اتصل بنا</h1>
+        
+        <div class="dash-card" style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <div style="display: flex; flex-direction: column; gap: 15px; font-size: 1.1rem;">
+                
+                <!-- رقم الهاتف -->
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span>📞</span>
+                    <strong data-i18n="phoneLabel">رقم الهاتف:</strong>
+                    <a href="tel:+213550000000" style="direction: ltr; color: #2563eb;">+213 550 00 00 00</a>
+                </div>
+
+                <!-- واتساب -->
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span>🟢</span>
+                    <strong data-i18n="whatsappLabel">واتساب:</strong>
+                    <a href="https://wa.me/213550000000" target="_blank" style="direction: ltr; color: #16a34a;">+213 550 00 00 00</a>
+                </div>
+
+                <!-- إنستغرام -->
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span>📸</span>
+                    <strong data-i18n="instagramLabel">إنستغرام:</strong>
+                    <a href="https://instagram.com/your-username" target="_blank" style="color: #db2777;">Instagram Profile</a>
+                </div>
+
+                <!-- فيسبوك -->
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span>📘</span>
+                    <strong data-i18n="facebookLabel">فيسبوك:</strong>
+                    <a href="https://facebook.com/your-page" target="_blank" style="color: #1d4ed8;">Facebook Page</a>
+                </div>
+
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="index.html" class="btn btn-outline-dark" data-i18n="home">الرئيسية</a>
+        </div>
+    </div>
+
+    <script src="translations.js"></script>
+    <script src="language.js"></script>
+</body>
+</html>

@@ -266,7 +266,13 @@ const translations = {
         recCodNote: "💵 الدفع نقداً عند الاستلام (Hand-to-Hand)",
         recScanQr: "امسح الرمز لمعلومات الطلبية",
         recPrintNowBtn: "🖨️ طباعة الورقة / حفظ PDF",
-        recCloseBtn: "✖ إغلاق"
+        recCloseBtn: "✖ إغلاق",
+        // ... نصوصك القديمة
+    contactUsTitle: "اتصل بنا",
+    whatsappLabel: "واتساب:",
+    phoneLabel: "رقم الهاتف:",
+    instagramLabel: "إنستغرام",
+    facebookLabel: "فيسبوك"
     },
 
     en: {
@@ -536,7 +542,13 @@ const translations = {
         recCodNote: "💵 Cash on Delivery (Hand-to-Hand)",
         recScanQr: "Scan QR for Order Details",
         recPrintNowBtn: "🖨️ Print Receipt / Save PDF",
-        recCloseBtn: "✖ Close"
+        recCloseBtn: "✖ Close",
+        // ... نصوصك القديمة
+    contactUsTitle: "Contact Us",
+    whatsappLabel: "WhatsApp:",
+    phoneLabel: "Phone:",
+    instagramLabel: "Instagram",
+    facebookLabel: "Facebook"
     },
 
     fr: {
@@ -806,6 +818,12 @@ const translations = {
         recCodNote: "💵 Paiement en espèces à la livraison (Main à main)",
         recScanQr: "Scannez le QR pour les détails",
         recPrintNowBtn: "🖨️ Imprimer le bon / PDF",
-        recCloseBtn: "✖ Fermer"
+        recCloseBtn: "✖ Fermer",
+        // ... نصوصك القديمة
+    contactUsTitle: "Contactez-nous",
+    whatsappLabel: "WhatsApp :",
+    phoneLabel: "Téléphone :",
+    instagramLabel: "Instagram",
+    facebookLabel: "Facebook"
     }
 };

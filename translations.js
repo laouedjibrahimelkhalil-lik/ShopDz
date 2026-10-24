@@ -248,7 +248,25 @@ const translations = {
         thCode: "الكود",
         thDeskDefault: "مكتب (افتراضي)",
         thHomeDefault: "منزل (افتراضي)",
-        thBaladiyasCount: "البلديات"
+        thBaladiyasCount: "البلديات",
+
+        // نصوص بوليصة الشحن والطباعة (Receipt)
+        recSubtitle: "بوليصة الشحن والتوصيل - Bon de Livraison",
+        recOrderNo: "رقم الطلبية:",
+        recDate: "التاريخ:",
+        recClientName: "👤 الاسم واللقب:",
+        recPhone: "📞 رقم الهاتف:",
+        recLocation: "📍 المكان (الولاية والبلدية):",
+        recDeliveryType: "🚚 طريقة التوصيل:",
+        recAddress: "🏠 العنوان التفصيلي:",
+        recHomeDelivery: "🏠 توصيل للمنزل (حتى باب البيت)",
+        recDeskDelivery: "🏢 توصيل للمركز / المكتب (Stop-Desk)",
+        recOrderedItems: "📦 المنتجات المطلوبة والكمية",
+        recTotalToCollect: "المبلغ الإجمالي للتحصيل:",
+        recCodNote: "💵 الدفع نقداً عند الاستلام (Hand-to-Hand)",
+        recScanQr: "امسح الرمز لمعلومات الطلبية",
+        recPrintNowBtn: "🖨️ طباعة الورقة / حفظ PDF",
+        recCloseBtn: "✖ إغلاق"
     },
 
     en: {
@@ -500,7 +518,25 @@ const translations = {
         thCode: "Code",
         thDeskDefault: "Desk (Default)",
         thHomeDefault: "Home (Default)",
-        thBaladiyasCount: "Cities"
+        thBaladiyasCount: "Cities",
+
+        // Receipt Texts
+        recSubtitle: "Shipping Waybill & Order Receipt",
+        recOrderNo: "Order ID:",
+        recDate: "Date:",
+        recClientName: "👤 Customer Name:",
+        recPhone: "📞 Phone Number:",
+        recLocation: "📍 Location (Wilaya & City):",
+        recDeliveryType: "🚚 Delivery Method:",
+        recAddress: "🏠 Detailed Address:",
+        recHomeDelivery: "🏠 Home Delivery (Doorstep)",
+        recDeskDelivery: "🏢 Stop-Desk / Office Delivery",
+        recOrderedItems: "📦 Ordered Products & Quantity",
+        recTotalToCollect: "Total Amount to Collect:",
+        recCodNote: "💵 Cash on Delivery (Hand-to-Hand)",
+        recScanQr: "Scan QR for Order Details",
+        recPrintNowBtn: "🖨️ Print Receipt / Save PDF",
+        recCloseBtn: "✖ Close"
     },
 
     fr: {
@@ -752,6 +788,24 @@ const translations = {
         thCode: "Code",
         thDeskDefault: "Bureau (Défaut)",
         thHomeDefault: "Domicile (Défaut)",
-        thBaladiyasCount: "Communes"
+        thBaladiyasCount: "Communes",
+
+        // Receipt Texts
+        recSubtitle: "Bon de Livraison / Expédition",
+        recOrderNo: "N° Commande :",
+        recDate: "Date :",
+        recClientName: "👤 Nom et Prénom :",
+        recPhone: "📞 Téléphone :",
+        recLocation: "📍 Lieu (Wilaya et Commune) :",
+        recDeliveryType: "🚚 Mode de livraison :",
+        recAddress: "🏠 Adresse détaillée :",
+        recHomeDelivery: "🏠 Livraison à domicile",
+        recDeskDelivery: "🏢 Livraison au bureau (Stop-Desk)",
+        recOrderedItems: "📦 Produits commandés et Quantité",
+        recTotalToCollect: "Montant Total à payer :",
+        recCodNote: "💵 Paiement en espèces à la livraison (Main à main)",
+        recScanQr: "Scannez le QR pour les détails",
+        recPrintNowBtn: "🖨️ Imprimer le bon / PDF",
+        recCloseBtn: "✖ Fermer"
     }
 };

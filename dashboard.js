@@ -18,6 +18,7 @@ const dashLangTexts = {
         deleteBtn: 'حذف 🗑️',
         editBtn: 'تعديل ✏️',
         confirmBtn: '📞 تأكيد وإرسال',
+        printWaybillBtn: '🖨️ طباعة الوصل',
         deliverBtn: '💰 تم التوصيل (حساب الربح)',
         cancelOrderBtn: '↩ إلغاء الطلبية',
         confirmedText: 'تم الاستلام ✓',
@@ -31,8 +32,8 @@ const dashLangTexts = {
         itemsCountWord: 'عدد القطع: ',
         newOrderWord: 'طلب جديد',
         alreadyConfirmed: 'هذا الطلب تم تأكيده واستلامه مسبقاً!',
-        confirmShippingPrompt: 'هل تود تأكيد الطلبية مبدئياً وإرسالها للتوصيل؟ (لن تُحسب الأرباح حتى تضغط على "تم التوصيل" بعد استلام الزبون).',
-        orderShippingAlert: 'تم تحويل الطلبية إلى "قيد التوصيل" 🚚. عند استلام الزبون للطرد اضغط على "تم التوصيل" لاحتساب الأرباح.',
+        confirmShippingPrompt: 'هل تود تأكيد الطلبية وإرسالها للتوصيل وإخراج ورقة الشحن (مع QR Code)؟',
+        orderShippingAlert: 'تم تحويل الطلبية إلى "قيد التوصيل" 🚚 وتجهيز وصل الطباعة.',
         confirmDeliverPrompt: 'هل استلم الزبون الطلبية؟ سيتم الآن التأكيد النهائي، خصم الكميات من المخزون، وإضافة صافي الربح إلى الإحصائيات.',
         orderConfirmedAlert: 'تم التأكيد النهائي للطلب، خصم الكميات، واحتساب الربح الصافي بنجاح! 💰✅',
         confirmCancelOrderPrompt: 'هل أنت متأكد من إلغاء هذه الطلبية (عدم استلام / روتور)؟ لن يتم احتساب أي أرباح لها.',
@@ -61,7 +62,24 @@ const dashLangTexts = {
         catUpdated: 'تم تحديث الفئة وربط المنتجات بها بنجاح!',
         selectCatOption: 'اختر القسم...',
         shownOnHome: 'معروض بالرئيسية ✅',
-        hiddenFromHome: 'في الفئة فقط 🚫'
+        hiddenFromHome: 'في الفئة فقط 🚫',
+        // نصوص ورقة الطباعة (Receipt)
+        recSubtitle: 'بوليصة الشحن والتوصيل - Bon de Livraison',
+        recOrderNo: 'رقم الطلبية:',
+        recDate: 'التاريخ:',
+        recClientName: '👤 الاسم واللقب:',
+        recPhone: '📞 رقم الهاتف:',
+        recLocation: '📍 المكان (الولاية والبلدية):',
+        recDeliveryType: '🚚 طريقة التوصيل:',
+        recAddress: '🏠 العنوان التفصيلي:',
+        recHomeDelivery: '🏠 توصيل للمنزل (حتى باب البيت)',
+        recDeskDelivery: '🏢 توصيل للمركز / المكتب (Stop-Desk)',
+        recOrderedItems: '📦 المنتجات المطلوبة والكمية',
+        recTotalToCollect: 'المبلغ الإجمالي للتحصيل:',
+        recCodNote: '💵 الدفع نقداً عند الاستلام (Hand-to-Hand)',
+        recScanQr: 'امسح الرمز لمعلومات الطلبية',
+        recPrintNowBtn: '🖨️ طباعة الورقة / حفظ PDF',
+        recCloseBtn: '✖ إغلاق'
     },
     en: {
         mustLogin: 'You must login as an admin first to access the Dashboard!',
@@ -81,6 +99,7 @@ const dashLangTexts = {
         deleteBtn: 'Delete 🗑️',
         editBtn: 'Edit ✏️',
         confirmBtn: '📞 Confirm & Ship',
+        printWaybillBtn: '🖨️ Print Receipt',
         deliverBtn: '💰 Delivered (Count Profit)',
         cancelOrderBtn: '↩ Cancel Order',
         confirmedText: 'Delivered ✓',
@@ -94,7 +113,7 @@ const dashLangTexts = {
         itemsCountWord: 'Items count: ',
         newOrderWord: 'New Order',
         alreadyConfirmed: 'This order is already delivered and confirmed!',
-        confirmShippingPrompt: 'Confirm this order and send it for delivery? (Profits will only be counted after final delivery).',
+        confirmShippingPrompt: 'Confirm this order, send for delivery, and print the shipping receipt (with QR Code)?',
         orderShippingAlert: 'Order marked as "Out for Delivery" 🚚.',
         confirmDeliverPrompt: 'Did the customer receive the order? Stock will now be deducted and net profit recorded.',
         orderConfirmedAlert: 'Order delivered, stock deducted, and net profit calculated! 💰✅',
@@ -124,7 +143,24 @@ const dashLangTexts = {
         catUpdated: 'Category updated successfully!',
         selectCatOption: 'Select Category...',
         shownOnHome: 'Shown on Home ✅',
-        hiddenFromHome: 'Category Only 🚫'
+        hiddenFromHome: 'Category Only 🚫',
+        // Receipt Texts
+        recSubtitle: 'Shipping Waybill & Order Receipt',
+        recOrderNo: 'Order ID:',
+        recDate: 'Date:',
+        recClientName: '👤 Customer Name:',
+        recPhone: '📞 Phone Number:',
+        recLocation: '📍 Location (Wilaya & City):',
+        recDeliveryType: '🚚 Delivery Method:',
+        recAddress: '🏠 Detailed Address:',
+        recHomeDelivery: '🏠 Home Delivery (Doorstep)',
+        recDeskDelivery: '🏢 Stop-Desk / Office Delivery',
+        recOrderedItems: '📦 Ordered Products & Quantity',
+        recTotalToCollect: 'Total Amount to Collect:',
+        recCodNote: '💵 Cash on Delivery (Hand-to-Hand)',
+        recScanQr: 'Scan QR for Order Details',
+        recPrintNowBtn: '🖨️ Print Receipt / Save PDF',
+        recCloseBtn: '✖ Close'
     },
     fr: {
         mustLogin: 'Vous devez vous connecter en tant qu\'administrateur pour accéder au tableau de bord !',
@@ -144,6 +180,7 @@ const dashLangTexts = {
         deleteBtn: 'Supprimer 🗑️',
         editBtn: 'Modifier ✏️',
         confirmBtn: '📞 Confirmer l\'envoi',
+        printWaybillBtn: '🖨️ Imprimer Bon',
         deliverBtn: '💰 Livrée (Calculer gain)',
         cancelOrderBtn: '↩ Annuler',
         confirmedText: 'Livrée ✓',
@@ -157,7 +194,7 @@ const dashLangTexts = {
         itemsCountWord: 'Nombre d\'articles : ',
         newOrderWord: 'Nouvelle commande',
         alreadyConfirmed: 'Cette commande est déjà livrée et confirmée !',
-        confirmShippingPrompt: 'Confirmer l\'envoi de cette commande ? (Le bénéfice ne sera calculé qu\'après la livraison finale).',
+        confirmShippingPrompt: 'Confirmer l\'envoi de cette commande et imprimer le bon de livraison (avec QR Code) ?',
         orderShippingAlert: 'Commande marquée "En livraison" 🚚.',
         confirmDeliverPrompt: 'Le client a-t-il reçu la commande ? Le stock sera déduit et le bénéfice net calculé.',
         orderConfirmedAlert: 'Commande livrée, stock déduit et bénéfice calculé ! 💰✅',
@@ -187,7 +224,24 @@ const dashLangTexts = {
         catUpdated: 'Catégorie mise à jour avec succès !',
         selectCatOption: 'Choisir une catégorie...',
         shownOnHome: 'Sur l\'accueil ✅',
-        hiddenFromHome: 'Catégorie seule 🚫'
+        hiddenFromHome: 'Catégorie seule 🚫',
+        // Receipt Texts
+        recSubtitle: 'Bon de Livraison / Expédition',
+        recOrderNo: 'N° Commande :',
+        recDate: 'Date :',
+        recClientName: '👤 Nom et Prénom :',
+        recPhone: '📞 Téléphone :',
+        recLocation: '📍 Lieu (Wilaya et Commune) :',
+        recDeliveryType: '🚚 Mode de livraison :',
+        recAddress: '🏠 Adresse détaillée :',
+        recHomeDelivery: '🏠 Livraison à domicile',
+        recDeskDelivery: '🏢 Livraison au bureau (Stop-Desk)',
+        recOrderedItems: '📦 Produits commandés et Quantité',
+        recTotalToCollect: 'Montant Total à payer :',
+        recCodNote: '💵 Paiement en espèces à la livraison (Main à main)',
+        recScanQr: 'Scannez le QR pour les détails',
+        recPrintNowBtn: '🖨️ Imprimer le bon / PDF',
+        recCloseBtn: '✖ Fermer'
     }
 };
 
@@ -289,6 +343,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         return;
     }
 
+    ensureDashboardReceiptModal();
     await ensureDefaultCategories();
     await ensureDefaultShippingData();
     await loadHeroImagePreview();
@@ -298,6 +353,18 @@ document.addEventListener('DOMContentLoaded', async function () {
     await renderDashboardStats();
     await renderDashboardAdmins();
     await renderDashboardShipping();
+
+    const langSelect = document.getElementById('languageSelector');
+    if (langSelect) {
+        langSelect.addEventListener('change', async function () {
+            await renderDashboardCategories();
+            await renderDashboardProducts();
+            await renderDashboardOrders();
+            await renderDashboardStats();
+            await renderDashboardAdmins();
+            await renderDashboardShipping();
+        });
+    }
 
     const heroFileInput = document.getElementById('heroImageFile');
     const heroPreview = document.getElementById('currentHeroPreview');
@@ -367,7 +434,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 show_on_home: showOnHome
             };
 
-            const { data, error } = await supabaseClient
+            const { error } = await supabaseClient
                 .from('products')
                 .insert([newProduct]);
 
@@ -1202,7 +1269,7 @@ async function toggleProductHome(productId, currentState) {
     await renderDashboardProducts();
 }
 
-// عرض جدول طلبات الزبائن بنظام المراحل الأربع (قيد التجهيز -> قيد التوصيل -> تم الاستلام أو ملغاة)
+// عرض جدول طلبات الزبائن بنظام المراحل الأربع + زر طباعة وصل التوصيل (مع QR Code)
 async function renderDashboardOrders() {
     const tableBody = document.getElementById('dashOrdersTable');
     const ordersBadge = document.getElementById('ordersBadge');
@@ -1235,7 +1302,7 @@ async function renderDashboardOrders() {
         if (itemsList.length > 0) {
             itemsList.forEach(function (orderItem) {
                 let product = products ? products.find(function (p) { return p.id === orderItem.id; }) : null;
-                let productTitle = product ? product.title : t.deletedProd;
+                let productTitle = orderItem.title || (product ? product.title : t.deletedProd);
                 itemsDetailsHTML += '<div style="margin-bottom: 4px; font-size: 0.85rem;">• ' + productTitle + ' (' + t.qtyWord + '<strong style="color: #2563eb;">' + orderItem.qty + '</strong>)</div>';
             });
         } else {
@@ -1251,10 +1318,10 @@ async function renderDashboardOrders() {
 
         if (isDelivered) {
             statusBadgeHTML = '<span class="status-badge status-completed" style="background:#dcfce7; color:#15803d; padding:4px 10px; border-radius:6px; font-weight:bold;">' + t.statusConfirmed + '</span>';
-            actionButtons += '<span style="color: #16a34a; font-weight: bold; font-size: 0.85rem; margin: 0 6px;">' + t.confirmedText + '</span>';
+            actionButtons += '<span style="color: #16a34a; font-weight: bold; font-size: 0.85rem; margin: 0 4px;">' + t.confirmedText + '</span>';
         } else if (isCancelled) {
             statusBadgeHTML = '<span class="status-badge" style="background:#fee2e2; color:#dc2626; padding:4px 10px; border-radius:6px; font-weight:bold;">' + t.statusCancelled + '</span>';
-            actionButtons += '<span style="color: #dc2626; font-weight: bold; font-size: 0.85rem; margin: 0 6px;">' + t.cancelledText + '</span>';
+            actionButtons += '<span style="color: #dc2626; font-weight: bold; font-size: 0.85rem; margin: 0 4px;">' + t.cancelledText + '</span>';
         } else if (isShipping) {
             statusBadgeHTML = '<span class="status-badge" style="background:#dbeafe; color:#1d4ed8; padding:4px 10px; border-radius:6px; font-weight:bold;">' + t.statusShipping + '</span>';
             actionButtons += '<button class="btn btn-sm" onclick="deliverOrderFinal(\'' + order.order_id + '\')" style="background: #16a34a; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.78rem;">' + t.deliverBtn + '</button>';
@@ -1265,6 +1332,8 @@ async function renderDashboardOrders() {
             actionButtons += '<button class="btn btn-sm" onclick="cancelCustomerOrder(\'' + order.order_id + '\')" style="background: #ef4444; color: #fff; border: none; padding: 5px 8px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.78rem;">✖</button>';
         }
 
+        // زر طباعة الوصل والـ QR Code متاح دائماً لكل طلبية
+        actionButtons += '<button type="button" class="btn btn-sm" onclick="printOrderWaybill(\'' + order.order_id + '\')" style="background: #0f172a; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.78rem;">' + t.printWaybillBtn + '</button>';
         actionButtons += '<button class="btn-delete" onclick="deleteOrder(\'' + order.order_id + '\')" title="حذف السجل">' + t.deleteBtn + '</button>';
 
         let orderDateTimeStr = order.full_date_time || '';
@@ -1289,7 +1358,7 @@ async function renderDashboardOrders() {
     });
 }
 
-// المرحلة 1 -> 2: إرسال الطلبية للتوصيل (بدون احتساب أرباح بعد)
+// المرحلة 1 -> 2: تأكيد وإرسال الطلبية للتوصيل + فتح ورقة الطباعة مع الـ QR Code فوراً!
 async function shipOrderInitial(orderId) {
     const t = getDashLang();
     if (!confirm(t.confirmShippingPrompt)) return;
@@ -1304,9 +1373,11 @@ async function shipOrderInitial(orderId) {
         return;
     }
 
-    alert(t.orderShippingAlert);
     await renderDashboardOrders();
     await renderDashboardStats();
+
+    // فتح ورقة الطباعة (بوليصة الشحن + QR Code) مباشرة!
+    await printOrderWaybill(orderId);
 }
 
 // المرحلة 2 -> 3: تأكيد الاستلام النهائي (هنا تُخصم الكمية وتُحسب الأرباح)
@@ -1623,4 +1694,375 @@ async function deleteAdmin(adminIdOrEmail) {
 function logoutAdmin() {
     localStorage.removeItem('currentAdmin');
     window.location.href = 'login.html';
+}
+
+// =========================================================================
+// نظام طباعة ورقة الشحن والتوصيل (Bon de Livraison + QR Code) من لوحة التحكم
+// =========================================================================
+
+function ensureDashboardReceiptModal() {
+    if (document.getElementById('dashReceiptModal')) return;
+
+    // إضافة تنسيقات الورقة والطباعة تلقائياً
+    const styleEl = document.createElement('style');
+    styleEl.innerHTML = `
+        .receipt-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.78);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        .receipt-modal-box {
+            background: #ffffff;
+            width: 100%;
+            max-width: 680px;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-height: 94vh;
+            overflow-y: auto;
+        }
+        .printable-receipt {
+            border: 2px dashed #334155;
+            border-radius: 12px;
+            padding: 22px;
+            background: #ffffff;
+            color: #0f172a;
+        }
+        .receipt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 14px;
+            margin-bottom: 16px;
+        }
+        .receipt-brand h2 {
+            margin: 0;
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .receipt-brand h2 span { color: #2563eb; }
+        .receipt-brand p {
+            margin: 4px 0 0;
+            font-size: 0.9rem;
+            color: #475569;
+            font-weight: 700;
+        }
+        .receipt-meta {
+            font-size: 0.92rem;
+            line-height: 1.7;
+            color: #1e293b;
+        }
+        .receipt-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            margin-bottom: 18px;
+        }
+        .receipt-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 0.95rem;
+        }
+        .receipt-info-item.full-width {
+            grid-column: 1 / -1;
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 10px;
+        }
+        .receipt-info-item .info-label {
+            color: #64748b;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+        .delivery-badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 10px;
+            border-radius: 6px;
+            width: fit-content;
+            font-size: 0.9rem;
+        }
+        .receipt-items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 18px;
+            border: 1px solid #cbd5e1;
+        }
+        .receipt-items-table th {
+            background: #f1f5f9;
+            padding: 10px 12px;
+            text-align: start;
+            border-bottom: 2px solid #cbd5e1;
+            font-size: 0.92rem;
+        }
+        .receipt-items-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.95rem;
+        }
+        .receipt-footer-grid {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 10px;
+            border: 2px solid #cbd5e1;
+        }
+        .receipt-totals-box { flex: 1; min-width: 220px; }
+        .receipt-qr-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #ffffff;
+            padding: 10px;
+            border: 1px solid #94a3b8;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .receipt-qr-box small {
+            font-size: 0.75rem;
+            color: #475569;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+        .receipt-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 18px;
+        }
+        @media screen and (max-width: 600px) {
+            .receipt-info-grid { grid-template-columns: 1fr; }
+            .receipt-footer-grid { flex-direction: column; text-align: center; }
+            .receipt-actions { flex-direction: column; }
+        }
+        @media print {
+            body * { visibility: hidden !important; }
+            #dashReceiptModal, #dashReceiptModal * { visibility: visible !important; }
+            #dashReceiptModal {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                background: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .receipt-modal-box {
+                box-shadow: none !important;
+                max-width: 100% !important;
+                max-height: none !important;
+                padding: 0 !important;
+            }
+            .no-print { display: none !important; }
+        }
+    `;
+    document.head.appendChild(styleEl);
+
+    const modalHTML = `
+    <div id="dashReceiptModal" class="receipt-modal-overlay" style="display: none;">
+        <div class="receipt-modal-box">
+            <div id="dashPrintableArea" class="printable-receipt">
+                <div class="receipt-header">
+                    <div class="receipt-brand">
+                        <h2>Shop<span>Dz</span></h2>
+                        <p id="lblRecSubtitle">بوليصة الشحن والتوصيل - Bon de Livraison</p>
+                    </div>
+                    <div class="receipt-meta">
+                        <div><strong id="lblRecOrderNo">رقم الطلبية:</strong> <span id="dashRecOrderNo" style="font-weight: 800; color: #2563eb;">#0000</span></div>
+                        <div><strong id="lblRecDate">التاريخ:</strong> <span id="dashRecDate">--/--/----</span></div>
+                    </div>
+                </div>
+
+                <div class="receipt-info-grid">
+                    <div class="receipt-info-item">
+                        <span class="info-label" id="lblRecClientName">👤 الاسم واللقب:</span>
+                        <strong id="dashRecClientName" style="font-size: 1.05rem;">---</strong>
+                    </div>
+                    <div class="receipt-info-item">
+                        <span class="info-label" id="lblRecPhone">📞 رقم الهاتف:</span>
+                        <strong id="dashRecPhone" style="direction: ltr; display: inline-block; font-size: 1.05rem;">---</strong>
+                    </div>
+                    <div class="receipt-info-item">
+                        <span class="info-label" id="lblRecLocation">📍 المكان (الولاية والبلدية):</span>
+                        <strong id="dashRecLocation">---</strong>
+                    </div>
+                    <div class="receipt-info-item">
+                        <span class="info-label" id="lblRecDeliveryType">🚚 طريقة التوصيل:</span>
+                        <strong id="dashRecDeliveryType" class="delivery-badge">---</strong>
+                    </div>
+                    <div class="receipt-info-item full-width">
+                        <span class="info-label" id="lblRecAddress">🏠 العنوان التفصيلي:</span>
+                        <strong id="dashRecAddress">---</strong>
+                    </div>
+                </div>
+
+                <table class="receipt-items-table">
+                    <thead>
+                        <tr>
+                            <th id="lblRecOrderedItems">📦 المنتجات المطلوبة والكمية</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashRecItemsBody"></tbody>
+                </table>
+
+                <div class="receipt-footer-grid">
+                    <div class="receipt-totals-box">
+                        <div style="font-size: 0.95rem; color: #475569; font-weight: 700; margin-bottom: 4px;" id="lblRecTotalToCollect">المبلغ الإجمالي للتحصيل:</div>
+                        <div id="dashRecTotal" style="font-size: 1.65rem; font-weight: 800; color: #15803d;">0 د.ج</div>
+                        <div style="font-size: 0.85rem; color: #334155; margin-top: 8px; font-weight: 700;" id="lblRecCodNote">💵 الدفع نقداً عند الاستلام (Hand-to-Hand)</div>
+                    </div>
+
+                    <div class="receipt-qr-box">
+                        <img id="dashRecQrImg" src="" alt="QR Code" width="135" height="135">
+                        <small id="lblRecScanQr">امسح الرمز لمعلومات الطلبية</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="receipt-actions no-print">
+                <button type="button" class="btn btn-primary" onclick="window.print()" style="flex: 2; padding: 12px; font-weight: 800; font-size: 1rem; cursor: pointer;" id="btnRecPrintNow">
+                    🖨️ طباعة الورقة / حفظ PDF
+                </button>
+                <button type="button" class="btn btn-cancel" onclick="closeDashReceiptModal()" style="flex: 1; padding: 12px; font-weight: 700; font-size: 1rem; cursor: pointer;" id="btnRecClose">
+                    ✖ إغلاق
+                </button>
+            </div>
+        </div>
+    </div>`;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closeDashReceiptModal() {
+    const modal = document.getElementById('dashReceiptModal');
+    if (modal) modal.style.display = 'none';
+}
+
+async function printOrderWaybill(orderId) {
+    ensureDashboardReceiptModal();
+    const t = getDashLang();
+
+    const { data: orders, error } = await supabaseClient
+        .from('orders')
+        .select('*')
+        .eq('order_id', orderId);
+
+    const { data: products } = await supabaseClient.from('products').select('*');
+
+    if (error || !orders || orders.length === 0) {
+        alert('تعذر العثور على بيانات هذه الطلبية للطباعة.');
+        return;
+    }
+
+    const order = orders[0];
+    const client = order.client_data || {};
+
+    // تحديث عناوين النافذة حسب اللغة الحالية
+    document.getElementById('lblRecSubtitle').textContent = t.recSubtitle;
+    document.getElementById('lblRecOrderNo').textContent = t.recOrderNo;
+    document.getElementById('lblRecDate').textContent = t.recDate;
+    document.getElementById('lblRecClientName').textContent = t.recClientName;
+    document.getElementById('lblRecPhone').textContent = t.recPhone;
+    document.getElementById('lblRecLocation').textContent = t.recLocation;
+    document.getElementById('lblRecDeliveryType').textContent = t.recDeliveryType;
+    document.getElementById('lblRecAddress').textContent = t.recAddress;
+    document.getElementById('lblRecOrderedItems').textContent = t.recOrderedItems;
+    document.getElementById('lblRecTotalToCollect').textContent = t.recTotalToCollect;
+    document.getElementById('lblRecCodNote').textContent = t.recCodNote;
+    document.getElementById('lblRecScanQr').textContent = t.recScanQr;
+    document.getElementById('btnRecPrintNow').textContent = t.recPrintNowBtn;
+    document.getElementById('btnRecClose').textContent = t.recCloseBtn;
+
+    const orderIdText = order.order_id || '#0000';
+    const orderDateText = order.full_date_time || new Date().toLocaleString();
+    const clientName = client.name || '---';
+    const clientPhone = client.phone || '---';
+    const wilaya = client.state || '';
+    const baladiya = client.baladiya || '';
+    const locationStr = (wilaya && baladiya) ? (wilaya + ' - ' + baladiya) : (wilaya || baladiya || '---');
+    const addressStr = client.address || '---';
+
+    // تحديد نوع التوصيل (منزل أو مركز/مكتب)
+    const rawDeliv = String(client.deliveryType || '').toLowerCase();
+    let isDesk = rawDeliv.indexOf('مكتب') !== -1 || rawDeliv.indexOf('مركز') !== -1 || rawDeliv.indexOf('desk') !== -1 || rawDeliv.indexOf('bureau') !== -1;
+    const deliveryDisplay = isDesk ? t.recDeskDelivery : t.recHomeDelivery;
+    const deliveryQrText = isDesk ? 'Stop-Desk (Office)' : 'Home Delivery';
+
+    // تجهيز المنتجات المطلوبة
+    let itemsList = order.items || [];
+    if (typeof itemsList === 'string') {
+        try { itemsList = JSON.parse(itemsList); } catch (e) { itemsList = []; }
+    }
+
+    let itemsRowsHTML = '';
+    let qrItemsSummary = [];
+
+    if (Array.isArray(itemsList) && itemsList.length > 0) {
+        itemsList.forEach(function (item) {
+            let prod = products ? products.find(function (p) { return p.id === item.id; }) : null;
+            let prodTitle = item.title || (prod ? prod.title : t.deletedProd);
+            let qty = item.qty || 1;
+            itemsRowsHTML += '<tr><td><strong>• ' + prodTitle + '</strong> <span style="color: #2563eb; font-weight: 800; margin-inline-start: 8px;">(' + t.qtyWord + qty + ')</span></td></tr>';
+            qrItemsSummary.push(prodTitle + ' x' + qty);
+        });
+    } else {
+        itemsRowsHTML = '<tr><td><strong>• ' + (order.order_title || t.newOrderWord) + '</strong></td></tr>';
+        qrItemsSummary.push(order.order_title || 'Order');
+    }
+
+    const totalFormatted = order.total_amount + t.currency;
+
+    // تعبئة البيانات في الورقة
+    document.getElementById('dashRecOrderNo').textContent = orderIdText;
+    document.getElementById('dashRecDate').textContent = orderDateText;
+    document.getElementById('dashRecClientName').textContent = clientName;
+    document.getElementById('dashRecPhone').textContent = clientPhone;
+    document.getElementById('dashRecLocation').textContent = locationStr;
+    document.getElementById('dashRecDeliveryType').textContent = deliveryDisplay;
+    document.getElementById('dashRecAddress').textContent = addressStr;
+    document.getElementById('dashRecItemsBody').innerHTML = itemsRowsHTML;
+    document.getElementById('dashRecTotal').textContent = totalFormatted;
+
+    // بناء محتوى الـ QR Code الشامل
+    const qrDataText = [
+        'ShopDz - ' + orderIdText,
+        'Name: ' + clientName,
+        'Tel: ' + clientPhone,
+        'Location: ' + locationStr,
+        'Address: ' + addressStr,
+        'Delivery: ' + deliveryQrText,
+        'Items: ' + qrItemsSummary.join(' | '),
+        'Total: ' + order.total_amount + ' DZD'
+    ].join('\n');
+
+    const qrImg = document.getElementById('dashRecQrImg');
+    qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=4&data=' + encodeURIComponent(qrDataText);
+
+    // عرض النافذة وتشغيل أمر الطباعة فور تحميل صورة الـ QR
+    const modal = document.getElementById('dashReceiptModal');
+    modal.style.display = 'flex';
+
+    qrImg.onload = function () {
+        setTimeout(function () {
+            window.print();
+        }, 300);
+    };
 }

@@ -2393,3 +2393,32 @@ html[dir="rtl"] .product-detail-info {
     .receipt-modal-box { box-shadow: none !important; max-width: 100% !important; padding: 0 !important; }
     .no-print { display: none !important; }
 }
+/* 6. صفحة تفاصيل المنتج (Product Detail) وتسجيل الدخول على الهاتف */
+    .product-detail-grid,
+    .product-detail-container,
+    .product-details-layout {
+        grid-template-columns: 1fr !important;
+        flex-direction: column !important;
+        gap: 20px !important;
+    }
+
+    .product-gallery,
+    .product-info-box,
+    .product-detail-info {
+        width: 100% !important;
+    }
+
+    .login-card,
+    .auth-card,
+    .login-container {
+        width: 100% !important;
+        max-width: 95% !important;
+        padding: 20px 15px !important;
+        margin: 20px auto !important;
+    }
+
+    /* منع خروج أي عنصر عن حدود شاشة الهاتف */
+    html, body {
+        overflow-x: hidden;
+        width: 100%;
+    }
